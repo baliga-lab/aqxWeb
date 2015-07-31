@@ -36,28 +36,28 @@
 
     <div class="system-overview">
       <div class="clearfix">
-      <div id="system-sel">Aquaponics System 1</div>
+      <div id="system-sel">{{system_name}}</div>
 
       <div class="swatch-panel swatch-ok" style="margin-left: 2%">
         <div class="swatch-title">Temperature</div>
-        <div class="swatch-display">24.3&deg;C</div>
+        <div class="swatch-display">{{'%.02f' % temperature}}&deg;C</div>
       </div>
       <div class="swatch-panel swatch-ok">
         <div class="swatch-title">pH</div>
-        <div class="swatch-display">6.4</div>
+        <div class="swatch-display">{{'%.02f' % ph}}</div>
       </div>
-      <div class="swatch-panel swatch-meh">
+      <div class="swatch-panel swatch-bad">
         <div class="swatch-title">O<sub>2</sub></div>
-        <div class="swatch-display">10.4 mg/l</div>
+        <div class="swatch-display">- mg/l</div>
       </div>
 
-      <div class="swatch-panel swatch-bad">
+      <div class="swatch-panel swatch-meh">
         <div class="swatch-title">Nitrate</div>
-        <div class="swatch-display">30.23 mg/l</div>
+        <div class="swatch-display">{{'%.02f' % nitrate}} mg/l</div>
       </div>
       <div class="swatch-panel swatch-ok">
         <div class="swatch-title">Ammonium</div>
-        <div class="swatch-display">0.2 mg/l</div>
+        <div class="swatch-display">{{'%.02f' % ammonium}} mg/l</div>
       </div>
       </div>
     </div> <!-- system-overview -->

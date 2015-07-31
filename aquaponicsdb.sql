@@ -1,6 +1,6 @@
 /* Users and Aquaponics systems */
 create table if not exists users (id integer primary key not null auto_increment, username varchar(200) not null);
-create table if not exists systems (id integer primary key not null auto_increment, name varchar(200) not null);
+create table if not exists systems (id integer primary key not null auto_increment, user_id integer not null references users, name varchar(200) not null);
 
 /* Meeasurement data */
 create table if not exists submissions (id integer primary key not null auto_increment, system_id integer not null references systems, time timestamp not null);

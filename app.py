@@ -85,12 +85,27 @@ def dashboard():
         return redirect(url_for('.index'))
     else:
         user = session['user']
-        app.logger.debug("logged in: %s", session['logged_in'])
+        conn = dbconn()
+        cursor = conn.cursor()
+        try:
+            cursor.execute('select s.id,s.name from systems s join users u on s.user_id=u.id where username=%s',
+                           [user])
+            system_id, system_name = cursor.fetchone()
+            cursor.execute("select time,temperature,ph,ammonium,nitrate,oxygen from measurements where system_id=%s order by time desc limit 1",
+                           [system_id])
+            row = cursor.fetchone()
+            if row is not None:
+                time, temperature, ph, ammonium, nitrate, oxygen = row
+                logging.debug("temperature: %s", str(temperature))
+            else:
+                logging.error('query failed')
+        finally:
+            cursor.close()
+            conn.close()
         app.logger.debug("we are currently logged in as: %s", user)
 
         # TODO: filter using the system id
-        query = "select time,temperature,ph,ammonium,nitrate,oxygen from measurements order by time desc limit 1";
-        return render_template('dashboard.html')
+        return render_template('dashboard.html', **locals())
 
 @app.route('/upload_run', methods=['POST'])
 def upload_run():

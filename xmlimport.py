@@ -5,14 +5,15 @@ from datetime import datetime
 from xml.dom import minidom
 
 
-def insert_measurements(cursor, dataset):
+def insert_measurements(system_id, submission_id, cursor, dataset):
     """
     Keys: Nitrate, pH, Ammonium, Temperature, Time
     """
     timepoints = dataset['Time']['values']
     for i, timepoint in enumerate(timepoints):
-        cursor.execute('insert into measurements (time,temperature,ph,ammonium,nitrate) values (%s,%s,%s,%s,%s)',
-                               [timepoint,
+        cursor.execute('insert into measurements (system_id,submission_id,time,temperature,ph,ammonium,nitrate) values (%s,%s,%s,%s,%s,%s,%s)',
+                               [system_id, submission_id,
+                                timepoint,
                                 dataset['Temperature']['values'][i],
                                 dataset['pH']['values'][i],
                                 dataset['Ammonium']['values'][i],
@@ -58,7 +59,7 @@ def process_doc(system_id, cursor, data):
             if num_values != num_timepoints:
                 raise Exception("# values for %s = %d, != %d" % (key, num_values, num_timepoints))
 
-        insert_measurements(cursor, dataset)
+        insert_measurements(system_id, submission_id, cursor, dataset)
 
 
 if __name__ == '__main__':

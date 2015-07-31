@@ -4,6 +4,9 @@ import flask
 import requests
 import logging
 
+"""This is the prototype web application for our Aquaponics site.
+We might consider later splitting stuff up into Flask Blueprints
+"""
 APP_ID = '75692667349-39hlipha81a3v40du06184k75ajl8u4u.apps.googleusercontent.com'
 
 
@@ -31,6 +34,7 @@ def signin():
         imgurl = context['picture']
         session['user'] = user
         session['imgurl'] = imgurl
+        session['logged_in'] = True
         app.logger.debug("user: %s img: %s", user, imgurl)
         return Response("ok", mimetype='text/plain')
     except:
@@ -38,16 +42,24 @@ def signin():
         
 @app.route('/signout')
 def signout():
+    # TODO: note that we might want to look into more sophisticated invalidation
+    # in the future to prevent session replay attacks
+    # see:
+    # - http://stackoverflow.com/questions/13735024/invalidate-an-old-session-in-flask
+    # - https://en.wikipedia.org/wiki/Replay_attack
     session.clear()
-    app.logger.debug('signed out on server')
     return Response('ok', mimetype='text/plain')
 
     
 @app.route('/home')
 def dashboard():
-    user = session['user']
-    app.logger.debug("we are currently logged in as: %s", user)
-    return render_template('dashboard.html')
+    if 'logged_in' not in session or  not session['logged_in']:
+        return redirect(url_for('.index'))
+    else:
+        user = session['user']
+        app.logger.debug("logged in: %s", session['logged_in'])
+        app.logger.debug("we are currently logged in as: %s", user)
+        return render_template('dashboard.html')
 
 if __name__ == '__main__':
     handler = logging.StreamHandler()

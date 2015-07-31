@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="google-signin-client_id" content="75692667349-39hlipha81a3v40du06184k75ajl8u4u.apps.googleusercontent.com">
+    <title>Institute for Systems Biology Aquaponics</title>
+    <link rel="stylesheet" href="static/css/main.css" media="all"></link>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script>
+      function onSignIn(googleUser) {
+        var profile = googleUser.getBasicProfile();
+        console.log('ID: ' + profile.getId());
+        console.log('Name: ' + profile.getName());
+        console.log('Image URL: ' + profile.getImageUrl());
+        console.log('Email: ' + profile.getEmail());
+
+        // This is what should be sent to the server
+        var idtoken = googleUser.getAuthResponse().id_token;
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/signin');
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onload = function() {
+          if (xhr.responseText === 'ok') {
+            console.log('Signed in !');
+            window.location = '/home';
+          } else {
+            console.log('Error logging in');
+          }
+        };
+        xhr.send('idtoken=' + idtoken);
+      }
+      function signOut() {
+        var auth2 = gapi.auth2.getAuthInstance();
+        auth2.signOut().then(function() {
+          console.log('user signed out.');
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <div id="header">
+      <img src="/static/images/ISB_logo2012color.png" style="height: 65px"></img>
+      <div style="float:right;">
+        <div class="g-signin2" data-onsuccess="onSignIn"></div>
+        <a href="#" onclick="signOut();">Sign out</a>
+      </div>
+      <div style="clear: both;"></div>
+    </div>
+
+    <hr></hr>
+    <div id="footer">
+      <a href="">Android</a>
+    </div>
+
+  </body>
+</html>

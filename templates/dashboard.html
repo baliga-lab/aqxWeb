@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="google-signin-client_id" content="75692667349-39hlipha81a3v40du06184k75ajl8u4u.apps.googleusercontent.com">
+    <title>Institute for Systems Biology Aquaponics</title>
+    <link rel="stylesheet" href="static/css/main.css" media="all"></link>
+    <script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
+    <script>
+      // we need this function if signin and signout are not on the same page
+      function onLoad() {
+        gapi.load('auth2', function () { gapi.auth2.init(); });
+      }
+      function signOut() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/signout');
+        xhr.onload = function() {
+          var auth2 = gapi.auth2.getAuthInstance();
+          auth2.signOut().then(function() {
+            console.log('user signed out.');
+            window.location = '/';
+          });
+        }
+        xhr.send(null);
+      }
+    </script>
+  </head>
+  <body>
+    <div id="header">
+      <div style="float: right;">
+        <img src="/static/images/ISB_logo2012color.png" style="height: 65px"></img> <a href="#" onclick="signOut();">Sign out</a>
+      </div>
+      <div style="clear: both;"></div>
+    </div>
+
+    <div class="system-overview">
+      <div class="clearfix">
+      <div id="system-sel">Aquaponics System 1</div>
+
+      <div class="swatch-panel swatch-ok" style="margin-left: 2%">
+        <div class="swatch-title">Temperature</div>
+        <div class="swatch-display">24.3&deg;C</div>
+      </div>
+      <div class="swatch-panel swatch-ok">
+        <div class="swatch-title">pH</div>
+        <div class="swatch-display">6.4</div>
+      </div>
+      <div class="swatch-panel swatch-meh">
+        <div class="swatch-title">O<sub>2</sub></div>
+        <div class="swatch-display">10.4 mg/l</div>
+      </div>
+
+      <div class="swatch-panel swatch-bad">
+        <div class="swatch-title">Nitrate</div>
+        <div class="swatch-display">30.23 mg/l</div>
+      </div>
+      <div class="swatch-panel swatch-ok">
+        <div class="swatch-title">Ammonium</div>
+        <div class="swatch-display">0.2 mg/l</div>
+      </div>
+      </div>
+    </div> <!-- system-overview -->
+
+    <div class="system-overview">
+      <div class="clearfix">
+      <div id="system-sel">Aquaponics System 2</div>
+
+      <div class="swatch-panel swatch-ok" style="margin-left: 2%">
+        <div class="swatch-title">Temperature</div>
+        <div class="swatch-display">24.3&deg;C</div>
+      </div>
+      <div class="swatch-panel swatch-ok">
+        <div class="swatch-title">pH</div>
+        <div class="swatch-display">6.4</div>
+      </div>
+      <div class="swatch-panel swatch-meh">
+        <div class="swatch-title">O<sub>2</sub></div>
+        <div class="swatch-display">10.4 mg/l</div>
+      </div>
+
+      <div class="swatch-panel swatch-bad">
+        <div class="swatch-title">Nitrate</div>
+        <div class="swatch-display">30.23 mg/l</div>
+      </div>
+      <div class="swatch-panel swatch-ok">
+        <div class="swatch-title">Ammonium</div>
+        <div class="swatch-display">0.2 mg/l</div>
+      </div>
+      </div>
+    </div> <!-- system-overview -->
+
+    <div>
+      <a href="">Create New System...</a>
+    </div>
+    <hr></hr>
+    <div id="footer">
+      <a href="">Android</a>
+    </div>
+
+  </body>
+</html>

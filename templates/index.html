@@ -25,6 +25,8 @@
             console.log('Signed in !');
             window.location = '/home';
           } else {
+            var auth2 = gapi.auth2.getAuthInstance();
+            auth2.signOut();
             console.log('Error logging in');
           }
         };
@@ -42,8 +44,11 @@
     <div id="header">
       <img src="/static/images/ISB_logo2012color.png" style="height: 65px"></img>
       <div style="float:right;">
+        {% if not session.logged_in %}
         <div class="g-signin2" data-onsuccess="onSignIn"></div>
-        <a href="#" onclick="signOut();">Sign out</a>
+        {% else %}
+        <a href="{{url_for('dashboard')}}">My Systems</a> <a href="#" onclick="signOut();">Sign out</a>
+        {% endif %}
       </div>
       <div style="clear: both;"></div>
     </div>

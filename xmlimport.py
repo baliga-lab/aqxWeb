@@ -5,14 +5,14 @@ from datetime import datetime
 from xml.dom import minidom
 
 
-def insert_num_meas2(cursor, dataset, time_db):
+def insert_measurements(cursor, dataset):
     """
     Keys: Nitrate, pH, Ammonium, Temperature, Time
     """
     timepoints = dataset['Time']['values']
     for i, timepoint in enumerate(timepoints):
-        cursor.execute('insert into measurements (taken_at,temperature,ph,ammonium,nitrate) values (%s,%s,%s,%s,%s)',
-                               [time_db[i],
+        cursor.execute('insert into measurements (time,temperature,ph,ammonium,nitrate) values (%s,%s,%s,%s,%s)',
+                               [timepoint,
                                 dataset['Temperature']['values'][i],
                                 dataset['pH']['values'][i],
                                 dataset['Ammonium']['values'][i],
@@ -52,17 +52,13 @@ def process_doc(system_id, cursor, data):
     for dataset in result:
         time_points = dataset['Time']['values']
         num_timepoints = len(time_points)
+        # check length
         for key, col in dataset.items():
             num_values = len(col['values'])
             if num_values != num_timepoints:
                 raise Exception("# values for %s = %d, != %d" % (key, num_values, num_timepoints))
-        time_db = []
-        for timepoint in time_points:
-            cursor.execute('insert into measurement_times (submission_id,time) values (%s,%s)',
-                           [submission_id, timepoint])
-            time_db.append(cursor.lastrowid)
 
-        insert_num_meas2(cursor, dataset, time_db)
+        insert_measurements(cursor, dataset)
 
 
 if __name__ == '__main__':

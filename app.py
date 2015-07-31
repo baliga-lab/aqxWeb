@@ -89,7 +89,7 @@ def dashboard():
         app.logger.debug("we are currently logged in as: %s", user)
 
         # TODO: filter using the system id
-        query = "select time,temperature,ph,ammonium,nitrate,oxygen from measurements m join measurement_times mt on m.taken_at=mt.id order by time desc limit 1";
+        query = "select time,temperature,ph,ammonium,nitrate,oxygen from measurements order by time desc limit 1";
         return render_template('dashboard.html')
 
 @app.route('/upload_run', methods=['POST'])

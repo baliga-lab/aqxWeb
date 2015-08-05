@@ -20,15 +20,20 @@ def dbconn():
     return MySQLdb.connect(host=app.config['HOST'], user=app.config['USER'],
                            passwd=app.config['PASS'], db=app.config['DB'])
 
-def get_user(user):
+
+def google_user_info(bearer_token):
+    resp = requests.get(app.config['USERINFO_URL'], headers={'Authorization': 'Bearer %s' % bearer_token})
+    return resp.json()
+
+def get_user(user_id, email):
     conn = dbconn()
     cursor = conn.cursor()
     try:
-        cursor.execute('select id from users where username=%s', [user])
+        cursor.execute('select id from users where google_id=%s', [user_id])
         row = cursor.fetchone()
         if row is None:
             # create user
-            cursor.execute('insert into users (username) values (%s)', [user])
+            cursor.execute('insert into users (google_id, email) values (%s,%s)', [user_id, email])
             result = cursor.lastrowid
             conn.commit()
         else:
@@ -49,20 +54,22 @@ def signin():
         idtoken = request.form['idtoken']
         r = requests.get('https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=' + idtoken)
         context = r.json()
+        app.logger.debug("signed in: %s", str(context))
         if context['aud'] != app.config['APP_ID']:
             app.logger.error('wrong app id: %s', context['aud'])
             raise Exception('wrong app id')
 
         # at this point, we are authenticated, now we can see whether we need to sign
         # into the system
-        user = context['email']
+        user_id = context['sub']
+        email = context['email']
         imgurl = context['picture']
-        session['user'] = user
+        session['google_id'] = user_id
+        session['email'] = email
         session['imgurl'] = imgurl
         session['logged_in'] = True
-        app.logger.debug("user: %s img: %s", user, imgurl)
-        session['user_id'] = get_user(user)
-        app.logger.debug("user: %s img: %s", user, imgurl)
+        session['user_id'] = get_user(user_id, email)
+        app.logger.debug("user: %s img: %s", user_id, imgurl)
         return Response("ok", mimetype='text/plain')
     except:
         app.logger.exception("Got an exception")
@@ -84,26 +91,28 @@ def dashboard():
     if 'logged_in' not in session or not session['logged_in']:
         return redirect(url_for('.index'))
     else:
-        user = session['user']
+        user_id = session['google_id']
         conn = dbconn()
         cursor = conn.cursor()
         try:
-            cursor.execute('select s.id,s.name from systems s join users u on s.user_id=u.id where username=%s',
-                           [user])
+            cursor.execute('select s.id,s.name from systems s join users u on s.user_id=u.id where google_id=%s',
+                           [user_id])
             system_id, system_name = cursor.fetchone()
             cursor.execute("select time,temperature,ph,ammonium,nitrate,oxygen from measurements where system_id=%s order by time desc limit 1",
                            [system_id])
             row = cursor.fetchone()
             if row is not None:
                 time, temperature, ph, ammonium, nitrate, oxygen = row
+                if oxygen is None:
+                    oxygen = 0.0
                 logging.debug("temperature: %s", str(temperature))
             else:
                 logging.error('query failed')
         finally:
             cursor.close()
             conn.close()
-        app.logger.debug("we are currently logged in as: %s", user)
 
+        app.logger.debug("we are currently logged in as: %s", user_id)
         # TODO: filter using the system id
         return render_template('dashboard.html', **locals())
 
@@ -118,6 +127,33 @@ def upload_run():
         cursor.close()
         conn.close()
     return Response("hello world", mimetype='text/plain')
+
+# This is an example for an API call that is authenticated with Google OAuth2
+# The call expects an authorization header with a Bearer token received
+# from Google OAuth2.
+@app.route('/api_test', methods=['POST', 'GET'])
+def api_test():
+    app.logger.debug("api_test() method: %s", request.method)
+    app.logger.debug("api_test() args: %s", str(request.args))
+
+    # this is the authorization code
+    auth = request.headers.get('Authorization')
+    if auth is not None:
+        auth = auth.split()
+        app.logger.debug("api_test() auth: %s", str(auth))
+        if auth[0] == 'Bearer':
+            user_info = google_user_info(auth[1])            
+            app.logger.debug(user_info)
+            if 'error' in user_info:
+                app.logger.error('error in authorization: %s', user_info['error']['message'])
+            else:
+                # retrieve user information
+                pass
+        else:
+            # error wrong authentification
+            pass
+    return Response('{"hallo": "spencer"}', mimetype='application/json')
+    
 
 @app.errorhandler(Exception)
 def unhandled_exception(e):

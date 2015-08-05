@@ -24,6 +24,12 @@ p {
     margin: 10px;
 }
 
+.footer {
+    color: #aaa;
+    font-size: 10pt;
+    margin: 10px;
+}
+
 .system-overview {
     background-color: #eee;
     /* height: 300px; */

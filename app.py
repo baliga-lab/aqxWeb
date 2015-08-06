@@ -2,6 +2,7 @@
 import sys
 import traceback as tb
 import logging
+import uuid
 
 import MySQLdb
 from flask import Flask, Response, url_for, redirect, render_template, request, session
@@ -21,9 +22,15 @@ def dbconn():
                            passwd=app.config['PASS'], db=app.config['DB'])
 
 
+def new_system_id():
+    """Generates a new system id"""
+    return uuid.uuid1().hex
+
+    
 def google_user_info(bearer_token):
     resp = requests.get(app.config['USERINFO_URL'], headers={'Authorization': 'Bearer %s' % bearer_token})
     return resp.json()
+
 
 def get_user(user_id, email):
     conn = dbconn()
@@ -41,6 +48,44 @@ def get_user(user_id, email):
         return result
     finally:
         conn.close()
+
+
+def authorize(func):
+    """authorization wrapper"""
+    def func_wrapper(*args, **kwargs):
+        auth = request.headers.get('Authorization')
+        if auth is not None:
+            auth = auth.split()
+            app.logger.debug("@authorize auth: %s", str(auth))
+            if auth[0] == 'Bearer':
+                user_info = google_user_info(auth[1])            
+                app.logger.debug(user_info)
+                if 'error' in user_info:
+                    app.logger.error('error in authorization: %s', user_info['error']['message'])
+                else:
+                    kwargs['user_id'] = user_info['id']
+                    app.logger.debug('@authorize(), user_id: %s', kwargs['user_id'])
+            else:
+                # error wrong authentification
+                app.logger.error('@authorize(), not a Bearer token')
+                raise Exception('authentication error')
+
+        return func(*args, **kwargs)
+    return func_wrapper
+
+######################################################################
+#### Available application paths
+######################################################################
+
+@app.errorhandler(Exception)
+def unhandled_exception(e):
+    app.logger.exception(e)
+    return render_template('unknown_error.html')
+
+
+######################################################################
+#### Browser Interface
+######################################################################
 
 @app.route('/')
 def index():
@@ -116,7 +161,12 @@ def dashboard():
         # TODO: filter using the system id
         return render_template('dashboard.html', **locals())
 
-@app.route('/upload_run', methods=['POST'])
+
+######################################################################
+#### REST API
+######################################################################
+
+@app.route('/api/v1/upload_run', methods=['POST'])
 def upload_run():
     conn = dbconn()
     cursor = conn.cursor()
@@ -131,34 +181,14 @@ def upload_run():
 # This is an example for an API call that is authenticated with Google OAuth2
 # The call expects an authorization header with a Bearer token received
 # from Google OAuth2.
-@app.route('/api_test', methods=['POST', 'GET'])
-def api_test():
-    app.logger.debug("api_test() method: %s", request.method)
-    app.logger.debug("api_test() args: %s", str(request.args))
+@app.route('/api/v1/api_test', methods=['POST', 'GET'])
+@authorize
+def api_test(*args, **kwargs):
+    app.logger.debug('api_test(), user_id: %s', kwargs['user_id'])
 
     # this is the authorization code
-    auth = request.headers.get('Authorization')
-    if auth is not None:
-        auth = auth.split()
-        app.logger.debug("api_test() auth: %s", str(auth))
-        if auth[0] == 'Bearer':
-            user_info = google_user_info(auth[1])            
-            app.logger.debug(user_info)
-            if 'error' in user_info:
-                app.logger.error('error in authorization: %s', user_info['error']['message'])
-            else:
-                # retrieve user information
-                pass
-        else:
-            # error wrong authentification
-            pass
     return Response('{"hallo": "spencer"}', mimetype='application/json')
     
-
-@app.errorhandler(Exception)
-def unhandled_exception(e):
-    app.logger.exception(e)
-    return render_template('unknown_error.html')
 
 if __name__ == '__main__':
     handler = logging.StreamHandler()

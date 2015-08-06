@@ -1,0 +1,98 @@
+* Design Concepts
+
+** General
+
+*** Values to measure
+
+  - in mg/l
+    - nitrate ~13-80
+    - ammonium ~0.2
+    - oxygen ~10.5
+
+  - others
+    - pH ~6.5-6.7
+    - temperature: degrees celsius ~24-25
+    - light intensity: candela
+
+  -> we need to determine what critical levels are
+
+
+*** Open questions
+
+  - is it important to store a huge history ?
+  - how frequent are updates ?
+
+  -> if yes, we need a time series database !!!
+
+** Web application
+
+- initial user screen is a dashboard
+- the web application to manage user setups
+- should be as simple as possible, with assistants
+- contains the simulation
+- there is no conceptual difference between a simulated system and a real system
+- contains help for connection to Aquaponics systems
+- has API (Google OAuth2) for
+  - Aquaponics data upload
+  - mobile devices monitoring
+  - web interfaces monitoring
+- notifications: email
+
+*** TODO
+
+  - allow user to create a simple system
+  - the google login call actually can take a redirect url, integrate the redirection to dashboard ?
+  - Android access
+  - Windows access
+
+*** TODO - nice to have
+  - error handling: what happens when login fails in the backend ?
+
+** Simulation
+
+- integrated in web application
+- outputs the same values as a real system
+
+*** TODO
+
+- integrate in web app
+- update simulation
+
+** TODO - nice to have
+
+- use WebGL for the system representation
+
+** Android App
+
+- model it after the weather app:
+  1. a large widget that says last update, a touch will go into the settings
+     screen
+  2. a small widget that takes very little space, it only displays measured
+     items and the warn colors
+- notifications:
+  - Android standard
+  - Pebble
+
+    
+** iOS App
+
+- iOS 8 is the first iOS version to support something like widgets,
+  but it is in the Notification Center making it less helpful, yet
+  if we want to do it, do it there
+
+** Pebble App
+
+- for now notifications work fine
+- custom watchface would be cool
+
+* Brain Storming
+
+** Cool Ideas
+
+- determine harvest times and make recommendations to harvest
+- depending on the type of fish and plants, make recommendations
+for recipes !!!
+
+** Names ?
+
+- Aquapony (exists already, so either Aquaponnie or Aquaponny) !!!!

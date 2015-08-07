@@ -172,8 +172,8 @@ def sys_details(system_id=None):
         conn = dbconn()
         cursor = conn.cursor()
         try:
-            cursor.execute('select s.id,s.name from systems s where system_id=%s', [system_id])
-            system_pk, system_name = cursor.fetchone()
+            cursor.execute('select s.id,s.name,creation_time from systems s where system_id=%s', [system_id])
+            system_pk, system_name, creation_time = cursor.fetchone()
         finally:
             cursor.close()
             conn.close()

@@ -75,10 +75,39 @@
 
     <div class="container-fluid">
 
+      <ol class="breadcrumb">
+        <li><a href="{{url_for('dashboard')}}">Overview</a></li>
+        <li class="active">System Details</li>
+      </ol>
+
       <div class="panel panel-default">
-        <div class="panel-heading">Details for Aquaponics System "{{system_name}}" <a href="#edit" title="Edit Details"><span class="glyphicon glyphicon-pencil"></span></a></div>
+        <div class="panel-heading"><img style="height: 28px;" src="/static/images/leaf_icon.png">Details for <strong>{{system_name}}</strong> <a href="#edit" title="Edit Details"><span class="glyphicon glyphicon-pencil"></span></a></div>
         <div class="panel-body">
-          TODO: fill this
+          <dl>
+            <dt>Date Created</dt>
+            <dd>2015/08/2</dd>
+          </dl>
+          <dl>
+            <dt>Fish/Number</dt>
+            <dd>Tilapia, 6</dd>
+          </dl>
+          <dl>
+            <dt>Plants/Number</dt>
+            <dd>Bok Choy, 4</dd>
+          </dl>
+          <dl>
+            <dt>Tank Size</dt>
+            <dd>100 gallons</dd>
+          </dl>
+          <dl>
+            <dt>Grow Bed Substrate</dt>
+            <dd>Lava Stone</dd>
+          </dl>
+          <dl>
+            <dt>Fish Food Type/Amount</dt>
+            <dd>Acme Gro-Kwik Pellets, 50g/day</dd>
+          </dl>
+          <strong>TODO</strong>
         </div><!-- .panel-body -->
       </div><!-- .panel -->
     </div><!-- /.container-fluid -->

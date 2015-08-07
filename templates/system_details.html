@@ -11,6 +11,7 @@
     <!-- Bootstrap -->
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="/static/css/overrides.css" media="all"></link>
     <link rel="stylesheet" href="/static/css/main.css" media="all"></link>
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -74,42 +75,51 @@
     </nav>
 
     <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar" style="margin-bottom: 40px;">
+          <ul class="nav nav-sidebar">
+            <li class="active"><a href="#">Overview <span class="sr-only">(current)</span></a></li>
+            <li><a href="#">Analytics</a></li>
+            <li><a href="#">Import</a></li>
+          </ul>
+        </div><!-- /.col-sm-3 sidebar -->
 
-      <ol class="breadcrumb">
-        <li><a href="{{url_for('dashboard')}}">Overview</a></li>
-        <li class="active">System Details</li>
-      </ol>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
 
-      <div class="panel panel-default">
-        <div class="panel-heading"><img style="height: 28px;" src="/static/images/leaf_icon.png">Details for <strong>{{system_name}}</strong> <a href="#edit" title="Edit Details"><span class="glyphicon glyphicon-pencil"></span></a></div>
-        <div class="panel-body">
-          <dl>
-            <dt>Date Created</dt>
-            <dd>2015/08/2</dd>
-          </dl>
-          <dl>
-            <dt>Fish/Number</dt>
-            <dd>Tilapia, 6</dd>
-          </dl>
-          <dl>
-            <dt>Plants/Number</dt>
-            <dd>Bok Choy, 4</dd>
-          </dl>
-          <dl>
-            <dt>Tank Size</dt>
-            <dd>100 gallons</dd>
-          </dl>
-          <dl>
-            <dt>Grow Bed Substrate</dt>
-            <dd>Lava Stone</dd>
-          </dl>
-          <dl>
-            <dt>Fish Food Type/Amount</dt>
-            <dd>Acme Gro-Kwik Pellets, 50g/day</dd>
-          </dl>
-          <strong>TODO</strong>
-        </div><!-- .panel-body -->
-      </div><!-- .panel -->
+        <div class="panel panel-default">
+
+          <div class="panel-heading"><img style="height: 28px;" src="/static/images/leaf_icon.png">Details for <strong>{{system_name}}</strong> <a href="#edit" title="Edit Details"><span class="glyphicon glyphicon-pencil"></span></a></div>
+
+          <div class="panel-body">
+            <dl>
+              <dt>Date Created</dt>
+              <dd>2015/08/2</dd>
+            </dl>
+            <dl>
+              <dt>Fish/Number</dt>
+              <dd>Tilapia, 6</dd>
+            </dl>
+            <dl>
+              <dt>Plants/Number</dt>
+              <dd>Bok Choy, 4</dd>
+            </dl>
+            <dl>
+              <dt>Tank Size</dt>
+              <dd>100 gallons</dd>
+            </dl>
+            <dl>
+              <dt>Grow Bed Substrate</dt>
+              <dd>Lava Stone</dd>
+            </dl>
+            <dl>
+              <dt>Fish Food Type/Amount</dt>
+              <dd>Acme Gro-Kwik Pellets, 50g/day</dd>
+            </dl>
+            <strong>TODO</strong>
+          </div><!-- /.panel-body -->
+        </div><!-- /.panel -->
+        </div><!-- /.main -->
+      </div><!-- /.row -->
     </div><!-- /.container-fluid -->
 
     <footer class="footer">

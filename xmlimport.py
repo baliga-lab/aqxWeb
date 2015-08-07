@@ -5,19 +5,36 @@ from datetime import datetime
 from xml.dom import minidom
 
 
-def insert_measurements(system_id, submission_id, cursor, dataset):
+def insert_measurements(system_id, cursor, dataset):
     """
     Keys: Nitrate, pH, Ammonium, Temperature, Time
+    There are duplicate measurements, which we filter out by
+    catching the duplicate constraint exception
     """
     timepoints = dataset['Time']['values']
     for i, timepoint in enumerate(timepoints):
-        cursor.execute('insert into measurements (system_id,submission_id,time,temperature,ph,ammonium,nitrate) values (%s,%s,%s,%s,%s,%s,%s)',
-                               [system_id, submission_id,
-                                timepoint,
-                                dataset['Temperature']['values'][i],
-                                dataset['pH']['values'][i],
-                                dataset['Ammonium']['values'][i],
-                                dataset['Nitrate']['values'][i]])
+        try:
+            cursor.execute('insert into temp_measurements (system_id,time,value) values (%s,%s,%s)',
+                           [system_id, timepoint, dataset['Temperature']['values'][i]])
+        except MySQLdb.IntegrityError:
+            pass
+        try:
+            cursor.execute('insert into ph_measurements (system_id,time,value) values (%s,%s,%s)',
+                           [system_id, timepoint, dataset['pH']['values'][i]])
+        except MySQLdb.IntegrityError:
+            pass
+        try:
+            cursor.execute('insert into ammonium_measurements (system_id,time,value) values (%s,%s,%s)',
+                           [system_id, timepoint, dataset['Ammonium']['values'][i]])
+        except MySQLdb.IntegrityError:
+            pass
+
+        try:        
+            cursor.execute('insert into nitrate_measurements (system_id,time,value) values (%s,%s,%s)',
+                           [system_id, timepoint, dataset['Nitrate']['values'][i]])
+        except MySQLdb.IntegrityError:
+            pass
+
 
 def process_doc(system_id, cursor, data):
     xmldoc = minidom.parseString(data)
@@ -47,9 +64,6 @@ def process_doc(system_id, cursor, data):
             current_set[name] = {'short_name': short_name, 'unit': unit, 'values': values}
 
     # data extracted into a list of dictionaries
-    cursor.execute('insert into submissions (time,system_id) values (%s,%s)',
-                   [datetime.now(), system_id])
-    submission_id = cursor.lastrowid
     for dataset in result:
         time_points = dataset['Time']['values']
         num_timepoints = len(time_points)
@@ -59,7 +73,7 @@ def process_doc(system_id, cursor, data):
             if num_values != num_timepoints:
                 raise Exception("# values for %s = %d, != %d" % (key, num_values, num_timepoints))
 
-        insert_measurements(system_id, submission_id, cursor, dataset)
+        insert_measurements(system_id, cursor, dataset)
 
 
 if __name__ == '__main__':

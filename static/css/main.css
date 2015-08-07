@@ -1,6 +1,9 @@
-* {
-    font-family: "Open Sans", Arial, Helvetica, sans-serif;
-    margin: 0px;
+body {
+  padding-top: 60px;
+}
+
+.logo {
+    height: 32px;
 }
 
 p {
@@ -9,68 +12,55 @@ p {
     font-size: 11pt;
 }
 
-#system-sel {
-    font-family: Montserrat, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    color: rgb(0, 70, 127);
-    font-size: 14pt;
-    font-weight: bold;
-    padding-top: 10px;
-    margin-bottom: 5px;
-    margin-left: 10px;
-    height: 40px;
-}
-
-#header {
-    margin: 10px;
+.navlink {
+    font-size: 10pt;
+    padding-left: 1.5em;
 }
 
 .footer {
-    color: #aaa;
-    font-size: 10pt;
-    margin: 10px;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 60px;
+  background-color: #f5f5f5;
 }
 
-.system-overview {
-    background-color: #eee;
-    /* height: 300px; */
-    height: 80%;
-    margin: 0 auto;
-    padding-bottom: 60px;
-}
-.swatch-panel {
-    padding-top: 5px;
-    width: 19%;
+
+.sys-desc {
+    font-size: 10pt;
+    padding-top: 3px;
+    width: 25%;
     float: left;
-    height: 60px;
+    height: 40px;
+}
+
+.swatch-panel {
+    width: 14%;
+    float: left;
+    height: 40px;
 }
 
 .swatch-ok {
-    background-color: #87de39;
+    background-color: #5cb85c;
 }
 .swatch-meh {
-    background-color: #ffc557;
+    background-color: #f0ad4e;
 }
 .swatch-bad {
-    background-color: #f45;
+    background-color: #d9534f;
 }
 
 .swatch-display {
     text-align: center;
-    font-size: 20pt;
+    font-size: 12pt;
     font-weight: bold;
-    color: #237;
+    color: #fff;
 }
 
 .swatch-title {
     text-align: center;
-    font-size: 12pt;
+    font-size: 9pt;
     font-weight: normal;
-    color: #237;
-}
-
-.clearfix:after {
-    content: " ";
-    display: block;
-    height: 0;
-    clear: both;
+    color: #fff;
 }

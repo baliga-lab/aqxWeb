@@ -134,17 +134,17 @@ def signout():
 @app.route('/home')
 def dashboard():
     if 'logged_in' not in session or not session['logged_in']:
-        return redirect(url_for('.index'))
+        return redirect(url_for('index'))
     else:
         user_id = session['google_id']
         conn = dbconn()
         cursor = conn.cursor()
         try:
-            cursor.execute('select s.id,s.name from systems s join users u on s.user_id=u.id where google_id=%s',
+            cursor.execute('select s.id,s.name,system_id from systems s join users u on s.user_id=u.id where google_id=%s',
                            [user_id])
-            system_id, system_name = cursor.fetchone()
+            system_pk, system_name, system_id = cursor.fetchone()
             cursor.execute("select time,temperature,ph,ammonium,nitrate,oxygen from measurements where system_id=%s order by time desc limit 1",
-                           [system_id])
+                           [system_pk])
             row = cursor.fetchone()
             if row is not None:
                 time, temperature, ph, ammonium, nitrate, oxygen = row
@@ -158,9 +158,26 @@ def dashboard():
             conn.close()
 
         app.logger.debug("we are currently logged in as: %s", user_id)
-        # TODO: filter using the system id
+        # TODO: get all available system ids
         return render_template('dashboard.html', **locals())
 
+    
+@app.route('/system-details/<system_id>')
+def sys_details(system_id=None):
+    app.logger.debug('Hello')
+    if 'logged_in' not in session or not session['logged_in']:
+        return redirect(url_for('index'))
+    else:
+        user_id = session['google_id']
+        conn = dbconn()
+        cursor = conn.cursor()
+        try:
+            cursor.execute('select s.id,s.name from systems s where system_id=%s', [system_id])
+            system_pk, system_name = cursor.fetchone()
+        finally:
+            cursor.close()
+            conn.close()
+        return render_template('system_details.html', **locals())
 
 ######################################################################
 #### REST API
@@ -197,4 +214,4 @@ if __name__ == '__main__':
     app.debug = True
     app.secret_key = 'supercalifragilistic'
     app.logger.addHandler(handler)
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', debug=True)

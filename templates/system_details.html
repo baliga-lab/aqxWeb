@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="google-signin-client_id" content="75692667349-39hlipha81a3v40du06184k75ajl8u4u.apps.googleusercontent.com">    
-    <title>Project 1010 - Overview</title>
+    <title>Project 1010 - System Details</title>
 
     <!-- Bootstrap -->
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
@@ -76,32 +76,9 @@
     <div class="container-fluid">
 
       <div class="panel panel-default">
-        <div class="panel-heading">Your Aquaponics Systems</div>
+        <div class="panel-heading">Details for Aquaponics System "{{system_name}}" <a href="#edit" title="Edit Details"><span class="glyphicon glyphicon-pencil"></span></a></div>
         <div class="panel-body">
-          <div class="sys-desc">
-            <div><img style="height: 16px;" src="/static/images/leaf_icon.png"><span style="margin-right: 10px;">{{system_name}}</span><a href="{{url_for('sys_details', system_id=system_id)}}" title="Show Details"><span class="glyphicon glyphicon-eye-open"></span></a></div>
-            <div style="font-size: 8pt;">(updated {{time}})</div>
-          </div>
-          <div class="swatch-panel swatch-ok" style="margin-left: 2%">
-            <div class="swatch-title">Temperature</div>
-            <div class="swatch-display">{{'%0.2f' % temperature}} &deg;C</div>
-          </div>
-          <div class="swatch-panel swatch-ok">
-            <div class="swatch-title">pH</div>
-            <div class="swatch-display">{{'%0.2f' % ph}}</div>
-          </div>
-          <div class="swatch-panel swatch-bad">
-            <div class="swatch-title">O<sub>2</sub></div>
-            <div class="swatch-display">{{'%0.2f' | format(oxygen)}} mg/l</div>
-          </div>
-          <div class="swatch-panel swatch-meh">
-            <div class="swatch-title">Nitrate</div>
-            <div class="swatch-display">{{'%0.2f' % nitrate}} mg/l</div>
-          </div>
-          <div class="swatch-panel swatch-ok">
-            <div class="swatch-title">Ammonium</div>
-            <div class="swatch-display">{{'%0.2f' % ammonium}} mg/l</div>
-          </div>
+          TODO: fill this
         </div><!-- .panel-body -->
       </div><!-- .panel -->
     </div><!-- /.container-fluid -->

@@ -57,6 +57,7 @@
 
 - integrated in web application
 - outputs the same values as a real system
+- simulate automatically/simulate on demand - depending on the setting
 
 *** TODO
 

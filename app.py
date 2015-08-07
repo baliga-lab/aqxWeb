@@ -164,7 +164,6 @@ def dashboard():
     
 @app.route('/system-details/<system_id>')
 def sys_details(system_id=None):
-    app.logger.debug('Hello')
     if 'logged_in' not in session or not session['logged_in']:
         return redirect(url_for('index'))
     else:

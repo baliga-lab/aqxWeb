@@ -21,7 +21,11 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 
+    {% if session.logged_in %}
+    <script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
+    {% else %}
     <script src="https://apis.google.com/js/platform.js" async defer></script>
+    {% endif %}
     <script>
       function onSignIn(googleUser) {
         var profile = googleUser.getBasicProfile();
@@ -47,12 +51,25 @@
         };
         xhr.send('idtoken=' + idtoken);
       }
-      function signOut() {
-        var auth2 = gapi.auth2.getAuthInstance();
-        auth2.signOut().then(function() {
-          console.log('user signed out.');
-        });
+
+      // These 2 functions are also in base.html
+      function onLoad() {
+        gapi.load('auth2', function () { gapi.auth2.init(); });
       }
+
+      function signOut() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/signout');
+        xhr.onload = function() {
+          var auth2 = gapi.auth2.getAuthInstance();
+          auth2.signOut().then(function() {
+            console.log('user signed out.');
+            window.location = '/';
+          });
+        }
+        xhr.send(null);
+      }
+
     </script>
   </head>
   <body>

@@ -3,9 +3,10 @@ import sys
 import traceback as tb
 import logging
 import uuid
+from functools import wraps
 
 import MySQLdb
-from flask import Flask, Response, url_for, redirect, render_template, request, session
+from flask import Flask, Response, url_for, redirect, render_template, request, session, flash
 import flask
 import requests
 
@@ -52,7 +53,8 @@ def get_user(user_id, email):
 
 def authorize(func):
     """authorization wrapper"""
-    def func_wrapper(*args, **kwargs):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
         auth = request.headers.get('Authorization')
         if auth is not None:
             auth = auth.split()
@@ -71,7 +73,20 @@ def authorize(func):
                 raise Exception('authentication error')
 
         return func(*args, **kwargs)
-    return func_wrapper
+    return wrapper
+
+
+def check_logged_in(func):
+    """authorization wrapper"""
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if 'logged_in' not in session or not session['logged_in']:
+            flash("You are not logged in.", 'error')
+            return redirect(url_for('index'))
+        else:
+            return func(*args, **kwargs)
+    return wrapper
+
 
 ######################################################################
 #### Available application paths
@@ -130,53 +145,50 @@ def signout():
     session.clear()
     return Response('ok', mimetype='text/plain')
 
-    
+
 @app.route('/home')
+@check_logged_in
 def dashboard():
-    if 'logged_in' not in session or not session['logged_in']:
-        return redirect(url_for('index'))
-    else:
-        user_id = session['google_id']
-        conn = dbconn()
-        cursor = conn.cursor()
-        try:
-            cursor.execute('select s.id,s.name,system_id from systems s join users u on s.user_id=u.id where google_id=%s',
-                           [user_id])
-            system_pk, system_name, system_id = cursor.fetchone()
-            cursor.execute("select time,temperature,ph,ammonium,nitrate,oxygen from measurements where system_id=%s order by time desc limit 1",
-                           [system_pk])
-            row = cursor.fetchone()
-            if row is not None:
-                time, temperature, ph, ammonium, nitrate, oxygen = row
-                if oxygen is None:
-                    oxygen = 0.0
-                logging.debug("temperature: %s", str(temperature))
-            else:
-                logging.error('query failed')
-        finally:
-            cursor.close()
-            conn.close()
+    user_id = session['google_id']
+    conn = dbconn()
+    cursor = conn.cursor()
+    try:
+        cursor.execute('select s.id,s.name,system_id from systems s join users u on s.user_id=u.id where google_id=%s',
+                       [user_id])
+        system_pk, system_name, system_id = cursor.fetchone()
+        cursor.execute("select time,temperature,ph,ammonium,nitrate,oxygen from measurements where system_id=%s order by time desc limit 1",
+                       [system_pk])
+        row = cursor.fetchone()
+        if row is not None:
+            time, temperature, ph, ammonium, nitrate, oxygen = row
+            if oxygen is None:
+                oxygen = 0.0
+            logging.debug("temperature: %s", str(temperature))
+        else:
+            logging.error('query failed')
+    finally:
+        cursor.close()
+        conn.close()
 
-        app.logger.debug("we are currently logged in as: %s", user_id)
-        # TODO: get all available system ids
-        return render_template('dashboard.html', **locals())
+    app.logger.debug("we are currently logged in as: %s", user_id)
+    # TODO: get all available system ids
+    return render_template('dashboard.html', **locals())
 
-    
+
 @app.route('/system-details/<system_id>')
+@check_logged_in
 def sys_details(system_id=None):
-    if 'logged_in' not in session or not session['logged_in']:
-        return redirect(url_for('index'))
-    else:
-        user_id = session['google_id']
-        conn = dbconn()
-        cursor = conn.cursor()
-        try:
-            cursor.execute('select s.id,s.name,creation_time from systems s where system_id=%s', [system_id])
-            system_pk, system_name, creation_time = cursor.fetchone()
-        finally:
-            cursor.close()
-            conn.close()
-        return render_template('system_details.html', **locals())
+    user_id = session['google_id']
+    conn = dbconn()
+    cursor = conn.cursor()
+    try:
+        cursor.execute('select s.id,s.name,creation_time from systems s where system_id=%s', [system_id])
+        system_pk, system_name, creation_time = cursor.fetchone()
+    finally:
+        cursor.close()
+        conn.close()
+    return render_template('system_details.html', **locals())
+
 
 ######################################################################
 #### REST API

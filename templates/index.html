@@ -111,6 +111,29 @@
       </div>
     </nav>
 
+    {% with messages = get_flashed_messages(category_filter=["error"]) %}
+    {% if messages %}
+    <div class="container-fluid bg-danger">
+      <ul class="flashes list-unstyled">
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+    {% endwith %}
+    {% with messages = get_flashed_messages(category_filter=["info"]) %}
+    {% if messages %}
+    <div class="container-fluid bg-info">
+      <ul class="flashes list-unstyled">
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+    {% endwith %}
+
     <div class="jumbotron">
       <div class="container-fluid">
         <h1>Aquaponics Management</h1>

@@ -2,7 +2,7 @@
 {% block title %}Overview{% endblock %}
 {% block content %}
     <div class="container-fluid">
-      <div class="panel panel-default">
+      <div class="panel panel-default" style="margin-top: 15px;">
         <div class="panel-heading">Your Aquaponics Systems</div>
         <div class="panel-body">
 
@@ -46,11 +46,16 @@
         <h4 class="modal-title">New Aquaponics System</h4>
       </div>
       <div class="modal-body">
-        <p>One fine body&hellip;</p>
+        <form>
+          <div class="form-group">
+            <label for="system-name" class="control-label">Name:</label>
+            <input type="text" class="form-control" id="system-name">
+          </div>
+        </form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+        <button id="createsys-button" type="button" class="btn btn-primary">Create System</button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
@@ -59,5 +64,9 @@
 
 {% block bottom %}
 <script>
+$('#createsys-button').click(function () {
+  alert("This is a test");
+  $('#newsys-modal').modal('hide');
+})
 </script>
 {% endblock %}

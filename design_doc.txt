@@ -19,13 +19,10 @@
 
 *** Open questions
 
-  - is it important to store a huge history ?
-  - how frequent are updates ?
-
   -> if yes, we need a time series database !!!
   - for now, we will use whisper/graphite to store time series data
-
-  - does it make sense to deploy to Google AppEngine ?
+  - time zones ?
+  - locations ?
 
 
 ** Web application

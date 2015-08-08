@@ -3,6 +3,10 @@
     height: 32px;
 }
 
+.avatar {
+    height: 36px;
+}
+
 .sys-desc {
     font-size: 10pt;
     padding-top: 3px;

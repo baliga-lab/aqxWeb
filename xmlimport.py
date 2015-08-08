@@ -14,24 +14,28 @@ def insert_measurements(system_id, cursor, dataset):
     timepoints = dataset['Time']['values']
     for i, timepoint in enumerate(timepoints):
         try:
-            cursor.execute('insert into temp_measurements (system_id,time,value) values (%s,%s,%s)',
-                           [system_id, timepoint, dataset['Temperature']['values'][i]])
+            table = "aqxs_temp_%s" % system_id
+            cursor.execute('insert into ' + table + ' (time,value) values (%s,%s)',
+                           [timepoint, dataset['Temperature']['values'][i]])
         except MySQLdb.IntegrityError:
             pass
         try:
-            cursor.execute('insert into ph_measurements (system_id,time,value) values (%s,%s,%s)',
-                           [system_id, timepoint, dataset['pH']['values'][i]])
+            table = "aqxs_ph_%s" % system_id
+            cursor.execute('insert into ' + table + ' (time,value) values (%s,%s)',
+                           [timepoint, dataset['pH']['values'][i]])
         except MySQLdb.IntegrityError:
             pass
         try:
-            cursor.execute('insert into ammonium_measurements (system_id,time,value) values (%s,%s,%s)',
-                           [system_id, timepoint, dataset['Ammonium']['values'][i]])
+            table = "aqxs_ammonium_%s" % system_id
+            cursor.execute('insert into ' + table + ' (time,value) values (%s,%s)',
+                           [timepoint, dataset['Ammonium']['values'][i]])
         except MySQLdb.IntegrityError:
             pass
 
         try:        
-            cursor.execute('insert into nitrate_measurements (system_id,time,value) values (%s,%s,%s)',
-                           [system_id, timepoint, dataset['Nitrate']['values'][i]])
+            table = "aqxs_nitrate_%s" % system_id
+            cursor.execute('insert into ' + table + ' (time,value) values (%s,%s)',
+                           [timepoint, dataset['Nitrate']['values'][i]])
         except MySQLdb.IntegrityError:
             pass
 
@@ -83,7 +87,7 @@ if __name__ == '__main__':
     try:
         with open('example.cmbl') as infile:
             data = infile.read()
-        process_doc(1, cursor, data)
+        process_doc("aa56fa203bcb11e58c8864273763ec8b", cursor, data)
         conn.commit()
     finally:
         cursor.close()

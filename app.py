@@ -76,7 +76,7 @@ def authorize(func):
     return wrapper
 
 
-def check_logged_in(func):
+def requires_login(func):
     """authorization wrapper"""
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -147,7 +147,7 @@ def signout():
 
 
 @app.route('/home')
-@check_logged_in
+@requires_login
 def dashboard():
     user_id = session['google_id']
     conn = dbconn()
@@ -176,7 +176,7 @@ def dashboard():
 
 
 @app.route('/system-details/<system_id>')
-@check_logged_in
+@requires_login
 def sys_details(system_id=None):
     user_id = session['google_id']
     conn = dbconn()
@@ -189,6 +189,49 @@ def sys_details(system_id=None):
         conn.close()
     return render_template('system_details.html', **locals())
 
+
+@app.route("/create-system", methods=['POST'])
+@requires_login
+def create_system():
+    sysname = request.form['system-name']
+    if sysname is None or sysname.strip() == "":
+        flash("Could not create system. Please provide a name.", 'error')
+    else:
+        # TODO: check uniqueness for the current user
+        app.logger.debug('system name submitted: %s', sysname)
+        conn = dbconn()
+        cursor = conn.cursor()
+        try:
+            cursor.execute('select u.id, n from users u left outer join (select user_id, count(*) as n from systems where name=%s) s on u.id=s.user_id where u.google_id=%s',
+                           [sysname, session['google_id']])            
+            user_pk, num_sys = cursor.fetchone()
+            if num_sys > 0:
+                flash("You already have a system named '%s'. Please use a different name." % sysname, 'error')
+            else:
+                app.logger.debug("creating system %s for user id: %d", sysname, user_pk)
+                create_aquaponics_system(cursor, user_pk, sysname)
+                conn.commit()
+                flash("Created Aquaponics system '%s'." % sysname, 'info')
+        except Exception, e:
+            app.logger.exception(e)
+            flash("System error while trying to create '%s'" % sysname, "error")
+        finally:
+            cursor.close()
+            conn.close()
+    return redirect(url_for('dashboard'))
+
+
+def create_aquaponics_system(cursor, user_pk, name):
+    """Create the entry and tables for a user's Aquaponics system"""
+    system_uid = new_system_id()
+    cursor.execute('insert into systems (user_id,name,system_id,creation_time) values (%s,%s,%s,now())',
+                    [user_pk, name, system_uid])
+    for attr in ['ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp']:
+        table_name = "aqxs_%s_%s" % (attr, system_uid)
+        query = "create table if not exists %s (time timestamp primary key not null, value decimal(13,10) not null)" % table_name
+        cursor.execute(query)
+    
+    
 
 ######################################################################
 #### REST API

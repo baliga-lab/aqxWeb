@@ -41,13 +41,13 @@
 
 *** TODO
 
-  - allow user to create a simple system
+  - view all the user's systems in dashboard
+  - allow only specific users to log in
+    - only systemsbiology.org for now
+  - allow user to upload measurements
   - the google login call actually can take a redirect url, integrate the redirection to dashboard ?
   - Android access
   - Windows access
-
-*** TODO - nice to have
-  - error handling: what happens when login fails in the backend ?
 
 ** Simulation
 

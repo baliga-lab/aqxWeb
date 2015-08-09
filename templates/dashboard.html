@@ -29,30 +29,35 @@
         <div class="panel-heading">Your Aquaponics Systems</div>
         <div class="panel-body">
 
-          <div class="sys-desc">
-            <div><img alt="Leaf" style="height: 16px;" src="/static/images/leaf_icon.png"><span style="margin-right: 10px;">{{system_name}}</span><a href="{{url_for('sys_details', system_id=system_id)}}" title="Show Details"><span class="glyphicon glyphicon-eye-open"></span></a></div>
-            <div style="font-size: 8pt;">(updated {{time}})</div>
-          </div>
-          <div class="swatch-panel swatch-ok" style="margin-left: 2%">
-            <div class="swatch-title">Temperature</div>
-            <div class="swatch-display">{{'%0.2f' % temperature}} &deg;C</div>
-          </div>
-          <div class="swatch-panel swatch-ok">
-            <div class="swatch-title">pH</div>
-            <div class="swatch-display">{{'%0.2f' % ph}}</div>
-          </div>
-          <div class="swatch-panel swatch-bad">
-            <div class="swatch-title">O<sub>2</sub></div>
-            <div class="swatch-display">{{'%0.2f' | format(oxygen)}} mg/l</div>
-          </div>
-          <div class="swatch-panel swatch-meh">
-            <div class="swatch-title">Nitrate</div>
-            <div class="swatch-display">{{'%0.2f' % nitrate}} mg/l</div>
-          </div>
-          <div class="swatch-panel swatch-ok">
-            <div class="swatch-title">Ammonium</div>
-            <div class="swatch-display">{{'%0.2f' % ammonium}} mg/l</div>
-          </div>
+          {% for system in systems %}
+          <div class="swatches">
+            <div class="sys-desc">
+              <div><img alt="Leaf" style="height: 16px;" src="/static/images/leaf_icon.png"><span style="margin-right: 10px;">{{system.name}}</span><a href="{{url_for('sys_details', system_id=system.sys_id)}}" title="Show Details"><span class="glyphicon glyphicon-eye-open"></span></a></div>
+              <div style="font-size: 8pt;">(updated {{system.time}})</div>
+            </div>
+            <div class="swatch-panel swatch-ok" style="margin-left: 2%">
+              <div class="swatch-title">Temperature</div>
+              <div class="swatch-display">{{'%0.2f' % system.temperature}} &deg;C</div>
+            </div>
+            <div class="swatch-panel swatch-ok">
+              <div class="swatch-title">pH</div>
+              <div class="swatch-display">{{'%0.2f' % system.ph}}</div>
+            </div>
+            <div class="swatch-panel swatch-bad">
+              <div class="swatch-title">O<sub>2</sub></div>
+              <div class="swatch-display">{{'%0.2f' | format(system.oxygen)}} mg/l</div>
+            </div>
+            <div class="swatch-panel swatch-meh">
+              <div class="swatch-title">Nitrate</div>
+              <div class="swatch-display">{{'%0.2f' % system.nitrate}} mg/l</div>
+            </div>
+            <div class="swatch-panel swatch-ok">
+              <div class="swatch-title">Ammonium</div>
+              <div class="swatch-display">{{'%0.2f' % system.ammonium}} mg/l</div>
+            </div>
+          </div><!-- /.swatches -->
+          {% endfor %}
+
         </div><!-- .panel-body -->
         <div style="margin-left: 5px; margin-bottom: 5px;">
           <button id="newbutton" type="button" class="btn btn-default" title="Add a new Aquaponics system" data-toggle="modal" data-target="#newsys-modal"><span class="glyphicon glyphicon-plus"></span> New System...</button>

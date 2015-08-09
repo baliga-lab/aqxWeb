@@ -7,6 +7,10 @@
     height: 36px;
 }
 
+.swatches {
+    margin-bottom: 50px;
+}
+
 .sys-desc {
     font-size: 10pt;
     padding-top: 3px;
@@ -14,13 +18,11 @@
     float: left;
     height: 40px;
 }
-
 .swatch-panel {
     width: 14%;
     float: left;
     height: 40px;
 }
-
 .swatch-ok {
     background-color: #5cb85c;
 }

@@ -14,6 +14,9 @@ import requests
 We might consider later splitting stuff up into Flask Blueprints
 """
 
+ATTR_NAMES = ['ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp']
+
+
 app = Flask(__name__)
 app.config.from_envvar('AQUAPONICS_SETTINGS')
 
@@ -26,6 +29,9 @@ def dbconn():
 def new_system_id():
     """Generates a new system id"""
     return uuid.uuid1().hex
+
+def meas_table_names(system_uid):
+    return ["aqxs_%s_%s" % (attr, system_uid) for attr in ATTR_NAMES]
 
     
 def google_user_info(bearer_token):
@@ -155,9 +161,15 @@ def dashboard():
     try:
         cursor.execute('select s.id,s.name,system_id from systems s join users u on s.user_id=u.id where google_id=%s',
                        [user_id])
-        system_pk, system_name, system_id = cursor.fetchone()
+        systems = [{'pk': pk, 'name': name, 'sys_id': sys_id}
+                   for pk, name, sys_id in cursor.fetchall()]
+        """
+        for pk, name, sys_id in systems:
+            cursor.execute("select value, ph,ammonium,nitrate,oxygen from measurements where system_id=%s order by time desc limit 1",
+                           [pk])"""
+            
         cursor.execute("select time,temperature,ph,ammonium,nitrate,oxygen from measurements where system_id=%s order by time desc limit 1",
-                       [system_pk])
+                       [1])
         row = cursor.fetchone()
         if row is not None:
             time, temperature, ph, ammonium, nitrate, oxygen = row
@@ -166,6 +178,14 @@ def dashboard():
             logging.debug("temperature: %s", str(temperature))
         else:
             logging.error('query failed')
+            
+        for system in systems:
+            system['time'] = time
+            system['temperature'] = temperature
+            system['ph'] = ph
+            system['ammonium'] = ammonium
+            system['nitrate'] = nitrate
+            system['oxygen'] = oxygen
     finally:
         cursor.close()
         conn.close()
@@ -225,9 +245,8 @@ def create_aquaponics_system(cursor, user_pk, name):
     """Create the entry and tables for a user's Aquaponics system"""
     system_uid = new_system_id()
     cursor.execute('insert into systems (user_id,name,system_id,creation_time) values (%s,%s,%s,now())',
-                    [user_pk, name, system_uid])
-    for attr in ['ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp']:
-        table_name = "aqxs_%s_%s" % (attr, system_uid)
+                   [user_pk, name, system_uid])
+    for table_name in meas_table_names(system_uid):
         query = "create table if not exists %s (time timestamp primary key not null, value decimal(13,10) not null)" % table_name
         cursor.execute(query)
     

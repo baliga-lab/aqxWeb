@@ -50,7 +50,15 @@
             <div class="panel-heading"><span class="glyphicon glyphicon-stats"></span> Analytics for <strong>{{system_name}}</strong></div>
 
             <div class="panel-body">
-              <p>Stuff</p>
+              <row>
+                <div class="col-md-1" id="temp-chart" style="width: 240px; height: 100px"></div>
+                <div class="col-md-1" id="ph-chart" style="width: 240px; height: 100px"></div>
+                <div class="col-md-1" id="o2-chart" style="width: 240px; height: 100px"></div>
+              </row>
+              <row>
+                <div class="col-md-1" id="ammonium-chart" style="width: 240px; height: 100px"></div>
+                <div class="col-md-1" id="nitrate-chart" style="width: 240px; height: 100px"></div>
+              </row>
             </div><!-- /.panel-body -->
           </div><!-- /.panel (Analytics)-->
 
@@ -69,6 +77,14 @@
 {% endblock %}
 
 {% block bottom %}
+<script type="text/javascript"
+        src="https://www.google.com/jsapi?autoload={
+             'modules':[{
+             'name':'visualization',
+             'version':'1',
+             'packages':['corechart']
+             }]
+             }"></script>
 <script>
 function hideElements(selector) {
   $(selector).removeClass('hidden');
@@ -108,5 +124,56 @@ $('#import-link').click(function () {
   setActive('#import-li');
 });
 
+function makeTimeSeriesData(ylabel, rows) {
+  var data = new google.visualization.DataTable();         
+  data.addColumn('string', 'Time');         
+  data.addColumn('number', ylabel);
+  data.addRows(rows);
+  return data;
+}
+
+function drawChart(elementId, label, data) {
+  var chart = new google.visualization.LineChart(document.getElementById(elementId));
+  var options = {
+    title: label,
+    width: 240, height: 100,
+    //curveType: 'function',
+    legend: { position: 'bottom'}
+  };
+  chart.draw(data, options);
+  return chart;
+}
+
+var tempRows = [
+  ['2014-09-08 04:12:25',23.5945084836],
+  ['2014-09-08 04:12:25',25.5930560600],
+  ['2014-09-08 04:12:26',19.5945084836],
+];
+var phRows = [
+  ['2014-09-08 04:12:25',7.2],
+  ['2014-09-08 04:12:25',6.8],
+  ['2014-09-08 04:12:26',8.3],
+];
+var o2Rows = [
+  ['2014-09-08 04:12:25',10.2],
+  ['2014-09-08 04:12:25',6.8],
+  ['2014-09-08 04:12:26',15.3],
+];
+var ammoniumRows = [
+  ['2014-09-08 04:12:25',10.2],
+  ['2014-09-08 04:12:25',6.8],
+  ['2014-09-08 04:12:26',15.3],
+];
+var nitrateRows = [
+  ['2014-09-08 04:12:25',10.2],
+  ['2014-09-08 04:12:25',6.8],
+  ['2014-09-08 04:12:26',15.3],
+];
+
+drawChart('temp-chart', 'Temperature', makeTimeSeriesData('Temperature', tempRows));
+drawChart('ph-chart', 'pH', makeTimeSeriesData('pH', phRows));
+drawChart('o2-chart', 'O2', makeTimeSeriesData('O2', o2Rows));
+drawChart('ammonium-chart', 'Ammonium', makeTimeSeriesData('Ammonium', ammoniumRows));
+drawChart('nitrate-chart', 'Nitrate', makeTimeSeriesData('Nitrate', nitrateRows));
 </script>
 {% endblock %}

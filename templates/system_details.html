@@ -15,7 +15,7 @@
 
           {# This is the Overview panel #}
           <div id="overview-panel" class="panel panel-default" style="margin-top: 15px;">
-            <div class="panel-heading"><span class="glyphicon glyphicon-list-alt"></span> Overview for <strong>{{system_name}}</strong>  <a href="#edit" title="Edit Details"><span class="glyphicon glyphicon-pencil"></span></a></div>
+            <div class="panel-heading"><span class="glyphicon glyphicon-list-alt"></span> Overview for <strong>{{system_name}}</strong></div>
 
             <div class="panel-body">
               <dl>
@@ -67,7 +67,56 @@
             <div class="panel-heading"><span class="glyphicon glyphicon-hdd"></span> Import data for <strong>{{system_name}}</strong></div>
 
             <div class="panel-body">
-              <p>Stuff</p>
+              <h3>General information</h3>
+              <p>You can submit your system's information several ways:
+                <ul>
+                  <li><a href="#csv-upload">CSV Upload</a></li>
+                  <li><a href="#rest-api">Our REST API</a></li>
+                </ul>
+              </p>
+              <h3><a name="csv-upload">CSV Upload</a></h3>
+              <p>
+                Aquaponics measurement information can be specified as a
+                tabular CSV format as follows:                
+              </p>
+              <h4>Header</h4>
+              <p>
+                The header specifies the content of each column, in order for the system
+                to recognize the type of content, column titles must follow the following
+                names:
+                <ul>
+                  <li><strong>time</strong></li>
+                  <li><strong>ph</strong></li>
+                  <li><strong>o2</strong></li>
+                  <li><strong>ammonium</strong></li>
+                  <li><strong>nitrate</strong></li>
+                  <li><strong>light</strong></li>
+                </ul>
+              </p>
+              <h4>Data formats</h4>
+              <p>
+                Measurement data is expected to be in decimal format. Time information
+                has the general format
+              </p>
+              <p>
+                <code>MONTH/DAYOFMONTH/YEAR HOURS:MINUTES:SECONDS</code>
+              </p>
+              <p>
+                The <strong>time</strong> field is mandatory, while the user can specify any number
+                of the other fields for the submitted data.
+              </p>
+              <h4>Example</h4>
+              <p>
+                <code>
+                  time,ph,o2<br>
+                  04/20/2015 20:30:24,7.2,10.4<br>
+                  04/20/2015 20:35:01,7.25,10.2<br>
+                  ...<br>
+                </code>
+              </p>
+
+              <h3><a name="rest-api">REST-API</a></h3>
+
             </div><!-- /.panel-body -->
           </div><!-- /.panel (Import)-->
 
@@ -137,7 +186,6 @@ function drawChart(elementId, label, data) {
   var options = {
     title: label,
     width: 240, height: 100,
-    //curveType: 'function',
     legend: { position: 'bottom'}
   };
   chart.draw(data, options);

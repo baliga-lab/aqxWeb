@@ -129,7 +129,10 @@ def signin():
         # into the system
         user_id = context['sub']
         email = context['email']
-        imgurl = context['picture']
+        if 'picture' in context:
+            imgurl = context['picture']
+        else:
+            imgurl = "/static/images/default_profile.png"
         session['google_id'] = user_id
         session['email'] = email
         session['imgurl'] = imgurl

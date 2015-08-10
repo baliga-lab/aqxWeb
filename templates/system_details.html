@@ -5,17 +5,17 @@
       <div class="row">
         <div class="col-sm-3 col-md-2 sidebar" style="margin-bottom: 40px;">
           <ul class="nav nav-sidebar">
-            <li class="active"><a href="#" title="General Information"><span class="glyphicon glyphicon-list-alt"></span> Overview <span class="sr-only">(current)</span></a></li>
-            <li><a href="#" title="Display historical information"><span class="glyphicon glyphicon-stats"></span> Analytics</a></li>
-            <li><a href="#" title="Data exchange"><span class="glyphicon glyphicon-hdd"></span> Import</a></li>
+            <li id="overview-li" class="active"><a href="javascript:void(0)" title="Overview" id="overview-link"><span class="glyphicon glyphicon-list-alt"></span> Overview <span class="sr-only">(current)</span></a></li>
+            <li id="analytics-li"><a href="javascript:void(0)" title="Display analytics" id="analytics-link"><span class="glyphicon glyphicon-stats"></span> Analytics</a></li>
+            <li id="import-li"><a href="javascript:void(0)" title="Data exchange" id="import-link"><span class="glyphicon glyphicon-hdd"></span> Import</a></li>
           </ul>
         </div><!-- /.col-sm-3 sidebar -->
 
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
 
-          <div class="panel panel-default" style="margin-top: 15px;">
-
-            <div class="panel-heading"><img alt="Leaf" style="height: 28px;" src="/static/images/leaf_icon.png">Overview for <strong>{{system_name}}</strong>  <a href="#edit" title="Edit Details"><span class="glyphicon glyphicon-pencil"></span></a></div>
+          {# This is the Overview panel #}
+          <div id="overview-panel" class="panel panel-default" style="margin-top: 15px;">
+            <div class="panel-heading"><span class="glyphicon glyphicon-list-alt"></span> Overview for <strong>{{system_name}}</strong>  <a href="#edit" title="Edit Details"><span class="glyphicon glyphicon-pencil"></span></a></div>
 
             <div class="panel-body">
               <dl>
@@ -43,8 +43,70 @@
                 <dd>Acme Gro-Kwik Pellets, 50g/day</dd>
               </dl>
             </div><!-- /.panel-body -->
-          </div><!-- /.panel -->
+          </div><!-- /.panel (Overview)-->
+
+          {# This is the Analytics panel #}
+          <div id="analytics-panel" class="panel panel-default hidden" style="margin-top: 15px;">
+            <div class="panel-heading"><span class="glyphicon glyphicon-stats"></span> Analytics for <strong>{{system_name}}</strong></div>
+
+            <div class="panel-body">
+              <p>Stuff</p>
+            </div><!-- /.panel-body -->
+          </div><!-- /.panel (Analytics)-->
+
+          {# This is the Import panel #}
+          <div id="import-panel" class="panel panel-default hidden" style="margin-top: 15px;">
+            <div class="panel-heading"><span class="glyphicon glyphicon-hdd"></span> Import data for <strong>{{system_name}}</strong></div>
+
+            <div class="panel-body">
+              <p>Stuff</p>
+            </div><!-- /.panel-body -->
+          </div><!-- /.panel (Import)-->
+
         </div><!-- /.main -->
       </div><!-- /.row -->
     </div><!-- /.container-fluid -->
+{% endblock %}
+
+{% block bottom %}
+<script>
+function hideElements(selector) {
+  $(selector).removeClass('hidden');
+  $(selector).addClass('hidden');
+}
+
+function setActive(selector) {
+  $(selector).removeClass('active');
+  $(selector).addClass('active');
+}
+
+$('#analytics-link').click(function () {
+  hideElements('#import-panel');
+  hideElements('#overview-panel');
+  $('#analytics-panel').removeClass('hidden');  
+
+  $('#overview-li').removeClass('active');
+  $('#import-li').removeClass('active');
+  setActive('#analytics-li');
+});
+$('#overview-link').click(function () {
+  hideElements('#import-panel');
+  hideElements('#analytics-panel');
+  $('#overview-panel').removeClass('hidden');  
+
+  $('#analytics-li').removeClass('active');
+  $('#import-li').removeClass('active');
+  setActive('#overview-li');
+});
+$('#import-link').click(function () {
+  hideElements('#overview-panel');
+  hideElements('#analytics-panel');
+  $('#import-panel').removeClass('hidden');
+
+  $('#analytics-li').removeClass('active');
+  $('#overview-li').removeClass('active');
+  setActive('#import-li');
+});
+
+</script>
 {% endblock %}

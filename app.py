@@ -120,6 +120,9 @@ def signin():
         idtoken = request.form['idtoken']
         r = requests.get('https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=' + idtoken)
         context = r.json()
+        email = context['email']
+        if not email.endswith('systemsbiology.org'):
+            return Response("unauthorized user")
         app.logger.debug("signed in: %s", str(context))
         if context['aud'] != app.config['APP_ID']:
             app.logger.error('wrong app id: %s', context['aud'])

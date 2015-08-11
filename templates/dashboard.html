@@ -35,25 +35,25 @@
               <div><img alt="Leaf" style="height: 16px;" src="/static/images/leaf_icon.png"><span style="margin-right: 10px;">{{system.name}}</span><a href="{{url_for('sys_details', system_id=system.sys_uid)}}" title="Show Details"><span class="glyphicon glyphicon-eye-open"></span></a></div>
               <div style="font-size: 8pt;">(updated {{system.time}})</div>
             </div>
-            <div class="swatch-panel swatch-ok" style="margin-left: 2%">
+            <div class="swatch-panel {{system.temperature|swatch_temp_class(sys_uid)}}" style="margin-left: 2%">
               <div class="swatch-title">Temperature</div>
-              <div class="swatch-display">{{'%0.2f' % system.temperature}} &deg;C</div>
+              <div class="swatch-display">{{system.temperature|format_degc|safe}}</div>
             </div>
-            <div class="swatch-panel swatch-ok">
+            <div class="swatch-panel {{system.ph|swatch_ph_class(sys_uid)}}">
               <div class="swatch-title">pH</div>
-              <div class="swatch-display">{{'%0.2f' % system.ph}}</div>
+              <div class="swatch-display">{{system.ph|format_nounit}}</div>
             </div>
-            <div class="swatch-panel swatch-bad">
+            <div class="swatch-panel {{system.oxygen|swatch_o2_class(sys_uid)}}">
               <div class="swatch-title">O<sub>2</sub></div>
-              <div class="swatch-display">{{'%0.2f' | format(system.oxygen)}} mg/l</div>
+              <div class="swatch-display">{{system.oxygen|format_mgl}}</div>
             </div>
-            <div class="swatch-panel swatch-meh">
+            <div class="swatch-panel {{system.nitrate|swatch_nitrate_class(sys_uid)}}">
               <div class="swatch-title">Nitrate</div>
-              <div class="swatch-display">{{'%0.2f' % system.nitrate}} mg/l</div>
+              <div class="swatch-display">{{system.nitrate|format_mgl}}</div>
             </div>
-            <div class="swatch-panel swatch-ok">
+            <div class="swatch-panel {{system.ammonium|swatch_ammonium_class(sys_uid)}}">
               <div class="swatch-title">Ammonium</div>
-              <div class="swatch-display">{{'%0.2f' % system.ammonium}} mg/l</div>
+              <div class="swatch-display">{{system.ammonium|format_mgl}}</div>
             </div>
           </div><!-- /.swatches -->
           {% endfor %}

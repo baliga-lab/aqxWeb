@@ -23,6 +23,11 @@ app = Flask(__name__)
 app.config.from_envvar('AQUAPONICS_SETTINGS')
 
 
+######################################################################
+#### General helpers
+######################################################################
+
+
 def dbconn():
     return MySQLdb.connect(host=app.config['HOST'], user=app.config['USER'],
                            passwd=app.config['PASS'], db=app.config['DB'])
@@ -102,6 +107,67 @@ def requires_login(func):
 
 
 ######################################################################
+#### Template filters
+######################################################################
+
+@app.template_filter()
+def format_mgl(d):
+    return '-' if d is None else '%.02f mg/l' % d
+
+@app.template_filter()
+def format_nounit(d):
+    return '-' if d is None else '%.02f' % d
+
+@app.template_filter()
+def format_degc(d):
+    return '-' if d is None else '%.02f &deg;C' % d
+
+
+def swatch_class(d, green_ranges, yellow_ranges):
+    def d_in_ranges(ranges):
+        for r in ranges:
+            if d >= r[0] and d <= r[1]:
+                return True
+        return False
+
+    if d is None:
+        return 'swatch-bad'
+    elif d_in_ranges(green_ranges):
+        return 'swatch-ok'
+    elif d_in_ranges(yellow_ranges):
+        return 'swatch-meh'
+    else:
+        return 'swatch-bad'
+
+"""
+In principle our swatch class filters are dependent on what is configured for
+the aquaponics system, for now, we go with the global configuration
+"""
+
+@app.template_filter()
+def swatch_temp_class(d, system_uid):
+    return swatch_class(d, app.config['TEMP_GREEN_RANGES'], app.config['TEMP_YELLOW_RANGES'])
+
+
+@app.template_filter()
+def swatch_ph_class(d, system_uid):
+    return swatch_class(d, app.config['PH_GREEN_RANGES'], app.config['PH_YELLOW_RANGES'])
+
+@app.template_filter()
+def swatch_o2_class(d, system_uid):
+    return swatch_class(d, app.config['O2_GREEN_RANGES'], app.config['O2_YELLOW_RANGES'])
+
+@app.template_filter()
+def swatch_ammonium_class(d, system_uid):
+    return swatch_class(d, app.config['AMMONIUM_GREEN_RANGES'],
+                        app.config['AMMONIUM_YELLOW_RANGES'])
+
+@app.template_filter()
+def swatch_nitrate_class(d, system_uid):
+    return swatch_class(d, app.config['NITRATE_GREEN_RANGES'], app.config['NITRATE_YELLOW_RANGES'])
+
+
+######################################################################
 #### Available application paths
 ######################################################################
 
@@ -168,7 +234,7 @@ def signout():
 def get_latest_measurement(cursor, sys_uid, attr):
     cursor.execute("select value from " + meas_table_name(sys_uid, attr) + " order by time desc limit 1")
     row = cursor.fetchone()
-    return row[0] if row is not None else 0.0
+    return None if row is None else row[0]
 
 @app.route('/home')
 @requires_login

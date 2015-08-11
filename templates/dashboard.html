@@ -32,7 +32,7 @@
           {% for system in systems %}
           <div class="swatches">
             <div class="sys-desc">
-              <div><img alt="Leaf" style="height: 16px;" src="/static/images/leaf_icon.png"><span style="margin-right: 10px;">{{system.name}}</span><a href="{{url_for('sys_details', system_id=system.sys_id)}}" title="Show Details"><span class="glyphicon glyphicon-eye-open"></span></a></div>
+              <div><img alt="Leaf" style="height: 16px;" src="/static/images/leaf_icon.png"><span style="margin-right: 10px;">{{system.name}}</span><a href="{{url_for('sys_details', system_id=system.sys_uid)}}" title="Show Details"><span class="glyphicon glyphicon-eye-open"></span></a></div>
               <div style="font-size: 8pt;">(updated {{system.time}})</div>
             </div>
             <div class="swatch-panel swatch-ok" style="margin-left: 2%">

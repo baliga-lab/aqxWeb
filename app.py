@@ -4,6 +4,7 @@ import traceback as tb
 import logging
 import uuid
 from functools import wraps
+from datetime import datetime
 
 import MySQLdb
 from flask import Flask, Response, url_for, redirect, render_template, request, session, flash
@@ -30,10 +31,15 @@ def new_system_id():
     """Generates a new system id"""
     return uuid.uuid1().hex
 
-def meas_table_names(system_uid):
-    return ["aqxs_%s_%s" % (attr, system_uid) for attr in ATTR_NAMES]
 
-    
+def meas_table_name(system_uid, attr):
+    return "aqxs_%s_%s" % (attr, system_uid)
+
+
+def meas_table_names(system_uid):
+    return [meas_table_name(system_uid, attr) for attr in ATTR_NAMES]
+
+
 def google_user_info(bearer_token):
     resp = requests.get(app.config['USERINFO_URL'], headers={'Authorization': 'Bearer %s' % bearer_token})
     return resp.json()
@@ -121,8 +127,8 @@ def signin():
         r = requests.get('https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=' + idtoken)
         context = r.json()
         email = context['email']
-        if not email.endswith('systemsbiology.org'):
-            return Response("unauthorized user")
+        #if not email.endswith('systemsbiology.org'):
+        #    return Response("unauthorized user")
         app.logger.debug("signed in: %s", str(context))
         if context['aud'] != app.config['APP_ID']:
             app.logger.error('wrong app id: %s', context['aud'])
@@ -158,6 +164,11 @@ def signout():
     return Response('ok', mimetype='text/plain')
 
 
+def get_latest_measurement(cursor, sys_uid, attr):
+    cursor.execute("select value from " + meas_table_name(sys_uid, attr) + " order by time desc limit 1")
+    row = cursor.fetchone()
+    return row[0] if row is not None else 0.0
+
 @app.route('/home')
 @requires_login
 def dashboard():
@@ -167,31 +178,19 @@ def dashboard():
     try:
         cursor.execute('select s.id,s.name,system_id from systems s join users u on s.user_id=u.id where google_id=%s',
                        [user_id])
-        systems = [{'pk': pk, 'name': name, 'sys_id': sys_id}
+        systems = [{'pk': pk, 'name': name, 'sys_uid': sys_id}
                    for pk, name, sys_id in cursor.fetchall()]
-        """
-        for pk, name, sys_id in systems:
-            cursor.execute("select value, ph,ammonium,nitrate,oxygen from measurements where system_id=%s order by time desc limit 1",
-                           [pk])"""
-            
-        cursor.execute("select time,temperature,ph,ammonium,nitrate,oxygen from measurements where system_id=%s order by time desc limit 1",
-                       [1])
-        row = cursor.fetchone()
-        if row is not None:
-            time, temperature, ph, ammonium, nitrate, oxygen = row
-            if oxygen is None:
-                oxygen = 0.0
-            logging.debug("temperature: %s", str(temperature))
-        else:
-            logging.error('query failed')
-            
-        for system in systems:
-            system['time'] = time
-            system['temperature'] = temperature
-            system['ph'] = ph
-            system['ammonium'] = ammonium
-            system['nitrate'] = nitrate
-            system['oxygen'] = oxygen
+        now = datetime.now()
+        
+        for system in systems:            
+            sys_uid = system['sys_uid']
+            system['time'] = now
+            system['temperature'] = get_latest_measurement(cursor, sys_uid, 'temp')
+            system['ph'] = get_latest_measurement(cursor, sys_uid, 'ph')
+            system['oxygen'] = get_latest_measurement(cursor, sys_uid, 'o2')
+            system['ammonium'] = get_latest_measurement(cursor, sys_uid, 'ammonium')
+            system['nitrate'] = get_latest_measurement(cursor, sys_uid, 'nitrate')
+            # TODO: light                        
     finally:
         cursor.close()
         conn.close()

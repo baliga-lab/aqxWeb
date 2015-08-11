@@ -3,6 +3,7 @@ import sys
 import traceback as tb
 import logging
 import uuid
+import json
 from functools import wraps
 from datetime import datetime
 
@@ -200,6 +201,10 @@ def dashboard():
     return render_template('dashboard.html', **locals())
 
 
+def get_measurement_series(cursor, sys_uid, attr):
+    cursor.execute("select time, value from " + meas_table_name(sys_uid, attr) + " order by time asc")
+    return [[str(time), float(value)] for time, value in cursor.fetchall()]
+
 @app.route('/system-details/<system_id>')
 @requires_login
 def sys_details(system_id=None):
@@ -207,8 +212,13 @@ def sys_details(system_id=None):
     conn = dbconn()
     cursor = conn.cursor()
     try:
-        cursor.execute('select s.id,s.name,creation_time from systems s where system_id=%s', [system_id])
-        system_pk, system_name, creation_time = cursor.fetchone()
+        cursor.execute('select s.id,s.name,system_id,creation_time from systems s where system_id=%s', [system_id])
+        system_pk, system_name, sys_uid, creation_time = cursor.fetchone()
+        temp_rows = get_measurement_series(cursor, sys_uid, 'temp')
+        ph_rows = get_measurement_series(cursor, sys_uid, 'ph')
+        o2_rows = get_measurement_series(cursor, sys_uid, 'o2')
+        ammonium_rows = get_measurement_series(cursor, sys_uid, 'ammonium')
+        nitrate_rows = get_measurement_series(cursor, sys_uid, 'nitrate')
     finally:
         cursor.close()
         conn.close()

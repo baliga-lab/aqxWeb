@@ -192,31 +192,11 @@ function drawChart(elementId, label, data) {
   return chart;
 }
 
-var tempRows = [
-  ['2014-09-08 04:12:25',23.5945084836],
-  ['2014-09-08 04:12:25',25.5930560600],
-  ['2014-09-08 04:12:26',19.5945084836],
-];
-var phRows = [
-  ['2014-09-08 04:12:25',7.2],
-  ['2014-09-08 04:12:25',6.8],
-  ['2014-09-08 04:12:26',8.3],
-];
-var o2Rows = [
-  ['2014-09-08 04:12:25',10.2],
-  ['2014-09-08 04:12:25',6.8],
-  ['2014-09-08 04:12:26',15.3],
-];
-var ammoniumRows = [
-  ['2014-09-08 04:12:25',10.2],
-  ['2014-09-08 04:12:25',6.8],
-  ['2014-09-08 04:12:26',15.3],
-];
-var nitrateRows = [
-  ['2014-09-08 04:12:25',10.2],
-  ['2014-09-08 04:12:25',6.8],
-  ['2014-09-08 04:12:26',15.3],
-];
+var tempRows = {{temp_rows|tojson}};
+var phRows = {{ph_rows|tojson}};
+var o2Rows = {{o2_rows|tojson}};
+var ammoniumRows = {{ammonium_rows|tojson}};
+var nitrateRows = {{nitrate_rows|tojson}};
 
 drawChart('temp-chart', 'Temperature', makeTimeSeriesData('Temperature', tempRows));
 drawChart('ph-chart', 'pH', makeTimeSeriesData('pH', phRows));

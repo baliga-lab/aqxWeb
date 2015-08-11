@@ -271,20 +271,21 @@ def get_measurement_series(cursor, sys_uid, attr):
     cursor.execute("select time, value from " + meas_table_name(sys_uid, attr) + " order by time asc")
     return [[str(time), float(value)] for time, value in cursor.fetchall()]
 
-@app.route('/system-details/<system_id>')
+@app.route('/system-details/<system_uid>')
 @requires_login
-def sys_details(system_id=None):
+def sys_details(system_uid=None):
     user_id = session['google_id']
     conn = dbconn()
     cursor = conn.cursor()
+    # TODO: we might need to check whether the user actually owns the system
     try:
-        cursor.execute('select s.id,s.name,system_id,creation_time from systems s where system_id=%s', [system_id])
-        system_pk, system_name, sys_uid, creation_time = cursor.fetchone()
-        temp_rows = get_measurement_series(cursor, sys_uid, 'temp')
-        ph_rows = get_measurement_series(cursor, sys_uid, 'ph')
-        o2_rows = get_measurement_series(cursor, sys_uid, 'o2')
-        ammonium_rows = get_measurement_series(cursor, sys_uid, 'ammonium')
-        nitrate_rows = get_measurement_series(cursor, sys_uid, 'nitrate')
+        cursor.execute('select s.id,s.name,creation_time from systems s where system_id=%s', [system_uid])
+        system_pk, system_name, creation_time = cursor.fetchone()
+        temp_rows = get_measurement_series(cursor, system_uid, 'temp')
+        ph_rows = get_measurement_series(cursor, system_uid, 'ph')
+        o2_rows = get_measurement_series(cursor, system_uid, 'o2')
+        ammonium_rows = get_measurement_series(cursor, system_uid, 'ammonium')
+        nitrate_rows = get_measurement_series(cursor, system_uid, 'nitrate')
     finally:
         cursor.close()
         conn.close()
@@ -298,7 +299,6 @@ def create_system():
     if sysname is None or sysname.strip() == "":
         flash("Could not create system. Please provide a name.", 'error')
     else:
-        # TODO: check uniqueness for the current user
         app.logger.debug('system name submitted: %s', sysname)
         conn = dbconn()
         cursor = conn.cursor()
@@ -331,7 +331,15 @@ def create_aquaponics_system(cursor, user_pk, name):
         query = "create table if not exists %s (time timestamp primary key not null, value decimal(13,10) not null)" % table_name
         cursor.execute(query)
     
-    
+
+@app.route("/import-csv", methods=['POST'])
+@requires_login
+def import_csv():
+    sys_uid = request.form['system-uid']
+    app.logger.debug('import csv, system uid: %s', sys_uid)
+    flash("Imported measurements.", "info")
+    return redirect(url_for('sys_details', system_uid=sys_uid))
+
 
 ######################################################################
 #### REST API

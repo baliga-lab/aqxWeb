@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}System Details{% endblock %}
 {% block content %}
+
     <div class="container-fluid">
       <div class="row">
         <div class="col-sm-3 col-md-2 sidebar" style="margin-bottom: 40px;">
@@ -12,6 +13,30 @@
         </div><!-- /.col-sm-3 sidebar -->
 
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          {# Flash messages go here #}
+          {% with messages = get_flashed_messages(category_filter=["error"]) %}
+          {% if messages %}
+          <div class="container-fluid bg-danger" style="margin-top: 15px;">
+            <ul class="flashes list-unstyled">
+              {% for message in messages %}
+              <li>{{ message }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+          {% endwith %}
+          {% with messages = get_flashed_messages(category_filter=["info"]) %}
+          {% if messages %}
+          <div class="container-fluid bg-info"  style="margin-top: 15px;">
+            <ul class="flashes list-unstyled">
+              {% for message in messages %}
+              <li>{{ message }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+          {% endwith %}{# End flash section #}
+
 
           {# This is the Overview panel #}
           <div id="overview-panel" class="panel panel-default" style="margin-top: 15px;">
@@ -68,10 +93,11 @@
 
             <div class="panel-body">
               <h3>File Import</h3>
-              <form>
+              <form method="post" action="{{url_for('import_csv')}}">
                 <div class="form-group">
                   <label for="import-file">CSV file <a id="csvhelp-link" href="#csvhelp-modal" title="CSV Upload Help" data-toggle="modal"><span class="glyphicon glyphicon-question-sign"></span></a></label>
                   <input type="file" id="import-file">
+                  <input type="hidden" class="hidden" name="system-uid" value="{{system_uid}}"></input>
                 </div>
                 <button type="submit" class="btn btn-default">Submit</button>
               </form>

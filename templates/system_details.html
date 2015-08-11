@@ -96,10 +96,10 @@
 
             <div class="panel-body">
               <h3>File Import</h3>
-              <form method="post" action="{{url_for('import_csv')}}">
+              <form method="post" action="{{url_for('import_csv')}}" enctype="multipart/form-data">
                 <div class="form-group">
                   <label for="import-file">CSV file <a id="csvhelp-link" href="#csvhelp-modal" title="CSV Upload Help" data-toggle="modal"><span class="glyphicon glyphicon-question-sign"></span></a></label>
-                  <input type="file" id="import-file">
+                  <input type="file" id="import-file" name="import-file">
                   <input type="hidden" class="hidden" name="system-uid" value="{{system_uid}}"></input>
                 </div>
                 <button type="submit" class="btn btn-default">Submit</button>

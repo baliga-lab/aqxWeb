@@ -4,11 +4,14 @@ import traceback as tb
 import logging
 import uuid
 import json
+import os
 from functools import wraps
 from datetime import datetime
+import csv
 
 import MySQLdb
 from flask import Flask, Response, url_for, redirect, render_template, request, session, flash
+from werkzeug import secure_filename
 import flask
 import requests
 
@@ -16,7 +19,8 @@ import requests
 We might consider later splitting stuff up into Flask Blueprints
 """
 
-ATTR_NAMES = ['ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp']
+ATTR_NAMES = {'ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp'}
+IMPORT_ATTR_NAMES = {'time', 'ammonium', 'o2', 'ph', 'nitrate', 'light', 'temperature'}
 
 
 app = Flask(__name__)
@@ -277,10 +281,11 @@ def sys_details(system_uid=None):
 
     conn = dbconn()
     cursor = conn.cursor()
-    # TODO: we might need to check whether the user actually owns the system
     try:
         cursor.execute('select s.id,s.name,creation_time,google_id from systems s join users u on s.user_id=u.id where system_id=%s', [system_uid])
         system_pk, system_name, creation_time, sys_google_id = cursor.fetchone()
+        
+        # only owners can modify systems's data
         readonly = user_google_id != sys_google_id
         temp_rows = get_measurement_series(cursor, system_uid, 'temp')
         ph_rows = get_measurement_series(cursor, system_uid, 'ph')
@@ -332,13 +337,42 @@ def create_aquaponics_system(cursor, user_pk, name):
         query = "create table if not exists %s (time timestamp primary key not null, value decimal(13,10) not null)" % table_name
         cursor.execute(query)
     
-
+    
 @app.route("/import-csv", methods=['POST'])
 @requires_login
 def import_csv():
     sys_uid = request.form['system-uid']
-    app.logger.debug('import csv, system uid: %s', sys_uid)
-    flash("Imported measurements.", "info")
+    file = request.files['import-file']
+    if file:
+        filename = secure_filename(file.filename)
+        target_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(target_path)
+    app.logger.debug('import csv, system uid: %s, filename: %s', sys_uid, filename)
+    with open(target_path) as csvfile:
+        try:
+            dialect = csv.Sniffer().sniff(csvfile.read(1024))
+            csvfile.seek(0)
+            reader = csv.reader(csvfile, dialect)
+            count = 0
+            # check the titles
+            titles = reader.next()
+            unknown_titles = [unicode(title, 'utf-8') for title in titles
+                              if title not in IMPORT_ATTR_NAMES]
+            if len(unknown_titles) > 0:
+                flash("There are problems in your import document", "error")
+                for unknown_title in unknown_titles:
+                    flash("Unknown document title: '%s'." % flask.escape(unknown_title), "error")
+            else:
+                for row in reader:
+                    app.logger.debug(row)
+                    if count > 3:
+                        break
+                    count += 1
+                flash("Imported measurements file '%s'." % filename, "info")
+        except:
+            flash("The provided file '%s' most likely is not a CSV file" % filename, "error")
+            
+
     return redirect(url_for('sys_details', system_uid=sys_uid))
 
 

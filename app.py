@@ -272,15 +272,16 @@ def get_measurement_series(cursor, sys_uid, attr):
     return [[str(time), float(value)] for time, value in cursor.fetchall()]
 
 @app.route('/system-details/<system_uid>')
-@requires_login
 def sys_details(system_uid=None):
-    user_id = session['google_id']
+    user_google_id = session['google_id'] if 'google_id' in session else None
+
     conn = dbconn()
     cursor = conn.cursor()
     # TODO: we might need to check whether the user actually owns the system
     try:
-        cursor.execute('select s.id,s.name,creation_time from systems s where system_id=%s', [system_uid])
-        system_pk, system_name, creation_time = cursor.fetchone()
+        cursor.execute('select s.id,s.name,creation_time,google_id from systems s join users u on s.user_id=u.id where system_id=%s', [system_uid])
+        system_pk, system_name, creation_time, sys_google_id = cursor.fetchone()
+        readonly = user_google_id != sys_google_id
         temp_rows = get_measurement_series(cursor, system_uid, 'temp')
         ph_rows = get_measurement_series(cursor, system_uid, 'ph')
         o2_rows = get_measurement_series(cursor, system_uid, 'o2')

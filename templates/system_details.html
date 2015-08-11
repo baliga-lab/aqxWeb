@@ -8,7 +8,9 @@
           <ul class="nav nav-sidebar">
             <li id="overview-li" class="active"><a href="javascript:void(0)" title="Overview" id="overview-link"><span class="glyphicon glyphicon-list-alt"></span> Overview <span class="sr-only">(current)</span></a></li>
             <li id="analytics-li"><a href="javascript:void(0)" title="Display analytics" id="analytics-link"><span class="glyphicon glyphicon-stats"></span> Analytics</a></li>
+            {% if not readonly %}
             <li id="import-li"><a href="javascript:void(0)" title="Data exchange" id="import-link"><span class="glyphicon glyphicon-hdd"></span> Import</a></li>
+            {% endif %}
           </ul>
         </div><!-- /.col-sm-3 sidebar -->
 
@@ -88,6 +90,7 @@
           </div><!-- /.panel (Analytics)-->
 
           {# This is the Import panel #}
+          {% if not readonly %}
           <div id="import-panel" class="panel panel-default hidden" style="margin-top: 15px;">
             <div class="panel-heading"><span class="glyphicon glyphicon-hdd"></span> Import data for <strong>{{system_name}}</strong></div>
 
@@ -107,6 +110,7 @@
               TODO -->
             </div><!-- /.panel-body -->
           </div><!-- /.panel (Import)-->
+          {% endif %}
 
         </div><!-- /.main -->
       </div><!-- /.row -->

@@ -38,6 +38,7 @@
   - mobile devices monitoring
   - web interfaces monitoring
 - notifications: email
+- sharing: systems can be private or shared publicly or in Google+ circles
 
 *** TODO
 

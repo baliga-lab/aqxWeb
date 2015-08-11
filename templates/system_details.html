@@ -67,62 +67,82 @@
             <div class="panel-heading"><span class="glyphicon glyphicon-hdd"></span> Import data for <strong>{{system_name}}</strong></div>
 
             <div class="panel-body">
-              <h3>General information</h3>
-              <p>You can submit your system's information several ways:
-                <ul>
-                  <li><a href="#csv-upload">CSV Upload</a></li>
-                  <li><a href="#rest-api">Our REST API</a></li>
-                </ul>
-              </p>
-              <h3><a name="csv-upload">CSV Upload</a></h3>
-              <p>
-                Aquaponics measurement information can be specified as a
-                tabular CSV format as follows:                
-              </p>
-              <h4>Header</h4>
-              <p>
-                The header specifies the content of each column, in order for the system
-                to recognize the type of content, column titles must follow the following
-                names:
-                <ul>
-                  <li><strong>time</strong></li>
-                  <li><strong>ph</strong></li>
-                  <li><strong>o2</strong></li>
-                  <li><strong>ammonium</strong></li>
-                  <li><strong>nitrate</strong></li>
-                  <li><strong>light</strong></li>
-                </ul>
-              </p>
-              <h4>Data formats</h4>
-              <p>
-                Measurement data is expected to be in decimal format. Time information
-                has the general format
-              </p>
-              <p>
-                <code>MONTH/DAYOFMONTH/YEAR HOURS:MINUTES:SECONDS</code>
-              </p>
-              <p>
-                The <strong>time</strong> field is mandatory, while the user can specify any number
-                of the other fields for the submitted data.
-              </p>
-              <h4>Example</h4>
-              <p>
-                <code>
-                  time,ph,o2<br>
-                  04/20/2015 20:30:24,7.2,10.4<br>
-                  04/20/2015 20:35:01,7.25,10.2<br>
-                  ...<br>
-                </code>
-              </p>
-
-              <h3><a name="rest-api">REST-API</a></h3>
-
+              <h3>File Import</h3>
+              <form>
+                <div class="form-group">
+                  <label for="import-file">CSV file <a id="csvhelp-link" href="#csvhelp-modal" title="CSV Upload Help" data-toggle="modal"><span class="glyphicon glyphicon-question-sign"></span></a></label>
+                  <input type="file" id="import-file">
+                </div>
+                <button type="submit" class="btn btn-default">Submit</button>
+              </form>
+              <!--
+              <hr>
+              <h3>REST API</h3>
+              TODO -->
             </div><!-- /.panel-body -->
           </div><!-- /.panel (Import)-->
 
         </div><!-- /.main -->
       </div><!-- /.row -->
     </div><!-- /.container-fluid -->
+
+
+{# This is the modal for the CSV help #}
+<div class="modal fade" id="csvhelp-modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">CSV Upload Help</h4>
+      </div>
+      <div class="modal-body">
+        <h3>CSV Upload</h3>
+        <p>
+          Aquaponics measurement information can be specified as a
+          tabular CSV format as follows:                
+        </p>
+        <h4>Header</h4>
+        <p>
+          The header specifies the content of each column, in order for the system
+          to recognize the type of content, column titles must follow the following
+          names:
+          <ul>
+            <li><strong>time</strong></li>
+            <li><strong>ph</strong></li>
+            <li><strong>o2</strong></li>
+            <li><strong>ammonium</strong></li>
+            <li><strong>nitrate</strong></li>
+            <li><strong>light</strong></li>
+          </ul>
+        </p>
+        <h4>Data formats</h4>
+        <p>
+          Measurement data is expected to be in decimal format. Time information
+          has the general format
+        </p>
+        <p>
+          <code>MONTH/DAYOFMONTH/YEAR HOURS:MINUTES:SECONDS</code>
+        </p>
+        <p>
+          The <strong>time</strong> field is mandatory, while the user can specify any number
+          of the other fields for the submitted data.
+        </p>
+        <h4>Example</h4>
+        <p>
+          <code>
+            time,ph,o2<br>
+            04/20/2015 20:30:24,7.2,10.4<br>
+            04/20/2015 20:35:01,7.25,10.2<br>
+            ...<br>
+          </code>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 {% endblock %}
 
 {% block bottom %}
@@ -135,6 +155,7 @@
              }]
              }"></script>
 <script>
+
 function hideElements(selector) {
   $(selector).removeClass('hidden');
   $(selector).addClass('hidden');

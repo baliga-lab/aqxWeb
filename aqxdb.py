@@ -9,7 +9,7 @@ import uuid
 ATTR_NAMES = {'ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp'}
 
 
-def get_or_create_user(conn, cursor, google_id):
+def get_or_create_user(conn, cursor, google_id, email):
     cursor.execute('select id from users where google_id=%s', [google_id])
     row = cursor.fetchone()
     if row is None:
@@ -59,7 +59,7 @@ def systems_and_latest_measurements(cursor, user_id):
     return systems
 
 def get_measurement_series(cursor, sys_uid, attr):
-    cursor.execute("select time, value from " + meas_table_name(sys_uid, attr) + " order by time asc")
+    cursor.execute("select time, value from " + meas_table_name(sys_uid, attr) + " order by time asc limit 100")
     return [[str(time), float(value)] for time, value in cursor.fetchall()]
 
 
@@ -71,3 +71,9 @@ def create_aquaponics_system(cursor, user_pk, name):
     for table_name in meas_table_names(system_uid):
         query = "create table if not exists %s (time timestamp primary key not null, value decimal(13,10) not null)" % table_name
         cursor.execute(query)
+
+
+def add_measurement(cursor, sys_uid, attr, timestamp, value):
+    table = meas_table_name(sys_uid, attr)
+    cursor.execute('insert into ' + table + ' (time,value) values (%s,%s)',
+                    [timestamp, value])

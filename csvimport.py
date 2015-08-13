@@ -77,9 +77,7 @@ def import_measurement_file(app, conn, sys_uid, csvfile, filename):
                     attr_name = titles[i]
                     mvalue = float(value)
                     try:
-                        table = aqxdb.meas_table_name(sys_uid, IMPORT_ATTR_MAP[attr_name])
-                        cursor.execute('insert into ' + table + ' (time,value) values (%s,%s)',
-                                       [timestamp, mvalue])
+                        aqxdb.add_measurement(cursor, sys_uid, IMPORT_ATTR_MAP[attr_name], timestamp, mvalue)
                     except Exception, e:
                         pass
     except Exception, e:

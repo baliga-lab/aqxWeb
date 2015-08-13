@@ -5,6 +5,8 @@ import logging
 import json
 import os
 from functools import wraps
+import time
+from datetime import datetime
 
 import MySQLdb
 from flask import Flask, Response, url_for, redirect, render_template, request, session, flash
@@ -43,7 +45,7 @@ def get_user(google_id, email):
     conn = dbconn()
     cursor = conn.cursor()
     try:
-        return aqxdb.get_or_create_user(conn, cursor, google_id)
+        return aqxdb.get_or_create_user(conn, cursor, google_id, email)
     finally:
         conn.close()
 
@@ -183,7 +185,6 @@ def signin():
         # at this point, we are authenticated, now we can see whether we need to sign
         # into the system
         user_id = context['sub']
-        email = context['email']
         if 'picture' in context:
             imgurl = context['picture']
         else:
@@ -213,16 +214,16 @@ def signout():
 @app.route('/home')
 @requires_login
 def dashboard():
-    user_id = session['google_id']
+    google_id = session['google_id']
     conn = dbconn()
     cursor = conn.cursor()
     try:
-        systems = aqxdb.systems_and_latest_measurements(cursor, user_id)
+        systems = aqxdb.systems_and_latest_measurements(cursor, google_id)
     finally:
         cursor.close()
         conn.close()
 
-    app.logger.debug("we are currently logged in as: %s", user_id)
+    app.logger.debug("we are currently logged in as: %s", google_id)
     # TODO: get all available system ids
     return render_template('dashboard.html', **locals())
 
@@ -261,16 +262,20 @@ def create_system():
         conn = dbconn()
         cursor = conn.cursor()
         try:
-            cursor.execute('select u.id, n from users u left outer join (select user_id, count(*) as n from systems where name=%s) s on u.id=s.user_id where u.google_id=%s',
-                           [sysname, session['google_id']])            
-            user_pk, num_sys = cursor.fetchone()
-            if num_sys > 0:
-                flash("You already have a system named '%s'. Please use a different name." % sysname, 'error')
+            cursor.execute('select count(*) from systems where user_id=%s', [session['user_id']])
+            if cursor.fetchone()[0] >= app.config['SYSTEMS_PER_USER']:
+                flash('Maximum number of systems/user reached.','error')
             else:
-                app.logger.debug("creating system %s for user id: %d", sysname, user_pk)
-                aqxdb.create_aquaponics_system(cursor, user_pk, sysname)
-                conn.commit()
-                flash("Created Aquaponics system '%s'." % sysname, 'info')
+                cursor.execute('select u.id, n from users u left outer join (select user_id, count(*) as n from systems where name=%s) s on u.id=s.user_id where u.google_id=%s',
+                               [sysname, session['google_id']])            
+                user_pk, num_sys = cursor.fetchone()
+                if num_sys > 0:
+                    flash("You already have a system named '%s'. Please use a different name." % sysname, 'error')
+                else:
+                    app.logger.debug("creating system %s for user id: %d", sysname, user_pk)
+                    aqxdb.create_aquaponics_system(cursor, user_pk, sysname)
+                    conn.commit()
+                    flash("Created Aquaponics system '%s'." % sysname, 'info')
         except Exception, e:
             app.logger.exception(e)
             flash("System error while trying to create '%s'" % sysname, "error")
@@ -279,6 +284,54 @@ def create_system():
             conn.close()
     return redirect(url_for('dashboard'))
 
+
+def is_system_owner(cursor, sys_uid, user_id):
+    cursor.execute('select count(*) from systems where system_id=%s and user_id=%s',
+                   [sys_uid, user_id])
+    return cursor.fetchone()[0] > 0
+
+
+def get_form_time(s):
+    return datetime.fromtimestamp(time.mktime(time.strptime(s, '%Y-%m-%dT%H:%M:%S')))
+
+
+@app.route("/add-measurement", methods=['POST'])
+@requires_login
+def add_measurement():
+    sys_uid = request.form['system-uid']
+    measure_type = request.form['measure-type']
+    measure_time = request.form['measure-time']
+    measure_value = request.form['measure-value']
+    # verify and sanitize the input, measure_type must be within allowed ones !!!
+    # sys_uid possible should be checked, too
+    conn = dbconn()
+    cursor = conn.cursor()
+    try:
+        if is_system_owner(cursor, sys_uid, session['user_id']):
+            if measure_type not in aqxdb.ATTR_NAMES:
+                flash('Unknown measurement type provided', 'error')
+            else:
+                try:
+                    mvalue = float(measure_value)
+                    try:
+                        mtime = get_form_time(measure_time)
+                        aqxdb.add_measurement(cursor, sys_uid, measure_type, mtime, mvalue)
+                        conn.commit()
+                        flash('Measurement added', 'info')
+                    except Exception, e:
+                        conn.rollback()
+                        app.logger.exception(e)
+                        flash('invalid measurement time: %s' % measure_time, 'error')
+                except:
+                    flash('invalid measurement value: %s' % measure_value, 'error')
+        else:
+            flash('Error: only system owners can add measurements')
+    finally:
+        cursor.close()
+        conn.close()
+    app.logger.debug('add measurement, type: %s, time: %s, value: %s', measure_type,
+                     measure_time, measure_value)
+    return redirect(url_for('sys_details', system_uid=sys_uid))
 
 
 @app.route("/import-csv", methods=['POST'])
@@ -294,17 +347,22 @@ def import_csv():
         
         with open(target_path) as csvfile:
             conn = dbconn()
+            cursor = conn.cursor()
             try:
-                error_messages = csvimport.import_measurement_file(app, conn, sys_uid,
-                                                                   csvfile, filename)
-                if len(error_messages) > 0:
-                    conn.rollback()
-                    for msg in error_messages:
-                        flash(msg, "error")
+                if is_system_owner(cursor, sys_uid, session['user_id']):
+                    error_messages = csvimport.import_measurement_file(app, conn, sys_uid,
+                                                                       csvfile, filename)
+                    if len(error_messages) > 0:
+                        conn.rollback()
+                        for msg in error_messages:
+                            flash(msg, "error")
+                    else:
+                        conn.commit()
+                        flash("Imported measurements file '%s'." % filename, "info")
                 else:
-                    conn.commit()
-                    flash("Imported measurements file '%s'." % filename, "info")
+                    flash('Error: only system owners can import measurement data')
             finally:
+                cursor.close()
                 conn.close()
 
     return redirect(url_for('sys_details', system_uid=sys_uid))

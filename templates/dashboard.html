@@ -59,9 +59,11 @@
           {% endfor %}
 
         </div><!-- .panel-body -->
+        {% if systems|length < config['SYSTEMS_PER_USER'] %}
         <div style="margin-left: 5px; margin-bottom: 5px;">
           <button id="newbutton" type="button" class="btn btn-default" title="Add a new Aquaponics system" data-toggle="modal" data-target="#newsys-modal"><span class="glyphicon glyphicon-plus"></span> New System...</button>
         </div>
+        {% endif %}
       </div><!-- .panel -->
     </div><!-- /.container-fluid -->
 

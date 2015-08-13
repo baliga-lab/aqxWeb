@@ -5,8 +5,6 @@ import logging
 import json
 import os
 from functools import wraps
-import time
-import csv
 
 import MySQLdb
 from flask import Flask, Response, url_for, redirect, render_template, request, session, flash
@@ -15,18 +13,12 @@ import flask
 import requests
 
 import aqxdb
+import csvimport
 
 """This is the prototype web application for our Aquaponics site.
 We might consider later splitting stuff up into Flask Blueprints
 """
 
-IMPORT_ATTR_NAMES = {'time', 'ammonium', 'o2', 'ph', 'nitrate', 'light', 'temperature'}
-TIME_FORMATS = [
-    '%m/%d/%Y %H:%M',
-    '%m/%d/%y %H:%M',
-    '%m/%d/%Y %H:%M:%S',
-    '%m/%d/%y %H:%M:%S'
-]
 
 app = Flask(__name__)
 app.config.from_envvar('AQUAPONICS_SETTINGS')
@@ -40,7 +32,6 @@ app.config.from_envvar('AQUAPONICS_SETTINGS')
 def dbconn():
     return MySQLdb.connect(host=app.config['HOST'], user=app.config['USER'],
                            passwd=app.config['PASS'], db=app.config['DB'])
-
 
 
 def google_user_info(bearer_token):
@@ -290,37 +281,6 @@ def create_system():
 
 
 
-def check_titles(titles):
-    """Check for the possible errors in document titles"""
-    ok = True
-    unknown_titles = {unicode(title, 'utf-8') for title in titles
-                      if title not in IMPORT_ATTR_NAMES}
-    if len(unknown_titles) > 0:
-        flash("There are problems in your import document", "error")
-        for unknown_title in unknown_titles:
-            flash("Unknown document title: '%s'." % flask.escape(unknown_title), "error")
-        ok = False
-    if "time" not in titles:
-        flash("Your import document does not contain the mandatory 'time' attribute",
-              "error")
-        ok = False
-    if len(set(titles)) != len(titles):
-        flash("Your import document does not contain the mandatory 'time' attribute",
-              "error")
-        ok = False
-    return ok
-
-
-def get_time(row, time_index):
-    value = row[time_index]
-    for time_format in TIME_FORMATS:
-        try:
-            result = time.strptime(value, time_format)
-            return result
-        except:
-            pass
-    return None
-
 @app.route("/import-csv", methods=['POST'])
 @requires_login
 def import_csv():
@@ -330,38 +290,22 @@ def import_csv():
         filename = secure_filename(file.filename)
         target_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(target_path)
-    app.logger.debug('import csv, system uid: %s, filename: %s', sys_uid, filename)
-    with open(target_path) as csvfile:
-        try:
-            dialect = csv.Sniffer().sniff(csvfile.read(1024))
-            csvfile.seek(0)
-
-            # This is the check, only import after a complete
-            # consistency check
-            reader = csv.reader(csvfile, dialect)
-            # check the titles
-            titles = reader.next()
-            if check_titles(titles):
-                # headers are valid, now check the input
-                title_indexes = {title: i for i, title in enumerate(titles)}
-                time_index = title_indexes['time']
-
-                for row in reader:
-                    timestamp = get_time(row, time_index)
-                    if timestamp is None:
-                        flash("invalid time value '%s' at line %d" % (row[time_index],
-                                                                      csvreader.linenum), "error")
-                    for i, value in row:
-                        if i != time_index:
-                            attr_name = titles[i]
-                            # check and import attribute
-
-                flash("Imported measurements file '%s'." % filename, "info")
-        except:
-            # this exception is often thrown by csv.Sniffer when the format
-            # is not recognized
-            flash("The provided file '%s' most likely is not a CSV file" % filename, "error")
-            
+        app.logger.debug('import csv, system uid: %s, filename: %s', sys_uid, filename)
+        
+        with open(target_path) as csvfile:
+            conn = dbconn()
+            try:
+                error_messages = csvimport.import_measurement_file(app, conn, sys_uid,
+                                                                   csvfile, filename)
+                if len(error_messages) > 0:
+                    conn.rollback()
+                    for msg in error_messages:
+                        flash(msg, "error")
+                else:
+                    conn.commit()
+                    flash("Imported measurements file '%s'." % filename, "info")
+            finally:
+                conn.close()
 
     return redirect(url_for('sys_details', system_uid=sys_uid))
 

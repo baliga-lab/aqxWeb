@@ -9,7 +9,9 @@
             <li id="overview-li" class="active"><a href="javascript:void(0)" title="Overview" id="overview-link"><span class="glyphicon glyphicon-list-alt"></span> Overview <span class="sr-only">(current)</span></a></li>
             <li id="analytics-li"><a href="javascript:void(0)" title="Display analytics" id="analytics-link"><span class="glyphicon glyphicon-stats"></span> Analytics</a></li>
             {% if not readonly %}
-            <li id="import-li"><a href="javascript:void(0)" title="Data exchange" id="import-link"><span class="glyphicon glyphicon-hdd"></span> Import</a></li>
+            <li id="import-li"><a href="javascript:void(0)" title="Import" id="import-link"><span class="glyphicon glyphicon-hdd"></span> Import</a></li>
+            <li id="alert-li"><a href="javascript:void(0)" title="Alerts" id="alert-link"><span class="glyphicon glyphicon-warning-sign"></span> Alerts</a></li>
+
             {% endif %}
           </ul>
         </div><!-- /.col-sm-3 sidebar -->
@@ -89,13 +91,13 @@
             </div><!-- /.panel-body -->
           </div><!-- /.panel (Analytics)-->
 
-          {# This is the Import panel #}
           {% if not readonly %}
+          {# This is the Import panel #}
           <div id="import-panel" class="panel panel-default hidden" style="margin-top: 15px;">
             <div class="panel-heading"><span class="glyphicon glyphicon-hdd"></span> Import data for <strong>{{system_name}}</strong></div>
 
             <div class="panel-body">
-              <h3>File Import</h3>
+              <h4>Measurement Data Import</h4>
               <form method="post" action="{{url_for('import_csv')}}" enctype="multipart/form-data">
                 <div class="form-group">
                   <label for="import-file">CSV file <a id="csvhelp-link" href="#csvhelp-modal" title="CSV Upload Help" data-toggle="modal"><span class="glyphicon glyphicon-question-sign"></span></a></label>
@@ -110,6 +112,16 @@
               TODO -->
             </div><!-- /.panel-body -->
           </div><!-- /.panel (Import)-->
+
+          <div id="alert-panel" class="panel panel-default hidden" style="margin-top: 15px;">
+            <div class="panel-heading"><span class="glyphicon glyphicon-warning-sign"></span> Alerts for <strong>{{system_name}}</strong></div>
+
+            <div class="panel-body">
+              <h4>Measurement Data Import</h4>
+              <p>TODO</p>
+            </div><!-- /.panel-body -->
+          </div><!-- /.panel (Import)-->
+
           {% endif %}
 
         </div><!-- /.main -->
@@ -186,43 +198,29 @@
              }"></script>
 <script>
 
-function hideElements(selector) {
+function activateSection(section) {
+  var selector = "#" + section + "-panel";
+  var panelSelectors = ["#overview-panel", "#analytics-panel", "#import-panel", "#alert-panel"];
+  var liSelectors = ["#overview-li", "#analytics-li", "#import-li", "#alert-li"];
+  for (var i=0; i < panelSelectors.length; i++) {
+    if (panelSelectors[i] !== selector) {
+      $(panelSelectors[i]).removeClass('hidden');
+      $(panelSelectors[i]).addClass('hidden');
+    }
+  }
   $(selector).removeClass('hidden');
-  $(selector).addClass('hidden');
-}
-
-function setActive(selector) {
-  $(selector).removeClass('active');
+  selector = "#" + section + "-li";
+  for (var i = 0; i < liSelectors.length; i++) {
+    $(liSelectors[i]).removeClass('active');
+  }
   $(selector).addClass('active');
 }
 
-$('#analytics-link').click(function () {
-  hideElements('#import-panel');
-  hideElements('#overview-panel');
-  $('#analytics-panel').removeClass('hidden');  
+$('#analytics-link').click(function () { activateSection("analytics"); });
+$('#overview-link').click(function () { activateSection("overview"); });
+$('#import-link').click(function () { activateSection("import"); });
+$('#alert-link').click(function () { activateSection("alert"); });
 
-  $('#overview-li').removeClass('active');
-  $('#import-li').removeClass('active');
-  setActive('#analytics-li');
-});
-$('#overview-link').click(function () {
-  hideElements('#import-panel');
-  hideElements('#analytics-panel');
-  $('#overview-panel').removeClass('hidden');  
-
-  $('#analytics-li').removeClass('active');
-  $('#import-li').removeClass('active');
-  setActive('#overview-li');
-});
-$('#import-link').click(function () {
-  hideElements('#overview-panel');
-  hideElements('#analytics-panel');
-  $('#import-panel').removeClass('hidden');
-
-  $('#analytics-li').removeClass('active');
-  $('#overview-li').removeClass('active');
-  setActive('#import-li');
-});
 
 function makeTimeSeriesData(ylabel, rows) {
   var data = new google.visualization.DataTable();         

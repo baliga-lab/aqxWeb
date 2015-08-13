@@ -2,11 +2,10 @@
 import sys
 import traceback as tb
 import logging
-import uuid
 import json
 import os
 from functools import wraps
-from datetime import datetime
+import time
 import csv
 
 import MySQLdb
@@ -15,13 +14,19 @@ from werkzeug import secure_filename
 import flask
 import requests
 
+import aqxdb
+
 """This is the prototype web application for our Aquaponics site.
 We might consider later splitting stuff up into Flask Blueprints
 """
 
-ATTR_NAMES = {'ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp'}
 IMPORT_ATTR_NAMES = {'time', 'ammonium', 'o2', 'ph', 'nitrate', 'light', 'temperature'}
-
+TIME_FORMATS = [
+    '%m/%d/%Y %H:%M',
+    '%m/%d/%y %H:%M',
+    '%m/%d/%Y %H:%M:%S',
+    '%m/%d/%y %H:%M:%S'
+]
 
 app = Flask(__name__)
 app.config.from_envvar('AQUAPONICS_SETTINGS')
@@ -37,38 +42,17 @@ def dbconn():
                            passwd=app.config['PASS'], db=app.config['DB'])
 
 
-def new_system_id():
-    """Generates a new system id"""
-    return uuid.uuid1().hex
-
-
-def meas_table_name(system_uid, attr):
-    return "aqxs_%s_%s" % (attr, system_uid)
-
-
-def meas_table_names(system_uid):
-    return [meas_table_name(system_uid, attr) for attr in ATTR_NAMES]
-
 
 def google_user_info(bearer_token):
     resp = requests.get(app.config['USERINFO_URL'], headers={'Authorization': 'Bearer %s' % bearer_token})
     return resp.json()
 
 
-def get_user(user_id, email):
+def get_user(google_id, email):
     conn = dbconn()
     cursor = conn.cursor()
     try:
-        cursor.execute('select id from users where google_id=%s', [user_id])
-        row = cursor.fetchone()
-        if row is None:
-            # create user
-            cursor.execute('insert into users (google_id, email) values (%s,%s)', [user_id, email])
-            result = cursor.lastrowid
-            conn.commit()
-        else:
-            result = row[0]
-        return result
+        return aqxdb.get_or_create_user(conn, cursor, google_id)
     finally:
         conn.close()
 
@@ -235,11 +219,6 @@ def signout():
     return Response('ok', mimetype='text/plain')
 
 
-def get_latest_measurement(cursor, sys_uid, attr):
-    cursor.execute("select value from " + meas_table_name(sys_uid, attr) + " order by time desc limit 1")
-    row = cursor.fetchone()
-    return None if row is None else row[0]
-
 @app.route('/home')
 @requires_login
 def dashboard():
@@ -247,21 +226,7 @@ def dashboard():
     conn = dbconn()
     cursor = conn.cursor()
     try:
-        cursor.execute('select s.id,s.name,system_id from systems s join users u on s.user_id=u.id where google_id=%s',
-                       [user_id])
-        systems = [{'pk': pk, 'name': name, 'sys_uid': sys_id}
-                   for pk, name, sys_id in cursor.fetchall()]
-        now = datetime.now()
-        
-        for system in systems:            
-            sys_uid = system['sys_uid']
-            system['time'] = now
-            system['temperature'] = get_latest_measurement(cursor, sys_uid, 'temp')
-            system['ph'] = get_latest_measurement(cursor, sys_uid, 'ph')
-            system['oxygen'] = get_latest_measurement(cursor, sys_uid, 'o2')
-            system['ammonium'] = get_latest_measurement(cursor, sys_uid, 'ammonium')
-            system['nitrate'] = get_latest_measurement(cursor, sys_uid, 'nitrate')
-            # TODO: light                        
+        systems = aqxdb.systems_and_latest_measurements(cursor, user_id)
     finally:
         cursor.close()
         conn.close()
@@ -270,10 +235,6 @@ def dashboard():
     # TODO: get all available system ids
     return render_template('dashboard.html', **locals())
 
-
-def get_measurement_series(cursor, sys_uid, attr):
-    cursor.execute("select time, value from " + meas_table_name(sys_uid, attr) + " order by time asc")
-    return [[str(time), float(value)] for time, value in cursor.fetchall()]
 
 @app.route('/system-details/<system_uid>')
 def sys_details(system_uid=None):
@@ -287,11 +248,11 @@ def sys_details(system_uid=None):
         
         # only owners can modify systems's data
         readonly = user_google_id != sys_google_id
-        temp_rows = get_measurement_series(cursor, system_uid, 'temp')
-        ph_rows = get_measurement_series(cursor, system_uid, 'ph')
-        o2_rows = get_measurement_series(cursor, system_uid, 'o2')
-        ammonium_rows = get_measurement_series(cursor, system_uid, 'ammonium')
-        nitrate_rows = get_measurement_series(cursor, system_uid, 'nitrate')
+        temp_rows = aqxdb.get_measurement_series(cursor, system_uid, 'temp')
+        ph_rows = aqxdb.get_measurement_series(cursor, system_uid, 'ph')
+        o2_rows = aqxdb.get_measurement_series(cursor, system_uid, 'o2')
+        ammonium_rows = aqxdb.get_measurement_series(cursor, system_uid, 'ammonium')
+        nitrate_rows = aqxdb.get_measurement_series(cursor, system_uid, 'nitrate')
     finally:
         cursor.close()
         conn.close()
@@ -316,7 +277,7 @@ def create_system():
                 flash("You already have a system named '%s'. Please use a different name." % sysname, 'error')
             else:
                 app.logger.debug("creating system %s for user id: %d", sysname, user_pk)
-                create_aquaponics_system(cursor, user_pk, sysname)
+                aqxdb.create_aquaponics_system(cursor, user_pk, sysname)
                 conn.commit()
                 flash("Created Aquaponics system '%s'." % sysname, 'info')
         except Exception, e:
@@ -328,16 +289,38 @@ def create_system():
     return redirect(url_for('dashboard'))
 
 
-def create_aquaponics_system(cursor, user_pk, name):
-    """Create the entry and tables for a user's Aquaponics system"""
-    system_uid = new_system_id()
-    cursor.execute('insert into systems (user_id,name,system_id,creation_time) values (%s,%s,%s,now())',
-                   [user_pk, name, system_uid])
-    for table_name in meas_table_names(system_uid):
-        query = "create table if not exists %s (time timestamp primary key not null, value decimal(13,10) not null)" % table_name
-        cursor.execute(query)
-    
-    
+
+def check_titles(titles):
+    """Check for the possible errors in document titles"""
+    ok = True
+    unknown_titles = {unicode(title, 'utf-8') for title in titles
+                      if title not in IMPORT_ATTR_NAMES}
+    if len(unknown_titles) > 0:
+        flash("There are problems in your import document", "error")
+        for unknown_title in unknown_titles:
+            flash("Unknown document title: '%s'." % flask.escape(unknown_title), "error")
+        ok = False
+    if "time" not in titles:
+        flash("Your import document does not contain the mandatory 'time' attribute",
+              "error")
+        ok = False
+    if len(set(titles)) != len(titles):
+        flash("Your import document does not contain the mandatory 'time' attribute",
+              "error")
+        ok = False
+    return ok
+
+
+def get_time(row, time_index):
+    value = row[time_index]
+    for time_format in TIME_FORMATS:
+        try:
+            result = time.strptime(value, time_format)
+            return result
+        except:
+            pass
+    return None
+
 @app.route("/import-csv", methods=['POST'])
 @requires_login
 def import_csv():
@@ -352,24 +335,31 @@ def import_csv():
         try:
             dialect = csv.Sniffer().sniff(csvfile.read(1024))
             csvfile.seek(0)
+
+            # This is the check, only import after a complete
+            # consistency check
             reader = csv.reader(csvfile, dialect)
-            count = 0
             # check the titles
             titles = reader.next()
-            unknown_titles = [unicode(title, 'utf-8') for title in titles
-                              if title not in IMPORT_ATTR_NAMES]
-            if len(unknown_titles) > 0:
-                flash("There are problems in your import document", "error")
-                for unknown_title in unknown_titles:
-                    flash("Unknown document title: '%s'." % flask.escape(unknown_title), "error")
-            else:
+            if check_titles(titles):
+                # headers are valid, now check the input
+                title_indexes = {title: i for i, title in enumerate(titles)}
+                time_index = title_indexes['time']
+
                 for row in reader:
-                    app.logger.debug(row)
-                    if count > 3:
-                        break
-                    count += 1
+                    timestamp = get_time(row, time_index)
+                    if timestamp is None:
+                        flash("invalid time value '%s' at line %d" % (row[time_index],
+                                                                      csvreader.linenum), "error")
+                    for i, value in row:
+                        if i != time_index:
+                            attr_name = titles[i]
+                            # check and import attribute
+
                 flash("Imported measurements file '%s'." % filename, "info")
         except:
+            # this exception is often thrown by csv.Sniffer when the format
+            # is not recognized
             flash("The provided file '%s' most likely is not a CSV file" % filename, "error")
             
 

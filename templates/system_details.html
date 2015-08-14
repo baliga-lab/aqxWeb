@@ -97,6 +97,57 @@
             <div class="panel-heading"><span class="glyphicon glyphicon-hdd"></span> Input data for <strong>{{system_name}}</strong></div>
 
             <div class="panel-body">
+              <h4>Manual Input</h4>
+              <form class="form-horizontal" method="post" action="{{url_for('add_measurement')}}">
+                <input type="hidden" class="hidden" name="system-uid" value="{{system_uid}}"></input>
+                <div class="form-group">
+                  <label class="col-sm-3 control-label" for="measure-date">Measurement Time</label>
+                  <input class="col-sm-3" type="date" id="measure-date" name="measure-date" required></input>
+                  <input class="col-sm-3" type="time" id="measure-time" name="measure-time" step="1"></input>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-3 control-label" for="o2-value">Dissolved Oxygen</label>
+                  <div class="input-group col-sm-2">
+                    <input id="o2-value" name="o2-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="o2-addon"></input>
+                    <span id="o2-addon" class="input-group-addon" style="">mg/l</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-3 control-label" for="temp-value">Temperature</label>
+                  <div class="input-group col-sm-2">
+                    <input id="temp-value" name="temp-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="temp-addon"></input>
+                    <span id="temp-addon" class="input-group-addon" style="">&deg;C</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-3 control-label" for="ammonium-value">Ammonium</label>
+                  <div class="input-group col-sm-2">
+                    <input id="ammonium-value" name="ammonium-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="ammonium-addon"></input>
+                    <span id="ammonium-addon" class="input-group-addon" style="">mg/l</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-3 control-label" for="nitrate-value">Nitrate</label>
+                  <div class="input-group col-sm-2">
+                    <input id="nitrate-value" name="nitrate-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="nitrate-addon"></input>
+                    <span id="nitrate-addon" class="input-group-addon" style="">mg/l</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-3 control-label" for="ph-value">pH</label>
+                  <div class="input-group col-sm-2">
+                    <input id="ph-value" name="ph-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001"></input>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <div class="col-sm-10">
+                    <button type="submit" class="btn btn-default">Submit</button>
+                  </div>
+                </div>
+              </form>
+
+              <hr>
+
               <h4>Measurement Data Import</h4>
               <form method="post" action="{{url_for('import_csv')}}" enctype="multipart/form-data">
                 <div class="form-group">
@@ -106,29 +157,7 @@
                 </div>
                 <button type="submit" class="btn btn-default">Submit</button>
               </form>
-              <hr>
-              <h4>Manual Input</h4>
-              <form method="post" action="{{url_for('add_measurement')}}">
-                <input type="hidden" class="hidden" name="system-uid" value="{{system_uid}}"></input>
-                <div class="form-group">
-                  <label for="measure-time">Measurement Date&amp;Time</label>
-                  <input type="datetime-local" id="measure-time" name="measure-time" step="1" required></input>
-                </div>
-                <div class="form-group">
-                  <select id="measure-type" name="measure-type">
-                    <option value="o2">Dissolved Oxygen (mg/l)</option>
-                    <option value="ph">pH</option>
-                    <option value="temp">Temperature (&deg;C)</option>
-                    <option value="nitrate">Nitrate (mg/l)</option>
-                    <option value="ammonium">Ammonium (mg/l)</option>
-                    <option value="light">Light (cd)</option>
-                  </select>
-                  <input id="measure-value" name="measure-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="width: 100px; text-align: right;" value="0.0" step="0.001" required></input>
-                </div>
-                <div class="form-group">
-                  <button type="submit" class="btn btn-default">Submit</button>
-                </div>
-              </form>
+
               <!--
               <hr>
               <h3>REST API</h3>

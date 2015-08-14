@@ -3,6 +3,10 @@
     height: 32px;
 }
 
+.input-group > input {
+    height: 30px; 
+}
+
 .avatar {
     height: 36px;
 }

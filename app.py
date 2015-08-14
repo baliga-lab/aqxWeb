@@ -291,7 +291,11 @@ def is_system_owner(cursor, sys_uid, user_id):
     return cursor.fetchone()[0] > 0
 
 
-def get_form_time(s):
+def get_form_time(datestr, timestr):
+    if timestr:
+        s = "%sT%s" % (datestr, timestr)
+    else:
+        s = "%sT00:00:00" % datestr
     return datetime.fromtimestamp(time.mktime(time.strptime(s, '%Y-%m-%dT%H:%M:%S')))
 
 
@@ -299,38 +303,46 @@ def get_form_time(s):
 @requires_login
 def add_measurement():
     sys_uid = request.form['system-uid']
-    measure_type = request.form['measure-type']
+    measure_date = request.form['measure-date']
     measure_time = request.form['measure-time']
-    measure_value = request.form['measure-value']
-    # verify and sanitize the input, measure_type must be within allowed ones !!!
-    # sys_uid possible should be checked, too
-    conn = dbconn()
-    cursor = conn.cursor()
-    try:
-        if is_system_owner(cursor, sys_uid, session['user_id']):
-            if measure_type not in aqxdb.ATTR_NAMES:
-                flash('Unknown measurement type provided', 'error')
-            else:
-                try:
-                    mvalue = float(measure_value)
+    mtime = get_form_time(measure_date, measure_time)
+    app.logger.debug("Date: %s, Time: '%s', mtime: '%s'", measure_date, measure_time, str(mtime))
+    values = {}
+    errors = []
+    for attr in aqxdb.ATTR_NAMES:
+        if attr != 'light':  # currently the form does not support light
+            try:
+                value = request.form['%s-value' % attr]
+                if value:
                     try:
-                        mtime = get_form_time(measure_time)
-                        aqxdb.add_measurement(cursor, sys_uid, measure_type, mtime, mvalue)
-                        conn.commit()
-                        flash('Measurement added', 'info')
-                    except Exception, e:
-                        conn.rollback()
-                        app.logger.exception(e)
-                        flash('invalid measurement time: %s' % measure_time, 'error')
-                except:
-                    flash('invalid measurement value: %s' % measure_value, 'error')
-        else:
-            flash('Error: only system owners can add measurements')
-    finally:
-        cursor.close()
-        conn.close()
-    app.logger.debug('add measurement, type: %s, time: %s, value: %s', measure_type,
-                     measure_time, measure_value)
+                        values[attr] = float(value)
+                    except:
+                        errors.append("invalid input for '%s': '%s'" % (attr, value))
+            except Exception, e:
+                app.logger.debug("key error: %s", attr)
+                app.logger.exception(e)
+
+    for error_msg in errors:
+        flash(error_msg, "error")
+
+    if len(values) == 0:
+        flash("Please specify at least one measurement value.", "error")
+
+    form_ok = len(values) > 0 or len(errors) == 0
+    if form_ok:
+        conn = dbconn()
+        cursor = conn.cursor()
+        try:
+            if is_system_owner(cursor, sys_uid, session['user_id']):
+                for measure_type, mvalue in values.items():
+                    aqxdb.add_measurement(cursor, sys_uid, measure_type, mtime, mvalue)
+                conn.commit()
+                flash('Measurements added', 'info')
+            else:
+                flash('Error: only system owners can add measurements')
+        finally:
+            cursor.close()
+            conn.close()
     return redirect(url_for('sys_details', system_uid=sys_uid))
 
 
@@ -364,6 +376,8 @@ def import_csv():
             finally:
                 cursor.close()
                 conn.close()
+    else:
+        flash('No import file specified', 'error')
 
     return redirect(url_for('sys_details', system_uid=sys_uid))
 

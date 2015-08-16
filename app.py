@@ -383,6 +383,8 @@ def import_csv():
 #### TODO: maybe put into its own Blueprint
 ######################################################################
 
+API_TIME_FORMAT = '%m/%d/%Y %H:%M:%S'
+
 """
 curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ya29.0QG7E0h26h9tXDBb5pruN7bJJjtxDeFAC_u5oFTqCYf4pZDfSHoV21DRJi31152dNJwyuA" -d '[{"time": "08/15/2015 08:15:30", "o2": 10.2}]' http://localhost:5000/api/v1/add-measurements/7921a6763e0011e5beb064273763ec8b
 
@@ -397,15 +399,26 @@ def api_add_measurements(system_id, *args, **kwargs):
             app.logger.debug('adding measurements for system id: %s and google id: %s', system_id, kwargs['google_id']) 
             measurements = json.loads(request.data)
             try:
+                warned = False
                 for measurement in measurements:
                     app.logger.debug(measurement)
                     if not 'time' in measurement:
                         return jsonify(error="no time provided")
+                    timestamp = datetime.fromtimestamp(time.mktime(time.strptime(measurement['time'],
+                                                                                 API_TIME_FORMAT)))
                     for attr in aqxdb.ATTR_NAMES:
                         if attr in measurement:
-                            app.logger.debug("process '%s', %f", attr, measurement[attr])
-            except:
-                return jsonify()
+                            try:
+                                aqxdb.add_measurement(cursor, system_id, attr, timestamp, measurement[attr])
+                            except:
+                                # only warn once per submission
+                                if not warned:                                    
+                                    app.logger.warn('attempted to add data for existing time')
+                                    warned = True
+                conn.commit()
+            except Exception, e:
+                app.logger.exception(e)
+                return jsonify(error="error in input document")
 
             return jsonify(status="Ok")
         else:

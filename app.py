@@ -380,38 +380,34 @@ def import_csv():
 
 ######################################################################
 #### REST API
+#### TODO: maybe put into its own Blueprint
 ######################################################################
 
-@app.route('/api/v1/upload_run', methods=['POST'])
-@authorize
-def upload_run():
-    conn = dbconn()
-    cursor = conn.cursor()
-    try:
-        xmlimport.process_doc(cursor, request.data)
-        conn.commit()
-    finally:
-        cursor.close()
-        conn.close()
-    return Response("hello world", mimetype='text/plain')
-
+"""
+curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ya29.0QG7E0h26h9tXDBb5pruN7bJJjtxDeFAC_u5oFTqCYf4pZDfSHoV21DRJi31152dNJwyuA" -d '[{"time": "08/15/2015 08:15:30", "o2": 10.2}]' http://localhost:5000/api/v1/add-measurements/7921a6763e0011e5beb064273763ec8b
 
 """
-curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ya29.0QG7E0h26h9tXDBb5pruN7bJJjtxDeFAC_u5oFTqCYf4pZDfSHoV21DRJi31152dNJwyuA" -d '[{"time": "08/15/2015 08:15:30", "o2": 10.2}]' http://localhost:5000/api/v1/add_measurements/7921a6763e0011e5beb064273763ec8b
-
-"""
-@app.route('/api/v1/add_measurements/<system_id>', methods=['POST'])
+@app.route('/api/v1/add-measurements/<system_id>', methods=['POST'])
 @authorize
-def add_measurements(system_id, *args, **kwargs):
+def api_add_measurements(system_id, *args, **kwargs):
     conn = dbconn()
     cursor = conn.cursor()
     try:
         if aqxdb.is_system_owner(cursor, system_id, google_id=kwargs['google_id']):
             app.logger.debug('adding measurements for system id: %s and google id: %s', system_id, kwargs['google_id']) 
             measurements = json.loads(request.data)
-            for measurement in measurements:
-                app.logger.debug(measurement)
-            return Response(json.dumps({'status': 'ok'}), mimetype='application/json')
+            try:
+                for measurement in measurements:
+                    app.logger.debug(measurement)
+                    if not 'time' in measurement:
+                        return jsonify(error="no time provided")
+                    for attr in aqxdb.ATTR_NAMES:
+                        if attr in measurement:
+                            app.logger.debug("process '%s', %f", attr, measurement[attr])
+            except:
+                return jsonify()
+
+            return jsonify(status="Ok")
         else:
             return jsonify(error="attempt to access non-existing (or non-owned) system")
     finally:

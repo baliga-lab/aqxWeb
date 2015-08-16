@@ -26,6 +26,19 @@ def new_system_id():
     return uuid.uuid1().hex
 
 
+def is_system_owner(cursor, sys_uid, user_id=None, google_id=None):
+    if user_id is not None:
+        cursor.execute('select count(*) from systems where system_id=%s and user_id=%s',
+                    [sys_uid, user_id])
+        return cursor.fetchone()[0] > 0
+    elif google_id is not None:
+        print "GOOGLE ID"
+        cursor.execute('select count(*) from systems s join users u on s.user_id=u.id where system_id=%s and u.google_id=%s',
+                       [sys_uid, google_id])
+        return cursor.fetchone()[0] > 0
+    return False
+
+
 def meas_table_name(system_uid, attr):
     return "aqxs_%s_%s" % (attr, system_uid)
 

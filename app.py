@@ -9,7 +9,7 @@ import time
 from datetime import datetime
 
 import MySQLdb
-from flask import Flask, Response, url_for, redirect, render_template, request, session, flash
+from flask import Flask, Response, url_for, redirect, render_template, request, session, flash, jsonify
 from werkzeug import secure_filename
 import flask
 import requests
@@ -64,13 +64,15 @@ def authorize(func):
                 if 'error' in user_info:
                     app.logger.error('error in authorization: %s', user_info['error']['message'])
                 else:
-                    kwargs['user_id'] = user_info['id']
-                    app.logger.debug('@authorize(), user_id: %s', kwargs['user_id'])
+                    kwargs['google_id'] = user_info['id']
+                    app.logger.debug('@authorize(), google_id: %s', kwargs['google_id'])
             else:
                 # error wrong authentification
                 app.logger.error('@authorize(), not a Bearer token')
-                raise Exception('authentication error')
-
+                return jsonify(error="authorization error")
+        else:
+            app.logger.debug("no authorization headers: %s", str(request.headers))
+            return jsonify(error="authorization error")
         return func(*args, **kwargs)
     return wrapper
 
@@ -285,12 +287,6 @@ def create_system():
     return redirect(url_for('dashboard'))
 
 
-def is_system_owner(cursor, sys_uid, user_id):
-    cursor.execute('select count(*) from systems where system_id=%s and user_id=%s',
-                   [sys_uid, user_id])
-    return cursor.fetchone()[0] > 0
-
-
 def get_form_time(datestr, timestr):
     if timestr:
         s = "%sT%s" % (datestr, timestr)
@@ -333,7 +329,7 @@ def add_measurement():
         conn = dbconn()
         cursor = conn.cursor()
         try:
-            if is_system_owner(cursor, sys_uid, session['user_id']):
+            if aqxdb.is_system_owner(cursor, sys_uid, user_id=session['user_id']):
                 for measure_type, mvalue in values.items():
                     aqxdb.add_measurement(cursor, sys_uid, measure_type, mtime, mvalue)
                 conn.commit()
@@ -361,7 +357,7 @@ def import_csv():
             conn = dbconn()
             cursor = conn.cursor()
             try:
-                if is_system_owner(cursor, sys_uid, session['user_id']):
+                if aqxdb.is_system_owner(cursor, sys_uid, user_id=session['user_id']):
                     error_messages = csvimport.import_measurement_file(app, conn, sys_uid,
                                                                        csvfile, filename)
                     if len(error_messages) > 0:
@@ -387,6 +383,7 @@ def import_csv():
 ######################################################################
 
 @app.route('/api/v1/upload_run', methods=['POST'])
+@authorize
 def upload_run():
     conn = dbconn()
     cursor = conn.cursor()
@@ -398,16 +395,40 @@ def upload_run():
         conn.close()
     return Response("hello world", mimetype='text/plain')
 
+
+"""
+curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ya29.0QG7E0h26h9tXDBb5pruN7bJJjtxDeFAC_u5oFTqCYf4pZDfSHoV21DRJi31152dNJwyuA" -d '[{"time": "08/15/2015 08:15:30", "o2": 10.2}]' http://localhost:5000/api/v1/add_measurements/7921a6763e0011e5beb064273763ec8b
+
+"""
+@app.route('/api/v1/add_measurements/<system_id>', methods=['POST'])
+@authorize
+def add_measurements(system_id, *args, **kwargs):
+    conn = dbconn()
+    cursor = conn.cursor()
+    try:
+        if aqxdb.is_system_owner(cursor, system_id, google_id=kwargs['google_id']):
+            app.logger.debug('adding measurements for system id: %s and google id: %s', system_id, kwargs['google_id']) 
+            measurements = json.loads(request.data)
+            for measurement in measurements:
+                app.logger.debug(measurement)
+            return Response(json.dumps({'status': 'ok'}), mimetype='application/json')
+        else:
+            return jsonify(error="attempt to access non-existing (or non-owned) system")
+    finally:
+        cursor.close()
+        conn.close()
+
+
 # This is an example for an API call that is authenticated with Google OAuth2
 # The call expects an authorization header with a Bearer token received
 # from Google OAuth2.
 @app.route('/api/v1/api_test', methods=['POST', 'GET'])
 @authorize
 def api_test(*args, **kwargs):
-    app.logger.debug('api_test(), user_id: %s', kwargs['user_id'])
+    app.logger.debug('api_test(), user_id: %s', kwargs['google_id'])
 
     # this is the authorization code
-    return Response('{"hallo": "spencer"}', mimetype='application/json')
+    return jsonify(hallo='spencer')
     
 
 if __name__ == '__main__':

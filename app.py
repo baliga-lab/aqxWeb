@@ -398,10 +398,10 @@ def api_add_measurements(system_id, *args, **kwargs):
         if aqxdb.is_system_owner(cursor, system_id, google_id=kwargs['google_id']):
             app.logger.debug('adding measurements for system id: %s and google id: %s', system_id, kwargs['google_id']) 
             measurements = json.loads(request.data)
+            app.logger.debug(measurements)
             try:
                 warned = False
                 for measurement in measurements:
-                    app.logger.debug(measurement)
                     if not 'time' in measurement:
                         return jsonify(error="no time provided")
                     timestamp = datetime.fromtimestamp(time.mktime(time.strptime(measurement['time'],
@@ -412,15 +412,14 @@ def api_add_measurements(system_id, *args, **kwargs):
                                 aqxdb.add_measurement(cursor, system_id, attr, timestamp, measurement[attr])
                             except:
                                 # only warn once per submission
-                                if not warned:                                    
+                                if not warned:
                                     app.logger.warn('attempted to add data for existing time')
                                     warned = True
                 conn.commit()
+                return jsonify(status="Ok")
             except Exception, e:
                 app.logger.exception(e)
                 return jsonify(error="error in input document")
-
-            return jsonify(status="Ok")
         else:
             return jsonify(error="attempt to access non-existing (or non-owned) system")
     finally:

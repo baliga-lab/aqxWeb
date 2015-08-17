@@ -72,7 +72,7 @@ def systems_and_latest_measurements(cursor, user_id):
     return systems
 
 def get_measurement_series(cursor, sys_uid, attr):
-    cursor.execute("select time, value from " + meas_table_name(sys_uid, attr) + " order by time asc limit 100")
+    cursor.execute("select time, value from " + meas_table_name(sys_uid, attr) + " order by time desc limit 100")
     return [[str(time), float(value)] for time, value in cursor.fetchall()]
 
 
@@ -88,5 +88,5 @@ def create_aquaponics_system(cursor, user_pk, name):
 
 def add_measurement(cursor, sys_uid, attr, timestamp, value):
     table = meas_table_name(sys_uid, attr)
-    cursor.execute('insert into ' + table + ' (time,value) values (%s,%s)',
-                    [timestamp, value])
+    query = 'insert into ' + table + ' (time,value) values (%s,%s)'
+    cursor.execute(query, [timestamp, value])

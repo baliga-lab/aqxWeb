@@ -257,9 +257,35 @@ def update_default_site_location():
         cursor.close()
         conn.close()
 
+@app.route('/set-system-image', methods=['POST'])
+@requires_login
+def set_system_image():
+    file = request.files['image-file']
+    sys_uid = request.form['system-uid']
+    if file:
+        filename = secure_filename(file.filename)
+        suffix = filename.split('.')[-1].lower()
+        app.logger.debug('suffix: %s', suffix)
+        if suffix in {'png', 'jpg'}:
+            filename = "%s.%s" % (sys_uid, suffix)
+            target_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(target_path)
+            return jsonify(status="Ok")
+        else:
+            return jsonify(error="invalid image file name")
+    return jsonify(error="please specify an image file")
+
 @app.route('/system-details/<system_uid>')
 def sys_details(system_uid=None):
     user_google_id = session['google_id'] if 'google_id' in session else None
+    img_url = None
+    jpg_path = os.path.join(app.config['UPLOAD_FOLDER'], "%s.jpg" % system_uid)
+    if os.path.exists(jpg_path):
+        img_url = '/static/uploads/%s.jpg' % system_uid
+    if img_url is None:
+        png_path = os.path.join(app.config['UPLOAD_FOLDER'], "%s.png" % system_uid)
+        if os.path.exists(png_path):
+            img_url = '/static/uploads/%s.png' % system_uid
 
     conn = dbconn()
     cursor = conn.cursor()

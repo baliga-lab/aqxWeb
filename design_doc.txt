@@ -55,9 +55,12 @@
 
 *** TODO
 
-  - let user specify their geolocation using Google Maps
+  - reconfigure production to serve static from static folder
   - add a control to upload a picture for an Aquaponics system
     - do it similar to Google Account: Drag and Drop or select
+
+  - add a world/US map of all measurement sites
+    - a click views the readonly information of a site
   - the google login call actually can take a redirect url, integrate the redirection to dashboard ?
   - Android access
   - Windows access

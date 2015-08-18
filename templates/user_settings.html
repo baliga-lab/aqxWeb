@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Overview{% endblock %}
+{% block content %}
+    {% with messages = get_flashed_messages(category_filter=["error"]) %}
+    {% if messages %}
+    <div class="container-fluid bg-danger" style="margin-top: 15px;">
+      <ul class="flashes list-unstyled">
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+    {% endwith %}
+    {% with messages = get_flashed_messages(category_filter=["info"]) %}
+    {% if messages %}
+    <div class="container-fluid bg-info"  style="margin-top: 15px;">
+      <ul class="flashes list-unstyled">
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <div class="container-fluid">
+      <div class="panel panel-default" style="margin-top: 15px;">
+        <div class="panel-heading">Your Profile Settings</div>
+        <div class="panel-body">
+          <h4>Default Measurement Site</h4>
+          <div>
+            <input type="text" id="site-location-search" style="width:300px"></input>            
+            <div id="map" style="width: 90%; height: 300px; margin-top: 10px;"></div>
+          </div>
+        </div><!-- .panel-body -->
+      </div><!-- .panel -->
+    </div><!-- /.container-fluid -->
+
+{% endblock %}
+{% block bottom %}
+    <script>
+      var autocomplete, map;
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: 47.620, lng: -122.349},
+          zoom: 8
+        });
+
+        var options = {};
+        var input = document.getElementById('site-location-search');
+        autocomplete = new google.maps.places.Autocomplete(input, options);
+        autocomplete.place_changed = function() {
+           var place = autocomplete.getPlace();
+           if (place.icon) {
+             var icon = {
+               url: place.icon,
+               size: new google.maps.Size(71, 71),
+               origin: new google.maps.Point(0, 0),
+               anchor: new google.maps.Point(17, 34),
+               scaledSize: new google.maps.Size(25, 25)
+             };
+             new google.maps.Marker({
+               map: map,
+               icon: icon,
+               title: place.name,
+               position: place.geometry.location
+             });
+           }
+           console.log(place);
+           if (place.geometry.viewport) {
+             map.fitBounds(place.geometry.viewport);
+           }
+        };
+      }
+    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?libraries=places&callback=initMap&key=AIzaSyAf5H8z54x-zJsvEcgWNtxIA8u6h17OFyY"></script>
+{% endblock %}

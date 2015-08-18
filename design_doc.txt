@@ -1,5 +1,6 @@
 * TODOs
 
+  - use internal build/release versions everywhere
   - sit down with Jessica to work out a mockup demonstration mode
     for teachers
 
@@ -54,6 +55,9 @@
 
 *** TODO
 
+  - let user specify their geolocation using Google Maps
+  - add a control to upload a picture for an Aquaponics system
+    - do it similar to Google Account: Drag and Drop or select
   - the google login call actually can take a redirect url, integrate the redirection to dashboard ?
   - Android access
   - Windows access
@@ -68,9 +72,6 @@
 
 *** TODO
 
-  - connect to temperature sensors
-  - connect to other sensors
-  - port to Windows
   - support retrieval and storage of refresh token and system id
   - make configurable through API
 

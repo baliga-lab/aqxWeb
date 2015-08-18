@@ -229,6 +229,12 @@ def dashboard():
     # TODO: get all available system ids
     return render_template('dashboard.html', **locals())
 
+@app.route('/user-settings')
+@requires_login
+def user_settings():
+    google_id = session['google_id']
+    return render_template('user_settings.html', **locals())
+
 
 @app.route('/system-details/<system_uid>')
 def sys_details(system_uid=None):
@@ -349,7 +355,7 @@ def import_csv():
     file = request.files['import-file']
     if file:
         filename = secure_filename(file.filename)
-        target_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        target_path = os.path.join(app.config['TMP_FOLDER'], filename)
         file.save(target_path)
         app.logger.debug('import csv, system uid: %s, filename: %s', sys_uid, filename)
         

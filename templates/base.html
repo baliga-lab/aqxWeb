@@ -69,7 +69,7 @@
                 <ul class="dropdown-menu">
                   <li class="dropdown-header">{{session.email}}</li>
                   <li><a href="{{url_for('dashboard')}}" title="View your Aquaponics systems"><span class="glyphicon glyphicon-dashboard"></span> My Systems</a></li>
-                  <li class="disabled"><a href="#" title="Change your settings"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
+                  <li><a href="{{url_for('user_settings')}}" title="Change your settings"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
                   <li role="separator" class="divider"></li>
                   <li><a href="#" title="System sign out" onclick="signOut()">Signout</a></li>
                 </ul>

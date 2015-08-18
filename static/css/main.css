@@ -50,3 +50,12 @@
     font-weight: normal;
     color: #fff;
 }
+
+.img-placeholder {
+    width: 400px;
+    height: 300px;
+    border: 3px dashed rgb(200,200,200);
+    border-radius: 5px;
+    margin-bottom: 10px;
+    text-align: center;
+}

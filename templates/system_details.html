@@ -47,6 +47,20 @@
             <div class="panel-heading"><span class="glyphicon glyphicon-list-alt"></span> Overview for <strong>{{system_name}}</strong></div>
 
             <div class="panel-body">
+              <div class="img-placeholder">
+                <div style="height: 20px;"></div>
+                <p style="font-size:12pt; font-weight: bold;">
+                  Drag&amp;Drop your image here (JPG or PNG)
+                </p>
+                <p style="font-weight: bold;">
+                  or
+                </p>
+                <form method="post" action="" enctype="multipart/form-data">
+                  <input type="file" id="browse-image" name="image-file" style="display:none">
+                  <input type="hidden" class="hidden" name="system-uid" value="{{system_uid}}"></input>
+                  <button type="button" onclick="$('#browse-image').click();" class="btn btn-primary">Browse</button>
+                </form>
+              </div>
               <dl>
                 <dt>Date Created</dt>
                 <dd>{{creation_time}}</dd>

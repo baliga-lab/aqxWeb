@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Overview{% endblock %}
+{% block title %}User Profile Settings{% endblock %}
 {% block content %}
     {% with messages = get_flashed_messages(category_filter=["error"]) %}
     {% if messages %}
@@ -26,7 +26,7 @@
 
     <div class="container-fluid">
       <div class="panel panel-default" style="margin-top: 15px;">
-        <div class="panel-heading">Your Profile Settings</div>
+        <div class="panel-heading">Edit Profile Settings</div>
         <div class="panel-body">
           <h4>Default Measurement Site</h4>
           <div>
@@ -50,7 +50,7 @@
       function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
           center: siteLocation,
-          zoom: 8
+          zoom: 15
         });
 {% if site_location %}
         marker = new google.maps.Marker({
@@ -82,6 +82,8 @@
                    lng: place.geometry.location.K });
            if (place.geometry.viewport) {
              map.fitBounds(place.geometry.viewport);
+           } else {
+             map.panTo(new google.maps.LatLng(place.geometry.location.G, place.geometry.location.K));
            }
         };
       }

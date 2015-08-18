@@ -99,7 +99,7 @@ def set_default_site_location(cursor, user_pk, lat, lng):
 def get_default_site_location(cursor, user_pk):
     cursor.execute('select default_site_location from users where id=%s', [user_pk])
     row = cursor.fetchone()
-    if row is not None:
+    if row is not None and row[0] is not None:
         coords = map(float, row[0].split(':'))
         return {'lat': coords[0], 'lng': coords[1]}
     else:

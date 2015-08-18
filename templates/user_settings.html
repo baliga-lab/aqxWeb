@@ -30,7 +30,7 @@
         <div class="panel-body">
           <h4>Default Measurement Site</h4>
           <div>
-            <input type="text" id="site-location-search" style="width:300px"></input>            
+            <input type="text" id="site-location-search" style="width: 300px"></input>            
             <div id="map" style="width: 90%; height: 300px; margin-top: 10px;"></div>
           </div>
         </div><!-- .panel-body -->
@@ -40,34 +40,46 @@
 {% endblock %}
 {% block bottom %}
     <script>
-      var autocomplete, map;
+      var autocomplete, map, marker;
+{% if site_location %}
+      var siteLocation = {{site_location|safe}};
+{% else %}
+      var siteLocation = {lat: 47.622577, lng: -122.337436};
+{% endif %}
+
       function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
-          center: {lat: 47.620, lng: -122.349},
+          center: siteLocation,
           zoom: 8
         });
+{% if site_location %}
+        marker = new google.maps.Marker({
+          map: map,
+          icon: '/static/images/leaf24.png',
+          position: siteLocation
+        });
+{% endif %}
 
         var options = {};
         var input = document.getElementById('site-location-search');
+        map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
         autocomplete = new google.maps.places.Autocomplete(input, options);
+        autocomplete.bindTo('bounds', map);
+
         autocomplete.place_changed = function() {
            var place = autocomplete.getPlace();
-           if (place.icon) {
-             var icon = {
-               url: place.icon,
-               size: new google.maps.Size(71, 71),
-               origin: new google.maps.Point(0, 0),
-               anchor: new google.maps.Point(17, 34),
-               scaledSize: new google.maps.Size(25, 25)
-             };
-             new google.maps.Marker({
+           if (place.geometry) {
+             // place marker
+             if (marker) marker.setMap(null);
+             marker = new google.maps.Marker({
                map: map,
-               icon: icon,
-               title: place.name,
+               icon: '/static/images/leaf24.png',
                position: place.geometry.location
              });
            }
-           console.log(place);
+           $.post("{{url_for('update_default_site_location')}}",
+                  {lat: place.geometry.location.G,
+                   lng: place.geometry.location.K });
            if (place.geometry.viewport) {
              map.fitBounds(place.geometry.viewport);
            }

@@ -90,3 +90,17 @@ def add_measurement(cursor, sys_uid, attr, timestamp, value):
     table = meas_table_name(sys_uid, attr)
     query = 'insert into ' + table + ' (time,value) values (%s,%s)'
     cursor.execute(query, [timestamp, value])
+
+def set_default_site_location(cursor, user_pk, lat, lng):
+    locstring = "%f:%f" % (lat, lng)
+    cursor.execute('update users set default_site_location=%s where id=%s',
+                   [locstring, user_pk])
+
+def get_default_site_location(cursor, user_pk):
+    cursor.execute('select default_site_location from users where id=%s', [user_pk])
+    row = cursor.fetchone()
+    if row is not None:
+        coords = map(float, row[0].split(':'))
+        return {'lat': coords[0], 'lng': coords[1]}
+    else:
+        return None

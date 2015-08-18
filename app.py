@@ -224,17 +224,38 @@ def dashboard():
     finally:
         cursor.close()
         conn.close()
-
-    app.logger.debug("we are currently logged in as: %s", google_id)
-    # TODO: get all available system ids
     return render_template('dashboard.html', **locals())
 
 @app.route('/user-settings')
 @requires_login
 def user_settings():
-    google_id = session['google_id']
+    conn = dbconn()
+    cursor = conn.cursor()
+    try:
+        site_location = aqxdb.get_default_site_location(cursor, session['user_id'])
+        app.logger.debug(site_location)
+    finally:
+        cursor.close()
+        conn.close()
     return render_template('user_settings.html', **locals())
 
+@app.route('/update-default-site-location', methods=['POST'])
+@requires_login
+def update_default_site_location():
+    conn = dbconn()
+    cursor = conn.cursor()
+    try:
+        lat = float(request.form['lat'])
+        lng = float(request.form['lng'])
+        aqxdb.set_default_site_location(cursor, session['user_id'], lat, lng)
+        conn.commit()
+        return jsonify(status="Ok")
+    except Exception, e:
+        app.logger.exception(e)
+        return jsonify(error="invalid geo coordinate format")
+    finally:
+        cursor.close()
+        conn.close()
 
 @app.route('/system-details/<system_uid>')
 def sys_details(system_uid=None):

@@ -303,7 +303,12 @@ def sys_details(system_uid=None):
     finally:
         cursor.close()
         conn.close()
-    return render_template('system_details.html', **locals())
+    # Provide special readonly views, it's easier to keep world-viewable pages
+    # secure when all you can do is read and keep the logic outside the template
+    if readonly:
+        return render_template('system_details_readonly.html', **locals())
+    else:
+        return render_template('system_details.html', **locals())
 
 
 @app.route("/create-system", methods=['POST'])

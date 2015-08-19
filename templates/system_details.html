@@ -8,11 +8,8 @@
           <ul class="nav nav-sidebar">
             <li id="overview-li" class="active"><a href="javascript:void(0)" title="Overview" id="overview-link"><span class="glyphicon glyphicon-list-alt"></span> Overview <span class="sr-only">(current)</span></a></li>
             <li id="analytics-li"><a href="javascript:void(0)" title="Display analytics" id="analytics-link"><span class="glyphicon glyphicon-stats"></span> Analytics</a></li>
-            {% if not readonly %}
             <li id="input-li"><a href="javascript:void(0)" title="Input" id="input-link"><span class="glyphicon glyphicon-hdd"></span> Input</a></li>
             <li id="alert-li"><a href="javascript:void(0)" title="Alerts" id="alert-link"><span class="glyphicon glyphicon-warning-sign"></span> Alerts</a></li>
-
-            {% endif %}
           </ul>
         </div><!-- /.col-sm-3 sidebar -->
 
@@ -114,7 +111,6 @@
             </div><!-- /.panel-body -->
           </div><!-- /.panel (Analytics)-->
 
-          {% if not readonly %}
           {# This is the Input panel #}
           <div id="input-panel" class="panel panel-default hidden" style="margin-top: 15px;">
             <div class="panel-heading"><span class="glyphicon glyphicon-hdd"></span> Input data for <strong>{{system_name}}</strong></div>
@@ -196,8 +192,6 @@
               <p>TODO</p>
             </div><!-- /.panel-body -->
           </div><!-- /.panel (Input)-->
-
-          {% endif %}
 
         </div><!-- /.main -->
       </div><!-- /.row -->

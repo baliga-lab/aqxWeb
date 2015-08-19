@@ -260,20 +260,31 @@ def update_default_site_location():
 @app.route('/set-system-image', methods=['POST'])
 @requires_login
 def set_system_image():
-    file = request.files['image-file']
     sys_uid = request.form['system-uid']
-    if file:
-        filename = secure_filename(file.filename)
-        suffix = filename.split('.')[-1].lower()
-        app.logger.debug('suffix: %s', suffix)
-        if suffix in {'png', 'jpg'}:
-            filename = "%s.%s" % (sys_uid, suffix)
-            target_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(target_path)
-            return jsonify(status="Ok")
+    conn = dbconn()
+    cursor = conn.cursor()
+    try:
+        if aqxdb.is_system_owner(cursor, sys_uid, user_id=session['user_id']):
+            file = request.files['image-file']
+            if file:
+                filename = secure_filename(file.filename)
+                suffix = filename.split('.')[-1].lower()
+                app.logger.debug('suffix: %s', suffix)
+                if suffix in {'png', 'jpg'}:
+                    filename = "%s.%s" % (sys_uid, suffix)
+                    target_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    file.save(target_path)
+                    return jsonify(status="Ok")
+                else:
+                    return jsonify(error="invalid image file name")
+            else:
+                return jsonify(error="please specify an image file")
         else:
-            return jsonify(error="invalid image file name")
-    return jsonify(error="please specify an image file")
+            return jsonify(error="unauthorized attempt to set image file")
+    finally:
+        cursor.close()
+        conn.close()
+
 
 @app.route('/system-details/<system_uid>')
 def sys_details(system_uid=None):

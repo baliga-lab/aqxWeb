@@ -239,7 +239,7 @@ def sys_details(system_uid=None):
     conn = dbconn()
     cursor = conn.cursor()
     try:
-        cursor.execute('select s.id,s.name,creation_time,google_id from systems s join users u on s.user_id=u.id where system_id=%s', [system_uid])
+        cursor.execute('select s.id,s.name,s.creation_time,google_id from systems s join users u on s.user_id=u.id where system_id=%s', [system_uid])
         system_pk, system_name, creation_time, sys_google_id = cursor.fetchone()
         
         # only owners can modify systems's data

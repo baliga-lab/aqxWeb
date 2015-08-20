@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}User's Aquaponics Sites{% endblock %}
+{% block content %}
+    <div class="container-fluid">
+      <div style="margin-top: 20px;">
+        <h4>Current Aquaponics Sites</h4>
+      </div>
+      <div id="map" style="width: 100%; height: 400px; margin-top: 10px;"></div>
+    </div><!-- /.container-fluid -->
+{% endblock %}
+
+{% block bottom %}
+<script>
+  var locations = {{locations|safe}};
+
+  function initMap() {
+    var siteLocation = {lat: 47.622577, lng: -122.337436};
+    var map = new google.maps.Map(document.getElementById('map'), {
+          center: siteLocation,
+          zoom: 3
+    });
+    var markers = [];
+    for (var i = 0; i < locations.length; i++) {
+       markers.push(new google.maps.Marker({
+         map: map,
+         icon: '/static/images/leaf24.png',
+         position: locations[i]
+       }));
+    }
+  }
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?callback=initMap&key=AIzaSyAf5H8z54x-zJsvEcgWNtxIA8u6h17OFyY"></script>
+{% endblock %}

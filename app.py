@@ -430,17 +430,46 @@ def set_system_image():
 @app.route('/clear-system-image/<system_uid>', methods=['DELETE'])
 @requires_login
 def clear_system_image(system_uid):
-    # TODO: check system owner
-    filename = "%s.jpg" % system_uid
-    target_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    if os.path.exists(target_path):
-        os.remove(target_path)
-    else:
-        filename = "%s.png" % system_uid
-        target_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        if os.path.exists(target_path):
-            os.remove(target_path)
-    return jsonify(status="ok")
+    conn = dbconn()
+    cursor = conn.cursor()
+    try:
+        if aqxdb.is_system_owner(cursor, system_uid, user_id=session['user_id']):
+            filename = "%s.jpg" % system_uid
+            target_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            if os.path.exists(target_path):
+                os.remove(target_path)
+            else:
+                filename = "%s.png" % system_uid
+                target_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                if os.path.exists(target_path):
+                    os.remove(target_path)
+            return jsonify(status="ok")
+        else:
+            return jsonify(error="attempt to modify non-owned system")
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/aqx-map')
+def aqx_map():
+    conn = dbconn()
+    cursor = conn.cursor()
+    try:
+        cursor.execute('select distinct default_site_location from users where default_site_location is not NULL')
+        locations = []
+        for row in cursor.fetchall():
+            loc = row[0]
+            if loc is not None and len(loc) > 0:
+                try:
+                    lat, lng = map(float, loc.split(':'))
+                    locations.append({'lat': lat, 'lng': lng})
+                except:  # don't add invalid locations
+                    pass
+        locations = json.dumps(locations);
+    finally:
+        cursor.close()
+        conn.close()
+    return render_template('aqx_map.html', **locals())
 
 
 if __name__ == '__main__':

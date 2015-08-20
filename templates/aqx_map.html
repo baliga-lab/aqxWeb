@@ -11,8 +11,6 @@
 
 {% block bottom %}
 <script>
-  var locations = {{locations|safe}};
-
   function initMap() {
     var siteLocation = {lat: 47.622577, lng: -122.337436};
     var map = new google.maps.Map(document.getElementById('map'), {
@@ -20,13 +18,14 @@
           zoom: 3
     });
     var markers = [];
-    for (var i = 0; i < locations.length; i++) {
-       markers.push(new google.maps.Marker({
-         map: map,
-         icon: '/static/images/leaf24.png',
-         position: locations[i]
-       }));
-    }
+    var marker;
+{% for location in locations %}
+    marker = new google.maps.Marker({{location|make_marker_obj|safe}});
+    marker.setMap(map);
+    google.maps.event.addListener(marker, 'click', function () {
+      window.location.href = this.url;
+    });
+{% endfor %}
   }
 </script>
 <script async defer src="https://maps.googleapis.com/maps/api/js?callback=initMap&key=AIzaSyAf5H8z54x-zJsvEcgWNtxIA8u6h17OFyY"></script>

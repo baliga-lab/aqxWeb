@@ -115,6 +115,15 @@ def swatch_ammonium_class(d, system_uid):
 def swatch_nitrate_class(d, system_uid):
     return swatch_class(d, app.config['NITRATE_GREEN_RANGES'], app.config['NITRATE_YELLOW_RANGES'])
 
+@app.template_filter()
+def make_marker_obj(location):
+    app.logger.debug("location: '%s'", str(location))
+    obj = {'title': '# systems: %d' % len(location['systems']),
+           'icon': '/static/images/leaf24.png',
+           'url': url_for("sys_details", system_uid=location['systems'][0]),
+           'position': location['location']}
+    return json.dumps(obj)
+
 
 ######################################################################
 #### Available application paths
@@ -455,17 +464,15 @@ def aqx_map():
     conn = dbconn()
     cursor = conn.cursor()
     try:
-        cursor.execute('select distinct default_site_location from users where default_site_location is not NULL')
+        #cursor.execute('select distinct default_site_location from users where default_site_location is not NULL')
+        cursor.execute("select default_site_location as loc, u.id as site_id, group_concat(system_id separator ',') as sys_uids from users u join systems s on s.user_id=u.id group by loc")
         locations = []
-        for row in cursor.fetchall():
-            loc = row[0]
-            if loc is not None and len(loc) > 0:
-                try:
-                    lat, lng = map(float, loc.split(':'))
-                    locations.append({'lat': lat, 'lng': lng})
-                except:  # don't add invalid locations
-                    pass
-        locations = json.dumps(locations);
+        for loc, site_id, sys_uids in cursor.fetchall():
+            try:
+                lat, lng = map(float, loc.split(':'))
+                locations.append({'location': {'lat': lat, 'lng': lng}, 'systems': sys_uids.split(',')})
+            except:  # don't add invalid locations
+                pass
     finally:
         cursor.close()
         conn.close()

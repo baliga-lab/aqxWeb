@@ -43,30 +43,7 @@
             <div class="panel-heading"><span class="glyphicon glyphicon-list-alt"></span> Overview for <strong>{{system_name}}</strong></div>
 
             <div class="panel-body">
-{% if img_url %}
-              <div>
-                <img class="img-details" src="{{img_url}}">
-                <div style="margin-bottom: 10px">
-                <button type="button" onclick="" class="btn btn-primary">Clear image</button>
-                <button type="button" onclick="" class="btn btn-primary">Change image</button>
-                </div>
-              </div>
-{% else %}
-              <div class="img-placeholder">
-                <div style="height: 20px;"></div>
-                <p style="font-size:12pt; font-weight: bold;">
-                  Drag&amp;Drop your image here (JPG or PNG)
-                </p>
-                <p style="font-weight: bold;">
-                  or
-                </p>
-                <form id="upload-image-form" method="post" action="" enctype="multipart/form-data">
-                  <input type="file" id="browse-image" name="image-file" style="display:none">
-                  <input type="hidden" class="hidden" name="system-uid" value="{{system_uid}}"></input>
-                  <button type="button" onclick="$('#browse-image').click();" class="btn btn-primary">Browse</button>
-                </form>
-              </div>
-{% endif %}
+              <div id="img-details" class="img-details"></div>
               <dl>
                 <dt>Date Created</dt>
                 <dd>{{creation_time}}</dd>
@@ -297,17 +274,22 @@ $('#overview-link').click(function () { activateSection("overview"); });
 $('#input-link').click(function () { activateSection("input"); });
 $('#alert-link').click(function () { activateSection("alert"); });
 
-$('#browse-image').change(function() {
-  console.debug('image changed');
-  var formdata = new FormData($("#upload-image-form")[0]);
-  $.ajax("{{url_for('set_system_image')}}",
-          {type: 'POST', data: formdata, contentType: 'multipart/form-data',
-           processData: false, contentType: false,
-           success: function(data) {
-             console.log(data);
-           }});
-});
+function setImage(selector, imgurl) {
+  $.get("{{url_for('details_images_div', system_uid=system_uid)}}", {img_url: imgurl},
+        function(data) {
+          $(selector).replaceWith(data);
+        });
+}
+function setImagePlaceholder(selector) {
+  $.get("{{url_for('details_images_placeholder', system_uid=system_uid)}}",
+        function(data) { $(selector).replaceWith(data); });
+}
 
+{% if img_url %}
+setImage('#img-details', '{{img_url}}');
+{% else %}
+setImagePlaceholder('#img-details');
+{% endif %}
 
 function makeTimeSeriesData(ylabel, rows) {
   var data = new google.visualization.DataTable();         

@@ -223,34 +223,6 @@ def update_default_site_location():
         cursor.close()
         conn.close()
 
-@app.route('/set-system-image', methods=['POST'])
-@requires_login
-def set_system_image():
-    sys_uid = request.form['system-uid']
-    conn = dbconn()
-    cursor = conn.cursor()
-    try:
-        if aqxdb.is_system_owner(cursor, sys_uid, user_id=session['user_id']):
-            file = request.files['image-file']
-            if file:
-                filename = secure_filename(file.filename)
-                suffix = filename.split('.')[-1].lower()
-                app.logger.debug('suffix: %s', suffix)
-                if suffix in {'png', 'jpg'}:
-                    filename = "%s.%s" % (sys_uid, suffix)
-                    target_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                    file.save(target_path)
-                    return jsonify(status="Ok")
-                else:
-                    return jsonify(error="invalid image file name")
-            else:
-                return jsonify(error="please specify an image file")
-        else:
-            return jsonify(error="unauthorized attempt to set image file")
-    finally:
-        cursor.close()
-        conn.close()
-
 
 @app.route('/system-details/<system_uid>')
 def sys_details(system_uid=None):
@@ -412,6 +384,63 @@ def import_csv():
 
     return redirect(url_for('sys_details', system_uid=sys_uid))
 
+
+@app.route("/details_image_div/<system_uid>", methods=["GET"])
+def details_images_div(system_uid):
+    """a simple snippet to add an image control"""
+    img_url = request.args.get('img_url');
+    return render_template('details_image_div.html', **locals())
+
+
+@app.route("/details_image_placeholder/<system_uid>", methods=["GET"])
+def details_images_placeholder(system_uid):
+    """a simple snippet to add an image control"""
+    return render_template('details_image_placeholder.html', **locals())
+    
+
+@app.route('/set-system-image', methods=['POST'])
+@requires_login
+def set_system_image():
+    sys_uid = request.form['system-uid']
+    conn = dbconn()
+    cursor = conn.cursor()
+    try:
+        if aqxdb.is_system_owner(cursor, sys_uid, user_id=session['user_id']):
+            file = request.files['image-file']
+            if file:
+                filename = secure_filename(file.filename)
+                suffix = filename.split('.')[-1].lower()
+                app.logger.debug('suffix: %s', suffix)
+                if suffix in {'png', 'jpg'}:
+                    filename = "%s.%s" % (sys_uid, suffix)
+                    target_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    file.save(target_path)
+                    return jsonify(status="Ok", img_url="/static/uploads/%s" % filename)
+                else:
+                    return jsonify(error="invalid image file name")
+            else:
+                return jsonify(error="please specify an image file")
+        else:
+            return jsonify(error="unauthorized attempt to set image file")
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route('/clear-system-image/<system_uid>', methods=['DELETE'])
+@requires_login
+def clear_system_image(system_uid):
+    # TODO: check system owner
+    filename = "%s.jpg" % system_uid
+    target_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    if os.path.exists(target_path):
+        os.remove(target_path)
+    else:
+        filename = "%s.png" % system_uid
+        target_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        if os.path.exists(target_path):
+            os.remove(target_path)
+    return jsonify(status="ok")
 
 
 if __name__ == '__main__':

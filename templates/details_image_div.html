@@ -1,0 +1,17 @@
+<div id="img-details">
+  <img id="detail-img" class="img-details" src="{{img_url}}">
+  <div style="margin-bottom: 10px">
+    <button type="button" onclick="clearImage();" class="btn btn-primary">Clear image</button>
+  </div>
+  <script>
+    function clearImage() {
+      $.ajax({ url: "{{url_for('clear_system_image', system_uid=system_uid)}}",
+               type: 'DELETE',
+                success: function(result) {
+                  if ('error' in result) {}
+                  else setImagePlaceholder('#img-details');
+                }
+  });
+}
+  </script>
+</div>

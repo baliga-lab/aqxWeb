@@ -1,4 +1,4 @@
-<div id="img-placeholder" class="img-placeholder">
+<div id="img-placeholder" class="img-placeholder" ondragover="">
   <div style="height: 20px;"></div>
   <p style="font-size:12pt; font-weight: bold;">
     Drag&amp;Drop your image here (JPG or PNG)
@@ -12,8 +12,7 @@
     <button type="button" onclick="$('#browse-image').click();" class="btn btn-primary">Browse</button>
   </form>
   <script>
-$('#browse-image').change(function() {
-  var formdata = new FormData($("#upload-image-form")[0]);
+function submitImageForm(formdata) {
   $.ajax("{{url_for('set_system_image')}}",
           {type: 'POST', data: formdata, contentType: 'multipart/form-data',
            processData: false, contentType: false,
@@ -24,7 +23,38 @@ $('#browse-image').change(function() {
               setImage('#img-placeholder', data.img_url);
              }
            }});
-          });
+}
+$('#browse-image').change(function() {
+  var formdata = new FormData($("#upload-image-form")[0]);
+  submitImageForm(formdata);
+});
+
+$('#img-placeholder').on('dragenter', function(e) {
+  e.preventDefault();
+  $('#img-placeholder').addClass('dragover');
+});
+$('#img-placeholder').on('dragover', function(e) {
+  e.preventDefault();
+  if (!$('#img-placeholder').hasClass('dragover')) {
+    $('#img-placeholder').addClass('dragover');
+  }
+});
+$('#img-placeholder').on('dragleave', function(e) {
+  e.preventDefault();
+  $('#img-placeholder').removeClass('dragover');
+});
+$('#img-placeholder').on('drop', function(e) {
+  e.preventDefault();
+  $('#img-placeholder').removeClass('dragover');
+  var files = e.originalEvent.dataTransfer.files;
+  if (files.length > 0) {
+    var formdata = new FormData();
+    formdata.append('system-uid', '{{system_uid}}');
+    formdata.append('image-file', files[0]);
+    submitImageForm(formdata);
+  }
+});
+
 
   </script>
 </div>

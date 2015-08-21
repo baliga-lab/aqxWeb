@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}About{% endblock %}
+{% block content %}
+<div class="container-fluid" style="margin-top: 30px;">
+
+  <div class="media">
+    <div class="media-left">
+      <a href="#">
+        <img class="media-object img-circle" style="width: 80px;" src="/static/images/plants.jpg" alt="Plants">
+      </a>
+    </div>
+    <div class="media-body">
+      <h4 class="media-heading">Overview</h4>
+      Project Feed 1010's software service aims to provide aquaponics system maintainers with a means to
+      capture and store information about their systems. Storing data on our service enables them
+      to monitor their system on the go and share experience with other maintainers in our network.
+    </div>
+  </div>
+
+  <div class="media">
+    <div class="media-body">
+      <h4 class="media-heading">Measurement Storage</h4>
+      We have automated the submission of measurement results (currently for Vernier probeware products, please <a href="http://www.projectfeed1010.com/collaborate/">contact us</a> if you are interested in support for probeware from other vendors).
+      Alternatively, maintainers can either enter their measurement information manually or import it through
+      the web application.
+    </div>
+    <div class="media-right">
+      <a href="#">
+        <img class="media-object img-circle" style="width: 80px;" src="/static/images/labquest_probes_200x200.jpg" alt="Probes">
+      </a>
+    </div>
+  </div>
+
+  <div class="media">
+    <div class="media-left">
+      <a href="#">
+        <img class="media-object img-circle" style="width: 80px;" src="/static/images/webapp_200x200.png" alt="Web application">
+      </a>
+    </div>
+    <div class="media-body">
+      <h4 class="media-heading">Monitoring &amp; Analytics</h4>
+      Maintainers can use their measurement information in various ways: realtime information can be utilized
+      for automated monitoring and warning notifications, while historic information and meta data can be used
+      for analysis.
+    </div>
+  </div>
+
+  <div class="media">
+    <div class="media-body">
+      <h4 class="media-heading">Become part of a community</h4>
+      By signing up for this service (requires a Google login), maintainers will join a network of maintainers
+      worldwide and share experiences to help one another improving their Aquaponics systems.
+    </div>
+    <div class="media-right">
+      <a href="#">
+        <img class="media-object img-circle" style="width: 80px;" src="/static/images/map_200x200.png" alt="Probes">
+      </a>
+    </div>
+  </div>
+
+  <div class="media">
+    <div class="media-left">
+      <a href="#">
+        <img class="media-object img-circle" style="width: 80px;" src="/static/images/android_widget_200x200.png" alt="Probes">
+      </a>
+    </div>
+    <div class="media-body">
+      <h4 class="media-heading">Support for Mobile Devices</h4>
+      Download our mobile app to receive alerts from your Aquaponics system on the go.
+    </div>
+  </div>
+
+</div>
+{% endblock %}

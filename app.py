@@ -177,6 +177,7 @@ def signin():
         app.logger.exception("Got an exception")
         raise
         
+
 @app.route('/signout')
 def signout():
     # TODO: note that we might want to look into more sophisticated invalidation
@@ -186,6 +187,11 @@ def signout():
     # - https://en.wikipedia.org/wiki/Replay_attack
     session.clear()
     return Response('ok', mimetype='text/plain')
+
+
+@app.route('/about')
+def about():
+    return render_template('about.html', **locals())
 
 
 @app.route('/home')

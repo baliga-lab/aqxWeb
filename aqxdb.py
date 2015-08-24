@@ -104,3 +104,18 @@ def get_default_site_location(cursor, user_pk):
         return {'lat': coords[0], 'lng': coords[1]}
     else:
         return None
+
+"""
+Some values come from catalog tables, we will only extract from
+tables that are known as catalogs
+"""
+CATALOGS = {'crops', 'aqx_techniques', 'aquatic_organisms'}
+
+
+def all_catalog_values(cursor, name):
+    if name in CATALOGS:
+        query = 'select id,name from %s order by name' % name
+        cursor.execute(query)
+        return [(pk, name) for pk, name in cursor.fetchall()]
+    else:
+        return []

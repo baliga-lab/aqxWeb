@@ -264,15 +264,19 @@ def sys_details(system_uid=None):
         o2_rows = aqxdb.get_measurement_series(cursor, system_uid, 'o2')
         ammonium_rows = aqxdb.get_measurement_series(cursor, system_uid, 'ammonium')
         nitrate_rows = aqxdb.get_measurement_series(cursor, system_uid, 'nitrate')
+
+        # Provide special readonly views, it's easier to keep world-viewable pages
+        # secure when all you can do is read and keep the logic outside the template
+        if readonly:
+            return render_template('system_details_readonly.html', **locals())
+        else:
+            aqx_techniques = aqxdb.all_catalog_values(cursor, 'aqx_techniques')
+            aq_orgs = aqxdb.all_catalog_values(cursor, 'aquatic_organisms')
+            crops = aqxdb.all_catalog_values(cursor, 'crops')
+            return render_template('system_details.html', **locals())
     finally:
         cursor.close()
         conn.close()
-    # Provide special readonly views, it's easier to keep world-viewable pages
-    # secure when all you can do is read and keep the logic outside the template
-    if readonly:
-        return render_template('system_details_readonly.html', **locals())
-    else:
-        return render_template('system_details.html', **locals())
 
 
 @app.route("/create-system", methods=['POST'])

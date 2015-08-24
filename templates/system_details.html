@@ -44,30 +44,48 @@
 
             <div class="panel-body">
               <div id="img-details" class="img-details"></div>
+              <!--
               <dl>
                 <dt>Date Created</dt>
                 <dd>{{creation_time}}</dd>
-              </dl>
-              <dl>
-                <dt>Fish/Number</dt>
-                <dd>Tilapia, 6</dd>
-              </dl>
-              <dl>
-                <dt>Plants/Number</dt>
-                <dd>Bok Choy, 4</dd>
-              </dl>
-              <dl>
-                <dt>Tank Size</dt>
-                <dd>100 gallons</dd>
-              </dl>
-              <dl>
-                <dt>Grow Bed Substrate</dt>
-                <dd>Lava Stone</dd>
-              </dl>
-              <dl>
-                <dt>Fish Food Type/Amount</dt>
-                <dd>Acme Gro-Kwik Pellets, 50g/day</dd>
-              </dl>
+              </dl> -->
+              <form class="form-horizontal" method="post" action="" style="width: 90%; margin-left: 10pt;">
+                <input type="hidden" class="hidden" name="system-uid" value="{{system_uid}}"></input>
+                <div class="form-group">
+                  <label for="start-date">Date Started</label>
+                  <input class="form-control" type="date" id="start-date" name="start-date" required></input>
+                </div>
+                <div class="form-group">
+                  <label for="aqx-technique">Aquaponics Technique</label>
+                  <select class="form-control" id="aqx-technique" name="aqx-technique">
+                    {% for tech in aqx_techniques %}<option value="{{tech[0]}}">{{tech[1]}}</option>{% endfor %}
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="aquatic-org">Aquatic Organism</label>
+                  <select class="form-control" id="aquatic-org" name="aquatic-org">
+                    {% for o in aq_orgs %}<option value="{{o[0]}}">{{o[1]}}</option>{% endfor %}
+                  </select>
+                </div>
+                <div class="form-group">
+                  <input class="form-control" type="number" id="num-aquatic-org" name="num-aquatic-org" placeholder="Number of Organisms"></input>
+                </div>
+
+                <div class="form-group">
+                  <label for="crop">Crop</label>
+                  <select class="form-control" id="crop" name="crop">
+                    {% for c in crops %}<option value="{{c[0]}}">{{c[1]}}</option>{% endfor %}
+                  </select>
+                </div>
+                <div class="form-group">
+                  <input class="form-control" type="number" id="num-crops" name="num-crops" placeholder="Number of Crops"></input>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-default">Save Changes</button>
+                </div>
+
+              </form>
             </div><!-- /.panel-body -->
           </div><!-- /.panel (Overview)-->
 
@@ -250,7 +268,6 @@
              }]
              }"></script>
 <script>
-
 function activateSection(section) {
   var selector = "#" + section + "-panel";
   var panelSelectors = ["#overview-panel", "#analytics-panel", "#input-panel", "#alert-panel"];

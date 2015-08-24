@@ -266,10 +266,15 @@ def sys_details(system_uid=None):
         ammonium_rows = aqxdb.get_measurement_series(cursor, system_uid, 'ammonium')
         nitrate_rows = aqxdb.get_measurement_series(cursor, system_uid, 'nitrate')
 
+        aqx_org_id, num_aqx_org = aqxdb.get_system_aqx_organism(cursor, system_uid)
+        crop_id, num_crops = aqxdb.get_system_crop(cursor, system_uid)
+
         # Provide special readonly views, it's easier to keep world-viewable pages
         # secure when all you can do is read and keep the logic outside the template
         if readonly:
             aqx_technique = aqxdb.get_catalog_value(cursor, 'aqx_techniques', aqx_tech_id)
+            aqx_organism = aqxdb.get_catalog_value(cursor, 'aquatic_organisms', aqx_org_id)
+            crop = aqxdb.get_catalog_value(cursor, 'crops', crop_id)
             return render_template('system_details_readonly.html', **locals())        
         else:
             aqx_techniques = aqxdb.all_catalog_values(cursor, 'aqx_techniques')
@@ -322,15 +327,24 @@ def update_system_details():
     sys_uid = request.form['system-uid']
     date_str = request.form['start-date']
     aqx_tech = request.form['aqx-technique']
+    aquatic_org = request.form['aquatic-org']
+    num_aquatic_org = request.form['num-aquatic-org']
+    crop = request.form['crop']
+    num_crops = request.form['num-crops']
 
     data = {}
     if date_str:
-        start_date = datetime.strptime(date_str, '%Y-%m-%d').date()
-        app.logger.debug('start date: %s', str(start_date))
-        data['start_date'] = start_date
+        data['start_date'] = datetime.strptime(date_str, '%Y-%m-%d').date()
     if aqx_tech:
-        aqx_tech_id = int(aqx_tech)
-        data['aqx_technique_id'] = aqx_tech_id
+        data['aqx_technique_id'] = int(aqx_tech)
+    if aquatic_org:
+        data['aquatic_org_id'] = int(aquatic_org)
+    if num_aquatic_org:
+        data['num_aquatic_org'] = int(num_aquatic_org)
+    if crop:
+        data['crop_id'] = int(crop)
+    if num_crops:
+        data['num_crops'] = int(num_crops)
 
     conn = dbconn()
     cursor = conn.cursor()

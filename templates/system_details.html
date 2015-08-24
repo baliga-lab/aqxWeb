@@ -66,22 +66,22 @@
                   <label for="aquatic-org">Aquatic Organism</label>
                   <select class="form-control" id="aquatic-org" name="aquatic-org">
                     <option value=""></option>
-                    {% for o in aq_orgs %}<option value="{{o[0]}}">{{o[1]}}</option>{% endfor %}
+                    {% for o in aq_orgs %}<option value="{{o[0]}}" {% if o[0] == aqx_org_id %}selected{% endif %}>{{o[1]}}</option>{% endfor %}
                   </select>
                 </div>
                 <div class="form-group">
-                  <input class="form-control" type="number" id="num-aquatic-org" name="num-aquatic-org" placeholder="Number of Organisms"></input>
+                  <input class="form-control" type="number" id="num-aquatic-org" name="num-aquatic-org" placeholder="Number of Organisms" value="{{num_aqx_org}}"></input>
                 </div>
 
                 <div class="form-group">
                   <label for="crop">Crop</label>
                   <select class="form-control" id="crop" name="crop">
                     <option value=""></option>
-                    {% for c in crops %}<option value="{{c[0]}}">{{c[1]}}</option>{% endfor %}
+                    {% for c in crops %}<option value="{{c[0]}}" {% if c[0] == crop_id %}selected{% endif %}>{{c[1]}}</option>{% endfor %}
                   </select>
                 </div>
                 <div class="form-group">
-                  <input class="form-control" type="number" id="num-crops" name="num-crops" placeholder="Number of Crops"></input>
+                  <input class="form-control" type="number" id="num-crops" name="num-crops" placeholder="Number of Crops" value="{{num_crops}}"></input>
                 </div>
 
                 <div class="form-group">

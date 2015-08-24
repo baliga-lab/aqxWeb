@@ -92,6 +92,8 @@ def update_system_details(cursor, system_uid, data):
         # goes into the database
         params = []
         setters = []
+        num_orgs = 0
+        num_crops = 0
         query = "update systems set "        
         if 'start_date' in data:
             setters.append('start_date=%s')
@@ -102,9 +104,61 @@ def update_system_details(cursor, system_uid, data):
 
         query += ",".join(setters)
         query += " where system_id=%s"
-        print query
         params.append(system_uid)
         cursor.execute(query, params)
+        cursor.execute('select id from systems where system_id=%s', system_uid)
+        system_pk = cursor.fetchone()[0]
+
+        if 'aquatic_org_id' in data:
+            org_pk = int(data['aquatic_org_id'])
+
+            if 'num_aquatic_org' in data:
+                num_orgs = int(data['num_aquatic_org'])
+
+            # 1. update existing entry
+            cursor.execute('select count(*) from system_aquatic_organisms where system_id=%s',
+                           system_pk)
+            if cursor.fetchone()[0] > 0:
+                cursor.execute('update system_aquatic_organisms set organism_id=%s, num=%s where system_id=%s',
+                               [org_pk, num_orgs, system_pk])
+            else:
+                # 2. or create if not
+                cursor.execute('insert into system_aquatic_organisms (system_id,organism_id,num) values (%s,%s,%s)',
+                               [system_pk, org_pk, num_orgs])
+
+        if 'crop_id' in data:
+            crop_pk = int(data['crop_id'])
+            if 'num_crops' in data:
+                num_crops = int(data['num_crops'])
+                                
+            # 1. update existing entry
+            cursor.execute('select count(*) from system_crops where system_id=%s', system_pk)
+            if cursor.fetchone()[0] > 0:
+                cursor.execute('update system_crops set crop_id=%s, num=%s where system_id=%s',
+                               [crop_pk, num_crops, system_pk])
+            else:
+                # 2. or create if not
+                cursor.execute('insert into system_crops (system_id,crop_id,num) values (%s,%s,%s)',
+                               [system_pk, crop_pk, num_crops])
+
+
+def get_system_aqx_organism(cursor, sys_uid):
+    cursor.execute('select organism_id, num from system_aquatic_organisms sao join systems s on sao.system_id=s.id where s.system_id=%s', [sys_uid])
+    row = cursor.fetchone()
+    if row is not None:
+        return row[0], row[1]
+    else:
+        return None, ''
+
+
+def get_system_crop(cursor, sys_uid):
+    cursor.execute('select crop_id, num from system_crops sc join systems s on sc.system_id=s.id where s.system_id=%s', [sys_uid])
+    row = cursor.fetchone()
+    if row is not None:
+        return row[0], row[1]
+    else:
+        return None, ''
+
 
 def add_measurement(cursor, sys_uid, attr, timestamp, value):
     table = meas_table_name(sys_uid, attr)
@@ -142,7 +196,7 @@ def all_catalog_values(cursor, name):
 
 
 def get_catalog_value(cursor, name, pk):
-    if name in CATALOGS:
+    if name in CATALOGS and pk is not None:
         query = 'select name from ' + name + ' where id=%s'
         cursor.execute(query, [pk])
         return cursor.fetchone()[0]

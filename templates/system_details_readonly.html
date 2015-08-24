@@ -23,14 +23,30 @@
                 <div style="margin-bottom: 10px"></div>
               </div>
 {% endif %}
+              {% if start_date %}
               <dl>
                 <dt>Date Started</dt>
                 <dd>{{start_date}}</dd>
               </dl>
+              {% endif %}
+              {% if aqx_technique %}
               <dl>
                 <dt>Aquaponics Technique</dt>
                 <dd>{{aqx_technique}}</dd>
               </dl>
+              {% endif %}
+              {% if aqx_organism %}
+              <dl>
+                <dt>Aquatics Organism</dt>
+                <dd>{{aqx_organism}} ({{num_aqx_org}})</dd>
+              </dl>
+              {% endif %}
+              {% if crop %}
+              <dl>
+                <dt>Crop</dt>
+                <dd>{{crop}} ({{num_crops}})</dd>
+              </dl>
+              {% endif %}
             </div><!-- /.panel-body -->
           </div><!-- /.panel (Overview)-->
 

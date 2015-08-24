@@ -49,21 +49,23 @@
                 <dt>Date Created</dt>
                 <dd>{{creation_time}}</dd>
               </dl> -->
-              <form class="form-horizontal" method="post" action="" style="width: 90%; margin-left: 10pt;">
+              <form class="form-horizontal" method="post" action="{{url_for('update_system_details')}}" style="width: 90%; margin-left: 10pt;">
                 <input type="hidden" class="hidden" name="system-uid" value="{{system_uid}}"></input>
                 <div class="form-group">
                   <label for="start-date">Date Started</label>
-                  <input class="form-control" type="date" id="start-date" name="start-date" required></input>
+                  <input class="form-control" type="date" id="start-date" name="start-date" value="{{start_date}}"></input>
                 </div>
                 <div class="form-group">
                   <label for="aqx-technique">Aquaponics Technique</label>
                   <select class="form-control" id="aqx-technique" name="aqx-technique">
-                    {% for tech in aqx_techniques %}<option value="{{tech[0]}}">{{tech[1]}}</option>{% endfor %}
+                    <option value=""></option>
+                    {% for tech in aqx_techniques %}<option value="{{tech[0]}}" {% if tech[0] == aqx_tech_id %}selected{% endif %}>{{tech[1]}}</option>{% endfor %}
                   </select>
                 </div>
                 <div class="form-group">
                   <label for="aquatic-org">Aquatic Organism</label>
                   <select class="form-control" id="aquatic-org" name="aquatic-org">
+                    <option value=""></option>
                     {% for o in aq_orgs %}<option value="{{o[0]}}">{{o[1]}}</option>{% endfor %}
                   </select>
                 </div>
@@ -74,6 +76,7 @@
                 <div class="form-group">
                   <label for="crop">Crop</label>
                   <select class="form-control" id="crop" name="crop">
+                    <option value=""></option>
                     {% for c in crops %}<option value="{{c[0]}}">{{c[1]}}</option>{% endfor %}
                   </select>
                 </div>

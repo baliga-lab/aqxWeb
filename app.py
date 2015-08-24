@@ -8,6 +8,7 @@ from functools import wraps
 import time
 from datetime import datetime
 
+
 import MySQLdb
 from flask import Flask, Response, url_for, redirect, render_template, request, session, flash, jsonify
 from werkzeug import secure_filename
@@ -254,8 +255,8 @@ def sys_details(system_uid=None):
     conn = dbconn()
     cursor = conn.cursor()
     try:
-        cursor.execute('select s.id,s.name,s.creation_time,google_id from systems s join users u on s.user_id=u.id where system_id=%s', [system_uid])
-        system_pk, system_name, creation_time, sys_google_id = cursor.fetchone()
+        cursor.execute('select s.id,s.name,s.creation_time,start_date,aqx_technique_id,google_id from systems s join users u on s.user_id=u.id where system_id=%s', [system_uid])
+        system_pk, system_name, creation_time, start_date, aqx_tech_id, sys_google_id = cursor.fetchone()
         
         # only owners can modify systems's data
         readonly = user_google_id != sys_google_id
@@ -268,7 +269,8 @@ def sys_details(system_uid=None):
         # Provide special readonly views, it's easier to keep world-viewable pages
         # secure when all you can do is read and keep the logic outside the template
         if readonly:
-            return render_template('system_details_readonly.html', **locals())
+            aqx_technique = aqxdb.get_catalog_value(cursor, 'aqx_techniques', aqx_tech_id)
+            return render_template('system_details_readonly.html', **locals())        
         else:
             aqx_techniques = aqxdb.all_catalog_values(cursor, 'aqx_techniques')
             aq_orgs = aqxdb.all_catalog_values(cursor, 'aquatic_organisms')
@@ -311,6 +313,36 @@ def create_system():
             cursor.close()
             conn.close()
     return redirect(url_for('dashboard'))
+
+
+@app.route("/update-system-details", methods=['POST'])
+@requires_login
+def update_system_details():
+    app.logger.debug('update system details')
+    sys_uid = request.form['system-uid']
+    date_str = request.form['start-date']
+    aqx_tech = request.form['aqx-technique']
+
+    data = {}
+    if date_str:
+        start_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        app.logger.debug('start date: %s', str(start_date))
+        data['start_date'] = start_date
+    if aqx_tech:
+        aqx_tech_id = int(aqx_tech)
+        data['aqx_technique_id'] = aqx_tech_id
+
+    conn = dbconn()
+    cursor = conn.cursor()
+    try:
+        if aqxdb.is_system_owner(cursor, sys_uid, user_id=session['user_id']):
+            aqxdb.update_system_details(cursor, sys_uid, data)
+            conn.commit()
+        flash('Changes saved.', 'info')
+    finally:
+        cursor.close()
+        conn.close()
+    return redirect(url_for('sys_details', system_uid=sys_uid))
 
 
 def get_form_time(datestr, timestr):

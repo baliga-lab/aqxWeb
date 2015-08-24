@@ -85,6 +85,26 @@ def create_aquaponics_system(cursor, user_pk, name):
         query = "create table if not exists %s (time timestamp primary key not null, value decimal(13,10) not null)" % table_name
         cursor.execute(query)
 
+def update_system_details(cursor, system_uid, data):
+    """update the Aquaponics system details"""
+    if len(data) > 0:
+        # Explicitly check all parameters to sanitize what
+        # goes into the database
+        params = []
+        setters = []
+        query = "update systems set "        
+        if 'start_date' in data:
+            setters.append('start_date=%s')
+            params.append(data['start_date'])
+        if 'aqx_technique_id' in data:
+            setters.append('aqx_technique_id=%s')
+            params.append(data['aqx_technique_id'])
+
+        query += ",".join(setters)
+        query += " where system_id=%s"
+        print query
+        params.append(system_uid)
+        cursor.execute(query, params)
 
 def add_measurement(cursor, sys_uid, attr, timestamp, value):
     table = meas_table_name(sys_uid, attr)
@@ -119,3 +139,12 @@ def all_catalog_values(cursor, name):
         return [(pk, name) for pk, name in cursor.fetchall()]
     else:
         return []
+
+
+def get_catalog_value(cursor, name, pk):
+    if name in CATALOGS:
+        query = 'select name from ' + name + ' where id=%s'
+        cursor.execute(query, [pk])
+        return cursor.fetchone()[0]
+    else:
+        return None

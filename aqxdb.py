@@ -21,6 +21,7 @@ def get_or_create_user(conn, cursor, google_id, email):
         result = row[0]
     return result
 
+
 def new_system_id():
     """Generates a new system id"""
     return uuid.uuid1().hex
@@ -71,6 +72,7 @@ def systems_and_latest_measurements(cursor, user_id):
         # TODO: light                        
     return systems
 
+
 def get_measurement_series(cursor, sys_uid, attr):
     cursor.execute("select time, value from " + meas_table_name(sys_uid, attr) + " order by time desc limit 100")
     return [[str(time), float(value)] for time, value in cursor.fetchall()]
@@ -85,8 +87,12 @@ def create_aquaponics_system(cursor, user_pk, name):
         query = "create table if not exists %s (time timestamp primary key not null, value decimal(13,10) not null)" % table_name
         cursor.execute(query)
 
+
 def update_system_details(cursor, system_uid, data):
-    """update the Aquaponics system details"""
+    """update the Aquaponics system details
+    This rather lengthy procedure ensures we have some checking in place
+    so we can only update certain fields
+    Note: caller should check if system uid can be updated by the current user"""
     if len(data) > 0:
         # Explicitly check all parameters to sanitize what
         # goes into the database
@@ -197,8 +203,10 @@ def all_catalog_values(cursor, name):
 
 def get_catalog_value(cursor, name, pk):
     if name in CATALOGS and pk is not None:
-        query = 'select name from ' + name + ' where id=%s'
-        cursor.execute(query, [pk])
-        return cursor.fetchone()[0]
-    else:
-        return None
+        query = "select name from %s" % name
+        query += " where id=%s"
+        cursor.execute(query, pk)
+        row = cursor.fetchone()
+        if row is not None:
+            return cursor.fetchone()[0]
+    return None

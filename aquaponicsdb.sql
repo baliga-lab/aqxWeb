@@ -27,9 +27,7 @@ create table if not exists aqxs_light_aa56fa203bcb11e58c8864273763ec8b (time tim
 create table if not exists aqxs_temp_aa56fa203bcb11e58c8864273763ec8b (time timestamp primary key not null, value decimal(13,10) not null);
 */
 
-/*
 create unique index crop_name_index on crops (name);
 create unique index aq_org_name_index on aquatic_organisms (name);
 create unique index aqx_tech_name_index on aqx_techniques (name);
-*/
 create unique index gb_media_name_index on growbed_media (name);

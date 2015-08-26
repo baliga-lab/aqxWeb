@@ -1,3 +1,8 @@
+* Git remote repository
+
+wwu@como.systemsbiology.net:/proj/omics4tb/git/vernier_client.git
+wwu@como.systemsbiology.net:/proj/omics4tb/git/aquaponics_site.git
+
 * TODOs
 
   - use internal build/release versions everywhere

@@ -75,7 +75,9 @@ def systems_and_latest_measurements(cursor, user_id):
 
 def get_measurement_series(cursor, sys_uid, attr):
     cursor.execute("select time, value from " + meas_table_name(sys_uid, attr) + " order by time desc limit 100")
-    return [[str(time), float(value)] for time, value in cursor.fetchall()]
+    result = [[str(time), float(value)] for time, value in cursor.fetchall()]
+    result = result[::-1]  # we need to reverse the list for displaying the right time order
+    return result
 
 
 def create_aquaponics_system(cursor, user_pk, name):

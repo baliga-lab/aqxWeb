@@ -29,12 +29,12 @@ def new_system_id():
 
 def is_system_owner(cursor, sys_uid, user_id=None, google_id=None):
     if user_id is not None:
-        cursor.execute('select count(*) from systems where system_id=%s and user_id=%s',
+        cursor.execute('select count(*) from systems where system_uid=%s and user_id=%s',
                     [sys_uid, user_id])
         return cursor.fetchone()[0] > 0
     elif google_id is not None:
         print "GOOGLE ID"
-        cursor.execute('select count(*) from systems s join users u on s.user_id=u.id where system_id=%s and u.google_id=%s',
+        cursor.execute('select count(*) from systems s join users u on s.user_id=u.id where system_uid=%s and u.google_id=%s',
                        [sys_uid, google_id])
         return cursor.fetchone()[0] > 0
     return False
@@ -55,7 +55,7 @@ def get_latest_measurement(cursor, sys_uid, attr):
 
 
 def systems_and_latest_measurements(cursor, user_id):
-    cursor.execute('select s.id,s.name,system_id from systems s join users u on s.user_id=u.id where google_id=%s',
+    cursor.execute('select s.id,s.name,system_uid from systems s join users u on s.user_id=u.id where google_id=%s and s.status=0',
                    [user_id])
     systems = [{'pk': pk, 'name': name, 'sys_uid': sys_id}
                for pk, name, sys_id in cursor.fetchall()]
@@ -83,7 +83,7 @@ def get_measurement_series(cursor, sys_uid, attr):
 def create_aquaponics_system(cursor, user_pk, name):
     """Create the entry and tables for a user's Aquaponics system"""
     system_uid = new_system_id()
-    cursor.execute('insert into systems (user_id,name,system_id,creation_time) values (%s,%s,%s,now())',
+    cursor.execute('insert into systems (user_id,name,system_uid,creation_time) values (%s,%s,%s,now())',
                    [user_pk, name, system_uid])
     for table_name in meas_table_names(system_uid):
         query = "create table if not exists %s (time timestamp primary key not null, value decimal(13,10) not null)" % table_name
@@ -111,10 +111,10 @@ def update_system_details(cursor, system_uid, data):
             params.append(data['aqx_technique_id'])
 
         query += ",".join(setters)
-        query += " where system_id=%s"
+        query += " where system_uid=%s"
         params.append(system_uid)
         cursor.execute(query, params)
-        cursor.execute('select id from systems where system_id=%s', system_uid)
+        cursor.execute('select id from systems where system_uid=%s', system_uid)
         system_pk = cursor.fetchone()[0]
 
         if 'aquatic_org_id' in data:
@@ -151,7 +151,7 @@ def update_system_details(cursor, system_uid, data):
 
 
 def get_system_aqx_organism(cursor, sys_uid):
-    cursor.execute('select organism_id, num from system_aquatic_organisms sao join systems s on sao.system_id=s.id where s.system_id=%s', [sys_uid])
+    cursor.execute('select organism_id, num from system_aquatic_organisms sao join systems s on sao.system_id=s.id where s.system_uid=%s', [sys_uid])
     row = cursor.fetchone()
     if row is not None:
         return row[0], row[1]
@@ -160,7 +160,7 @@ def get_system_aqx_organism(cursor, sys_uid):
 
 
 def get_system_crop(cursor, sys_uid):
-    cursor.execute('select crop_id, num from system_crops sc join systems s on sc.system_id=s.id where s.system_id=%s', [sys_uid])
+    cursor.execute('select crop_id, num from system_crops sc join systems s on sc.system_id=s.id where s.system_uid=%s', [sys_uid])
     row = cursor.fetchone()
     if row is not None:
         return row[0], row[1]

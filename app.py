@@ -153,8 +153,6 @@ def signin():
         r = requests.get('https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=' + idtoken)
         context = r.json()
         email = context['email']
-        #if not email.endswith('systemsbiology.org'):
-        #    return Response("unauthorized user")
         app.logger.debug("signed in: %s", str(context))
         if context['aud'] != app.config['APP_ID']:
             app.logger.error('wrong app id: %s', context['aud'])
@@ -255,8 +253,9 @@ def sys_details(system_uid=None):
     conn = dbconn()
     cursor = conn.cursor()
     try:
-        cursor.execute('select s.id,s.name,s.creation_time,start_date,aqx_technique_id,google_id from systems s join users u on s.user_id=u.id where system_id=%s', [system_uid])
-        system_pk, system_name, creation_time, start_date, aqx_tech_id, sys_google_id = cursor.fetchone()
+        cursor.execute('select s.id,s.name,s.creation_time,start_date,aqx_technique_id,google_id from systems s join users u on s.user_id=u.id where system_uid=%s and s.status=0', [system_uid])
+        row = cursor.fetchone()
+        system_pk, system_name, creation_time, start_date, aqx_tech_id, sys_google_id = row
         
         # only owners can modify systems's data
         readonly = user_google_id != sys_google_id
@@ -520,8 +519,7 @@ def aqx_map():
     conn = dbconn()
     cursor = conn.cursor()
     try:
-        #cursor.execute('select distinct default_site_location from users where default_site_location is not NULL')
-        cursor.execute("select default_site_location as loc, u.id as site_id, group_concat(system_id separator ',') as sys_uids from users u join systems s on s.user_id=u.id group by loc")
+        cursor.execute("select default_site_location as loc, u.id as site_id, group_concat(system_uid separator ',') as sys_uids from users u join systems s on s.user_id=u.id where s.status=0 group by loc")
         locations = []
         for loc, site_id, sys_uids in cursor.fetchall():
             try:

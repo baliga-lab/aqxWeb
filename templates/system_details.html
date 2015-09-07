@@ -52,6 +52,11 @@
               <form class="form-horizontal" method="post" action="{{url_for('update_system_details')}}" style="width: 90%; margin-left: 10pt;">
                 <input type="hidden" class="hidden" name="system-uid" value="{{system_uid}}"></input>
                 <div class="form-group">
+                  <label for="system-name">System Name</label>
+                  <input class="form-control" type="text" id="system-name" name="system-name" placeholder="System Name" value="{{system_name}}" required></input>
+                </div>
+
+                <div class="form-group">
                   <label for="start-date">Date Started</label>
                   <input class="form-control" type="date" id="start-date" name="start-date" value="{{start_date}}"></input>
                 </div>

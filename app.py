@@ -323,6 +323,7 @@ def create_system():
 @requires_login
 def update_system_details():
     app.logger.debug('update system details')
+    system_name = request.form['system-name']
     sys_uid = request.form['system-uid']
     date_str = request.form['start-date']
     aqx_tech = request.form['aqx-technique']
@@ -330,8 +331,8 @@ def update_system_details():
     num_aquatic_org = request.form['num-aquatic-org']
     crop = request.form['crop']
     num_crops = request.form['num-crops']
-
     data = {}
+    data['system_name'] = system_name
     if date_str:
         data['start_date'] = datetime.strptime(date_str, '%Y-%m-%d').date()
     if aqx_tech:

@@ -102,7 +102,10 @@ def update_system_details(cursor, system_uid, data):
         setters = []
         num_orgs = 0
         num_crops = 0
-        query = "update systems set "        
+        query = "update systems set "
+        if 'system_name' in data:
+            setters.append('name=%s')
+            params.append(data['system_name'])
         if 'start_date' in data:
             setters.append('start_date=%s')
             params.append(data['start_date'])

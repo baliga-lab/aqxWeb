@@ -153,6 +153,10 @@ def update_system_details(cursor, system_uid, data):
                                [system_pk, crop_pk, num_crops])
 
 
+def delete_system(cursor, system_uid):
+    cursor.execute('update systems set status=1 where system_uid=%s', [system_uid])
+
+
 def get_system_aqx_organism(cursor, sys_uid):
     cursor.execute('select organism_id, num from system_aquatic_organisms sao join systems s on sao.system_id=s.id where s.system_uid=%s', [sys_uid])
     row = cursor.fetchone()

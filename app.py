@@ -359,6 +359,24 @@ def update_system_details():
     return redirect(url_for('sys_details', system_uid=sys_uid))
 
 
+@app.route("/delete-system/<system_uid>", methods=['DELETE'])
+@requires_login
+def delete_system(system_uid=None):
+    conn = dbconn()
+    cursor = conn.cursor()
+    try:
+        if aqxdb.is_system_owner(cursor, system_uid, user_id=session['user_id']):
+            aqxdb.delete_system(cursor, system_uid)
+            conn.commit()
+            return jsonify(status="ok")
+        else:
+            app.logger.error("unauthorized attempt to delete system")
+            return jsonify(status="error", error="unauthorized attempt to delete system")
+    finally:
+        cursor.close()
+        conn.close()
+
+
 def get_form_time(datestr, timestr):
     if timestr:
         s = "%sT%s" % (datestr, timestr)

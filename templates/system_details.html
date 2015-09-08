@@ -91,8 +91,8 @@
 
                 <div class="form-group">
                     <button type="submit" class="btn btn-default">Save Changes</button>
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirm-delete-modal">Delete System</button>
                 </div>
-
               </form>
             </div><!-- /.panel-body -->
           </div><!-- /.panel (Overview)-->
@@ -264,6 +264,26 @@
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+
+{# This is the modal for confirming deleting a system #}
+<div class="modal fade" id="confirm-delete-modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Delete System</h4>
+      </div>
+      <div class="modal-body">
+        <p>Do you really want to delete this system ?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button id="deletesys-button" type="submit" class="btn btn-primary">Confirm</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 {% endblock %}
 
 {% block bottom %}
@@ -346,5 +366,19 @@ drawChart('ph-chart', 'pH', makeTimeSeriesData('pH', phRows));
 drawChart('o2-chart', 'O2', makeTimeSeriesData('O2', o2Rows));
 drawChart('ammonium-chart', 'Ammonium', makeTimeSeriesData('Ammonium', ammoniumRows));
 drawChart('nitrate-chart', 'Nitrate', makeTimeSeriesData('Nitrate', nitrateRows));
+
+$('#deletesys-button').click(function () {
+  $('#confirm-delete-modal').modal('hide');
+  $.ajax({
+    url: "{{url_for('delete_system', system_uid=system_uid)}}",
+    async: false,
+    type: 'DELETE',
+    success: function(data) {
+      if (data.status === 'ok') {
+        window.location.replace("{{url_for('dashboard')}}");
+      }
+    }
+  });
+});
 </script>
 {% endblock %}

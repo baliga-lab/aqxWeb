@@ -217,5 +217,5 @@ def get_catalog_value(cursor, name, pk):
         cursor.execute(query, pk)
         row = cursor.fetchone()
         if row is not None:
-            return cursor.fetchone()[0]
+            return row[0]
     return None

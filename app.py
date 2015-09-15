@@ -19,6 +19,7 @@ import aqxdb
 import csvimport
 from aqx_api import aqx_api
 
+AQX_GIT_SHA = "$Id$"
 
 app = Flask(__name__)
 app.config.from_envvar('AQUAPONICS_SETTINGS')

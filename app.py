@@ -266,6 +266,17 @@ def sys_details(system_uid=None):
         ammonium_rows = aqxdb.get_measurement_series(cursor, system_uid, 'ammonium')
         nitrate_rows = aqxdb.get_measurement_series(cursor, system_uid, 'nitrate')
 
+        # this is a workaround to be able to display ammonium and nitrate in
+        # one chart
+        # TODO: currently, this does not match up the time, we just fill up
+        for i in range(len(ammonium_rows)):
+            row = ammonium_rows[i]
+            if i < len(nitrate_rows):
+                row.append(nitrate_rows[i][1])
+            else:
+                row.append(0.0)
+        nitrate_rows = None
+
         aqx_org_id, num_aqx_org = aqxdb.get_system_aqx_organism(cursor, system_uid)
         crop_id, num_crops = aqxdb.get_system_crop(cursor, system_uid)
 

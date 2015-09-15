@@ -56,13 +56,13 @@
 
             <div class="panel-body">
               <row>
-                <div class="col-md-1" id="temp-chart" style="width: 240px; height: 100px"></div>
-                <div class="col-md-1" id="ph-chart" style="width: 240px; height: 100px"></div>
-                <div class="col-md-1" id="o2-chart" style="width: 240px; height: 100px"></div>
+                <div class="col-md-1" id="temp-chart" style="width: 360px; height: 180px"></div>
+                <div class="col-md-1" id="ph-chart" style="width: 360px; height: 180px"></div>
+                <div class="col-md-1" id="o2-chart" style="width: 360px; height: 180px"></div>
               </row>
               <row>
-                <div class="col-md-1" id="ammonium-chart" style="width: 240px; height: 100px"></div>
-                <div class="col-md-1" id="nitrate-chart" style="width: 240px; height: 100px"></div>
+                <div class="col-md-1" id="ammonium-chart" style="width: 360px; height: 180px"></div>
+                <div class="col-md-1" id="nitrate-chart" style="width: 360px; height: 180px"></div>
               </row>
             </div><!-- /.panel-body -->
           </div><!-- /.panel (Analytics)-->
@@ -80,6 +80,7 @@
              'packages':['corechart']
              }]
              }"></script>
+<script src="/static/js/aquaponics.js"></script>
 <script>
 
 function activateSection(section) {
@@ -103,35 +104,14 @@ function activateSection(section) {
 $('#analytics-link').click(function () { activateSection("analytics"); });
 $('#overview-link').click(function () { activateSection("overview"); });
 
-function makeTimeSeriesData(ylabel, rows) {
-  var data = new google.visualization.DataTable();         
-  data.addColumn('string', 'Time');         
-  data.addColumn('number', ylabel);
-  data.addRows(rows);
-  return data;
-}
-
-function drawChart(elementId, label, data) {
-  var chart = new google.visualization.LineChart(document.getElementById(elementId));
-  var options = {
-    title: label,
-    width: 240, height: 100,
-    legend: { position: 'bottom'}
-  };
-  chart.draw(data, options);
-  return chart;
-}
-
 var tempRows = {{temp_rows|tojson}};
 var phRows = {{ph_rows|tojson}};
 var o2Rows = {{o2_rows|tojson}};
 var ammoniumRows = {{ammonium_rows|tojson}};
-var nitrateRows = {{nitrate_rows|tojson}};
 
-drawChart('temp-chart', 'Temperature', makeTimeSeriesData('Temperature', tempRows));
-drawChart('ph-chart', 'pH', makeTimeSeriesData('pH', phRows));
-drawChart('o2-chart', 'O2', makeTimeSeriesData('O2', o2Rows));
-drawChart('ammonium-chart', 'Ammonium', makeTimeSeriesData('Ammonium', ammoniumRows));
-drawChart('nitrate-chart', 'Nitrate', makeTimeSeriesData('Nitrate', nitrateRows));
+aqx.drawChart('temp-chart', 'Temperature', aqx.makeTimeSeriesData(['Temperature'], tempRows));
+aqx.drawChart('ph-chart', 'pH', aqx.makeTimeSeriesData(['pH'], phRows));
+aqx.drawChart('o2-chart', 'O2', aqx.makeTimeSeriesData(['O2'], o2Rows));
+aqx.drawChart('ammonium-chart', 'Ammonium & Nitrate', aqx.makeTimeSeriesData(['Ammonium', 'Nitrate'], ammoniumRows));
 </script>
 {% endblock %}

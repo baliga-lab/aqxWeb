@@ -73,6 +73,12 @@ def systems_and_latest_measurements(cursor, user_id):
     return systems
 
 
+def user_systems(cursor, google_id):
+    """Returns all active systems currently owned by the specified user"""
+    cursor.execute('select s.system_uid,s.name from systems s join users u on s.user_id=u.id where google_id=%s and s.status=0', [google_id])
+    return [{'uid': uid, 'name': name} for uid, name in cursor.fetchall()]
+
+
 def get_measurement_series(cursor, sys_uid, attr):
     cursor.execute("select time, value from " + meas_table_name(sys_uid, attr) + " order by time desc limit 100")
     result = [[time.strftime('%Y-%m-%d %H:%M'), float(value)] for time, value in cursor.fetchall()]

@@ -34,7 +34,7 @@ def authorize(func):
             auth = auth.split()
             current_app.logger.debug("@authorize auth: %s", str(auth))
             if auth[0] == 'Bearer':
-                user_info = google_user_info(auth[1])            
+                user_info = google_user_info(auth[1])
                 current_app.logger.debug(user_info)
                 if 'error' in user_info:
                     current_app.logger.error('error in authorization: %s',
@@ -94,6 +94,20 @@ def api_add_measurements(system_id, *args, **kwargs):
                 return jsonify(error="error in input document")
         else:
             return jsonify(error="attempt to access non-existing (or non-owned) system")
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@aqx_api.route('/api/v1/systems', methods=['GET'])
+@authorize
+def api_user_systems(*args, **kwargs):
+    """Returns all systems available to the user."""
+    conn = dbconn()
+    cursor = conn.cursor()
+    try:
+        systems = aqxdb.user_systems(cursor, google_id=kwargs['google_id'])
+        return jsonify(systems=systems)
     finally:
         cursor.close()
         conn.close()

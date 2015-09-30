@@ -120,8 +120,15 @@
           <div id="input-panel" class="panel panel-default hidden" style="margin-top: 15px;">
             <div class="panel-heading"><span class="glyphicon glyphicon-hdd"></span> Input data for <strong>{{system_name}}</strong></div>
 
+            <ul class="nav nav-tabs">
+              <li id="dio-li" role="presentation" class="active"><a id="dio-link" href="javascript:void(0)">Dis. Oxygen</a></li>
+              <li id="temp-li" role="presentation"><a id="temp-link" href="javascript:void(0)">Temperature</a></li>
+              <li id="nh4-li" role="presentation"><a id="nh4-link" href="javascript:void(0)">Ammonium</a></li>
+              <li id="no3-li" role="presentation"><a id="no3-link" href="javascript:void(0)">Nitrate</a></li>
+              <li id="ph-li" role="presentation"><a id="ph-link" href="javascript:void(0)">pH</a></li>
+            </ul>
+
             <div class="panel-body">
-              <h4>Manual Input</h4>
               <form class="form-horizontal" method="post" action="{{url_for('add_measurement')}}">
                 <input type="hidden" class="hidden" name="system-uid" value="{{system_uid}}"></input>
                 <div class="form-group">
@@ -129,47 +136,70 @@
                   <input class="col-sm-3" type="date" id="measure-date" name="measure-date" required></input>
                   <input class="col-sm-3" type="time" id="measure-time" name="measure-time" step="1"></input>
                 </div>
-                <div class="form-group">
-                  <label class="col-sm-3 control-label" for="o2-value">Dissolved Oxygen</label>
-                  <div class="input-group col-sm-2">
-                    <input id="o2-value" name="o2-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="o2-addon"></input>
-                    <span id="o2-addon" class="input-group-addon" style="">mg/l</span>
+
+                <div class="" id="dio-panel">
+                  <div class="form-group">
+                    <label class="col-sm-3 control-label">&nbsp;</label>
+                    <div id="dio-strip" class="col-sm-3 dio-strip"><div id="dio-picker" class="strip-picker" style="left: 100px;"></div></div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-3 control-label">&nbsp;</label>
+                    <div class="input-group col-sm-2">
+                      <input id="o2-value" name="o2-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="o2-addon"></input>
+                      <span id="o2-addon" class="input-group-addon" style="">mg/l</span>
                     </div>
-                </div>
-                <div class="form-group">
-                  <label class="col-sm-3 control-label" for="temp-value">Temperature</label>
-                  <div class="input-group col-sm-2">
-                    <input id="temp-value" name="temp-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="temp-addon"></input>
-                    <span id="temp-addon" class="input-group-addon" style="">&deg;C</span>
                   </div>
-                </div>
-                <div class="form-group">
-                  <label class="col-sm-3 control-label" for="ammonium-value">Ammonium</label>
-                  <div class="input-group col-sm-2">
-                    <input id="ammonium-value" name="ammonium-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="ammonium-addon"></input>
-                    <span id="ammonium-addon" class="input-group-addon" style="">mg/l</span>
+
+                </div><!-- dio-panel -->
+
+                <div id="temp-panel" class="hidden">
+                  <div class="form-group">
+                    <label class="col-sm-3 control-label" for="temp-value">Temperature</label>
+                    <div class="input-group col-sm-2">
+                      <input id="temp-value" name="temp-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="temp-addon"></input>
+                      <span id="temp-addon" class="input-group-addon" style="">&deg;C</span>
+                    </div>
                   </div>
-                </div>
-                <div class="form-group">
-                  <label class="col-sm-3 control-label" for="nitrate-value">Nitrate</label>
-                  <div class="input-group col-sm-2">
-                    <input id="nitrate-value" name="nitrate-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="nitrate-addon"></input>
-                    <span id="nitrate-addon" class="input-group-addon" style="">mg/l</span>
+                </div><!-- temp-panel -->
+
+                <div id="nh4-panel" class="hidden">
+                  <div class="form-group">
+                    <label class="col-sm-3 control-label" for="ammonium-value">Ammonium</label>
+                    <div class="input-group col-sm-2">
+                      <input id="ammonium-value" name="ammonium-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="ammonium-addon"></input>
+                      <span id="ammonium-addon" class="input-group-addon" style="">mg/l</span>
+                    </div>
                   </div>
-                </div>
-                <div class="form-group">
-                  <label class="col-sm-3 control-label" for="ph-value">pH</label>
-                  <div class="input-group col-sm-2">
-                    <input id="ph-value" name="ph-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001"></input>
+                </div><!-- nh4-panel -->
+
+                <div id="no3-panel" class="hidden">
+                  <div class="form-group">
+                    <label class="col-sm-3 control-label" for="nitrate-value">Nitrate</label>
+                    <div class="input-group col-sm-2">
+                      <input id="nitrate-value" name="nitrate-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="nitrate-addon"></input>
+                      <span id="nitrate-addon" class="input-group-addon" style="">mg/l</span>
+                    </div>
                   </div>
-                </div>
+                </div><!-- no3-panel -->
+
+                <div id="ph-panel" class="hidden">
+                  <div class="form-group">
+                    <label class="col-sm-3 control-label" for="ph-value">pH</label>
+                    <div class="input-group col-sm-2">
+                      <input id="ph-value" name="ph-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001"></input>
+                    </div>
+                  </div>
+                </div><!-- ph-panel -->
+
+                <!-- button panel -->
                 <div class="form-group">
                   <div class="col-sm-10">
                     <button type="submit" class="btn btn-default">Submit</button>
                   </div>
                 </div>
-              </form>
 
+              </form>
+<!--
               <hr>
 
               <h4>Measurement Data Import</h4>
@@ -181,7 +211,7 @@
                 </div>
                 <button type="submit" class="btn btn-default">Submit</button>
               </form>
-
+-->
               <!--
               <hr>
               <h3>REST API</h3>
@@ -299,10 +329,8 @@
              }"></script>
 <script src="/static/js/aquaponics.js"></script>
 <script>
-function activateSection(section) {
+function activateSectionGeneric(section, panelSelectors, liSelectors) {
   var selector = "#" + section + "-panel";
-  var panelSelectors = ["#overview-panel", "#analytics-panel", "#input-panel", "#alert-panel"];
-  var liSelectors = ["#overview-li", "#analytics-li", "#input-li", "#alert-li"];
   for (var i=0; i < panelSelectors.length; i++) {
     if (panelSelectors[i] !== selector) {
       $(panelSelectors[i]).removeClass('hidden');
@@ -317,10 +345,28 @@ function activateSection(section) {
   $(selector).addClass('active');
 }
 
+function activateSection(section) {
+  var panelSelectors = ["#overview-panel", "#analytics-panel", "#input-panel", "#alert-panel"];
+  var liSelectors = ["#overview-li", "#analytics-li", "#input-li", "#alert-li"];
+  activateSectionGeneric(section, panelSelectors, liSelectors);
+}
+
+function activateTab(section) {
+  var panelSelectors = ["#dio-panel", "#temp-panel", "#nh4-panel", "#no3-panel", "#ph-panel", "#import-panel"];
+  var liSelectors = ["#dio-li", "#temp-li", "#nh4-li", "#no3-li", "#ph-li", "#import-li"];
+  activateSectionGeneric(section, panelSelectors, liSelectors);
+}
+
 $('#analytics-link').click(function () { activateSection("analytics"); });
 $('#overview-link').click(function () { activateSection("overview"); });
 $('#input-link').click(function () { activateSection("input"); });
 $('#alert-link').click(function () { activateSection("alert"); });
+
+$('#dio-link').click(function () { activateTab("dio"); });
+$('#temp-link').click(function () { activateTab("temp"); });
+$('#nh4-link').click(function () { activateTab("nh4"); });
+$('#no3-link').click(function () { activateTab("no3"); });
+$('#ph-link').click(function () { activateTab("ph"); });
 
 function setImage(selector, imgurl) {
   $.get("{{url_for('details_images_div', system_uid=system_uid)}}", {img_url: imgurl},
@@ -362,5 +408,13 @@ $('#deletesys-button').click(function () {
     }
   });
 });
+
+$('#dio-strip').click(function (e) {
+  var posx = e.pageX - $(this).offset().left;
+  $('#dio-picker').css({left: posx, top: -1, position: "absolute"});
+  var value = posx / 2.0;
+  $('#o2-value').attr('value', value);
+});
+
 </script>
 {% endblock %}

@@ -73,3 +73,20 @@
 .media {
     margin-bottom: 3em;
 }
+
+.dio-strip {
+    background: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);
+    width: 200px;
+    height:28px;
+    position: relative;
+}
+
+.strip-picker {
+    background: white;
+    border: 1px solid black;
+    height: 30px;
+    width: 4px;
+    top: -1px;
+    display: block;
+    position: absolute;
+}

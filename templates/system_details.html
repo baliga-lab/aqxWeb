@@ -8,7 +8,8 @@
           <ul class="nav nav-sidebar">
             <li id="overview-li" class="active"><a href="javascript:void(0)" title="Overview" id="overview-link"><span class="glyphicon glyphicon-list-alt"></span> Overview <span class="sr-only">(current)</span></a></li>
             <li id="analytics-li"><a href="javascript:void(0)" title="Display analytics" id="analytics-link"><span class="glyphicon glyphicon-stats"></span> Analytics</a></li>
-            <li id="input-li"><a href="javascript:void(0)" title="Input" id="input-link"><span class="glyphicon glyphicon-hdd"></span> Input</a></li>
+            <li id="input-li"><a href="javascript:void(0)" title="Input" id="input-link"><span class="glyphicon glyphicon-pencil"></span> Input</a></li>
+            <li id="import-li"><a href="javascript:void(0)" title="Import" id="import-link"><span class="glyphicon glyphicon-open-file"></span> Import</a></li>
             <li id="alert-li"><a href="javascript:void(0)" title="Alerts" id="alert-link"><span class="glyphicon glyphicon-warning-sign"></span> Alerts</a></li>
           </ul>
         </div><!-- /.col-sm-3 sidebar -->
@@ -118,7 +119,7 @@
 
           {# This is the Input panel #}
           <div id="input-panel" class="panel panel-default hidden" style="margin-top: 15px;">
-            <div class="panel-heading"><span class="glyphicon glyphicon-hdd"></span> Input data for <strong>{{system_name}}</strong></div>
+            <div class="panel-heading"><span class="glyphicon glyphicon-pencil"></span> Input data for <strong>{{system_name}}</strong></div>
 
             <ul class="nav nav-tabs">
               <li id="dio-li" role="presentation" class="active"><a id="dio-link" href="javascript:void(0)">Dis. Oxygen</a></li>
@@ -154,7 +155,7 @@
 
                 <div id="temp-panel" class="hidden">
                   <div class="form-group">
-                    <label class="col-sm-3 control-label" for="temp-value">Temperature</label>
+                    <label class="col-sm-3 control-label" for="temp-value">&nbsp;</label>
                     <div class="input-group col-sm-2">
                       <input id="temp-value" name="temp-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="temp-addon"></input>
                       <span id="temp-addon" class="input-group-addon" style="">&deg;C</span>
@@ -164,7 +165,12 @@
 
                 <div id="nh4-panel" class="hidden">
                   <div class="form-group">
-                    <label class="col-sm-3 control-label" for="ammonium-value">Ammonium</label>
+                    <label class="col-sm-3 control-label">&nbsp;</label>
+                    <div id="nh4-strip" class="col-sm-3 dio-strip"><div id="nh4-picker" class="strip-picker" style="left: 100px;"></div></div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="col-sm-3 control-label" for="ammonium-value">&nbsp;</label>
                     <div class="input-group col-sm-2">
                       <input id="ammonium-value" name="ammonium-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="ammonium-addon"></input>
                       <span id="ammonium-addon" class="input-group-addon" style="">mg/l</span>
@@ -174,7 +180,12 @@
 
                 <div id="no3-panel" class="hidden">
                   <div class="form-group">
-                    <label class="col-sm-3 control-label" for="nitrate-value">Nitrate</label>
+                    <label class="col-sm-3 control-label">&nbsp;</label>
+                    <div id="no3-strip" class="col-sm-3 dio-strip"><div id="no3-picker" class="strip-picker" style="left: 100px;"></div></div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="col-sm-3 control-label" for="nitrate-value">&nbsp;</label>
                     <div class="input-group col-sm-2">
                       <input id="nitrate-value" name="nitrate-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="nitrate-addon"></input>
                       <span id="nitrate-addon" class="input-group-addon" style="">mg/l</span>
@@ -184,7 +195,11 @@
 
                 <div id="ph-panel" class="hidden">
                   <div class="form-group">
-                    <label class="col-sm-3 control-label" for="ph-value">pH</label>
+                    <label class="col-sm-3 control-label">&nbsp;</label>
+                    <div id="ph-strip" class="col-sm-3 dio-strip"><div id="ph-picker" class="strip-picker" style="left: 100px;"></div></div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-3 control-label" for="ph-value">&nbsp;</label>
                     <div class="input-group col-sm-2">
                       <input id="ph-value" name="ph-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001"></input>
                     </div>
@@ -199,19 +214,6 @@
                 </div>
 
               </form>
-<!--
-              <hr>
-
-              <h4>Measurement Data Import</h4>
-              <form method="post" action="{{url_for('import_csv')}}" enctype="multipart/form-data">
-                <div class="form-group">
-                  <label for="import-file">CSV file <a id="csvhelp-link" href="#csvhelp-modal" title="CSV Upload Help" data-toggle="modal"><span class="glyphicon glyphicon-question-sign"></span></a></label>
-                  <input type="file" id="import-file" name="import-file">
-                  <input type="hidden" class="hidden" name="system-uid" value="{{system_uid}}"></input>
-                </div>
-                <button type="submit" class="btn btn-default">Submit</button>
-              </form>
--->
               <!--
               <hr>
               <h3>REST API</h3>
@@ -226,7 +228,21 @@
               <h4>Alerts</h4>
               <p>TODO</p>
             </div><!-- /.panel-body -->
-          </div><!-- /.panel (Input)-->
+          </div><!-- /.panel (Alert)-->
+
+          <div id="import-panel" class="panel panel-default hidden" style="margin-top: 15px;">
+            <div class="panel-heading"><span class="glyphicon glyphicon-open-file"></span> Measurement Data Import</div>
+            <div class="panel-body">
+              <form method="post" action="{{url_for('import_csv')}}" enctype="multipart/form-data">
+                <div class="form-group">
+                  <label for="import-file">CSV file <a id="csvhelp-link" href="#csvhelp-modal" title="CSV Upload Help" data-toggle="modal"><span class="glyphicon glyphicon-question-sign"></span></a></label>
+                  <input type="file" id="import-file" name="import-file">
+                  <input type="hidden" class="hidden" name="system-uid" value="{{system_uid}}"></input>
+                </div>
+                <button type="submit" class="btn btn-default">Submit</button>
+              </form>
+            </div>
+          </div><!-- /.panel (Import) -->
 
         </div><!-- /.main -->
       </div><!-- /.row -->
@@ -245,7 +261,7 @@
         <h3>CSV Upload</h3>
         <p>
           Aquaponics measurement information can be specified as a
-          tabular CSV format as follows:                
+          tabular CSV format as follows:
         </p>
         <h4>Header</h4>
         <p>
@@ -346,8 +362,8 @@ function activateSectionGeneric(section, panelSelectors, liSelectors) {
 }
 
 function activateSection(section) {
-  var panelSelectors = ["#overview-panel", "#analytics-panel", "#input-panel", "#alert-panel"];
-  var liSelectors = ["#overview-li", "#analytics-li", "#input-li", "#alert-li"];
+  var panelSelectors = ["#overview-panel", "#analytics-panel", "#input-panel", "#import-panel", "#alert-panel"];
+  var liSelectors = ["#overview-li", "#analytics-li", "#input-li", "#import-li", "#alert-li"];
   activateSectionGeneric(section, panelSelectors, liSelectors);
 }
 
@@ -360,6 +376,7 @@ function activateTab(section) {
 $('#analytics-link').click(function () { activateSection("analytics"); });
 $('#overview-link').click(function () { activateSection("overview"); });
 $('#input-link').click(function () { activateSection("input"); });
+$('#import-link').click(function () { activateSection("import"); });
 $('#alert-link').click(function () { activateSection("alert"); });
 
 $('#dio-link').click(function () { activateTab("dio"); });
@@ -415,6 +432,25 @@ $('#dio-strip').click(function (e) {
   var value = posx / 2.0;
   $('#o2-value').attr('value', value);
 });
+$('#nh4-strip').click(function (e) {
+  var posx = e.pageX - $(this).offset().left;
+  $('#nh4-picker').css({left: posx, top: -1, position: "absolute"});
+  var value = posx / 2.0;
+  $('#ammonium-value').attr('value', value);
+});
+$('#no3-strip').click(function (e) {
+  var posx = e.pageX - $(this).offset().left;
+  $('#no3-picker').css({left: posx, top: -1, position: "absolute"});
+  var value = posx / 2.0;
+  $('#nitrate-value').attr('value', value);
+});
+$('#ph-strip').click(function (e) {
+  var posx = e.pageX - $(this).offset().left;
+  $('#ph-picker').css({left: posx, top: -1, position: "absolute"});
+  var value = posx / 2.0;
+  $('#ph-value').attr('value', value);
+});
+
 
 </script>
 {% endblock %}

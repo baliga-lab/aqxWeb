@@ -126,4 +126,3 @@ def api_test(*args, **kwargs):
 
     # this is the authorization code
     return jsonify(message='Greetings from Project Feed 1010 !')
-

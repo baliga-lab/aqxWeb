@@ -433,6 +433,7 @@ def add_measurement():
         try:
             if aqxdb.is_system_owner(cursor, sys_uid, user_id=session['user_id']):
                 for measure_type, mvalue in values.items():
+                    # TODO: handle error -> duplicates
                     aqxdb.add_measurement(cursor, sys_uid, measure_type, mtime, mvalue)
                 conn.commit()
                 flash('Measurements added', 'info')
@@ -454,7 +455,6 @@ def import_csv():
         target_path = os.path.join(app.config['TMP_FOLDER'], filename)
         file.save(target_path)
         app.logger.debug('import csv, system uid: %s, filename: %s', sys_uid, filename)
-        
         with open(target_path) as csvfile:
             conn = dbconn()
             cursor = conn.cursor()

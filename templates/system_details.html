@@ -141,14 +141,13 @@
                 <div class="" id="dio-panel">
                   <div class="form-group">
                     <label class="col-sm-3 control-label">&nbsp;</label>
-                    <div id="dio-strip" class="col-sm-3 dio-strip"><div id="dio-picker" class="strip-picker" style="left: 100px;"></div></div>
-                  </div>
-                  <div class="form-group">
-                    <label class="col-sm-3 control-label">&nbsp;</label>
                     <div class="input-group col-sm-2">
                       <input id="o2-value" name="o2-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="o2-addon"></input>
                       <span id="o2-addon" class="input-group-addon" style="">mg/l</span>
                     </div>
+                  </div>
+                  <div style="100%">
+                    <div id="o2-chart2" style="width: 360px; height: 180px"></div>
                   </div>
 
                 </div><!-- dio-panel -->
@@ -161,12 +160,17 @@
                       <span id="temp-addon" class="input-group-addon" style="">&deg;C</span>
                     </div>
                   </div>
+                  <div style="100%">
+                    <div id="temp-chart2" style="width: 360px; height: 180px"></div>
+                  </div>
+
                 </div><!-- temp-panel -->
 
                 <div id="nh4-panel" class="hidden">
+
                   <div class="form-group">
                     <label class="col-sm-3 control-label">&nbsp;</label>
-                    <div id="nh4-strip" class="col-sm-3 dio-strip"><div id="nh4-picker" class="strip-picker" style="left: 100px;"></div></div>
+                    <div id="nh4-strip" class="col-sm-3 nh4-strip"><div id="nh4-picker" class="strip-picker" style="left: 100px;"></div></div>
                   </div>
 
                   <div class="form-group">
@@ -181,7 +185,7 @@
                 <div id="no3-panel" class="hidden">
                   <div class="form-group">
                     <label class="col-sm-3 control-label">&nbsp;</label>
-                    <div id="no3-strip" class="col-sm-3 dio-strip"><div id="no3-picker" class="strip-picker" style="left: 100px;"></div></div>
+                    <div id="no3-strip" class="col-sm-3 no3-strip"><div id="no3-picker" class="strip-picker" style="left: 100px;"></div></div>
                   </div>
 
                   <div class="form-group">
@@ -196,7 +200,7 @@
                 <div id="ph-panel" class="hidden">
                   <div class="form-group">
                     <label class="col-sm-3 control-label">&nbsp;</label>
-                    <div id="ph-strip" class="col-sm-3 dio-strip"><div id="ph-picker" class="strip-picker" style="left: 100px;"></div></div>
+                    <div id="ph-strip" class="col-sm-3 ph-strip"><div id="ph-picker" class="strip-picker" style="left: 100px;"></div></div>
                   </div>
                   <div class="form-group">
                     <label class="col-sm-3 control-label" for="ph-value">&nbsp;</label>
@@ -204,6 +208,10 @@
                       <input id="ph-value" name="ph-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001"></input>
                     </div>
                   </div>
+                  <div style="100%">
+                    <div id="ph-chart2" style="width: 360px; height: 180px"></div>
+                  </div>
+
                 </div><!-- ph-panel -->
 
                 <!-- button panel -->
@@ -408,8 +416,11 @@ var o2Rows = {{o2_rows|tojson}};
 var ammoniumRows = {{ammonium_rows|tojson}};
 
 aqx.drawChart('temp-chart', 'Temperature', aqx.makeTimeSeriesData(['Temperature'], tempRows));
+aqx.drawChart('temp-chart2', 'Temperature', aqx.makeTimeSeriesData(['Temperature'], tempRows));
 aqx.drawChart('ph-chart', 'pH', aqx.makeTimeSeriesData(['pH'], phRows));
+aqx.drawChart('ph-chart2', 'pH', aqx.makeTimeSeriesData(['pH'], phRows));
 aqx.drawChart('o2-chart', 'O2', aqx.makeTimeSeriesData(['O2'], o2Rows));
+aqx.drawChart('o2-chart2', 'O2', aqx.makeTimeSeriesData(['O2'], o2Rows));
 aqx.drawChart('ammonium-chart', 'Ammonium & Nitrate', aqx.makeTimeSeriesData(['Ammonium', 'Nitrate'], ammoniumRows));
 
 $('#deletesys-button').click(function () {
@@ -426,28 +437,25 @@ $('#deletesys-button').click(function () {
   });
 });
 
-$('#dio-strip').click(function (e) {
-  var posx = e.pageX - $(this).offset().left;
-  $('#dio-picker').css({left: posx, top: -1, position: "absolute"});
-  var value = posx / 2.0;
-  $('#o2-value').attr('value', value);
-});
 $('#nh4-strip').click(function (e) {
   var posx = e.pageX - $(this).offset().left;
   $('#nh4-picker').css({left: posx, top: -1, position: "absolute"});
-  var value = posx / 2.0;
+  // 0 - 6.0
+  var value = posx * (6.0 / 200.0);
   $('#ammonium-value').attr('value', value);
 });
 $('#no3-strip').click(function (e) {
   var posx = e.pageX - $(this).offset().left;
   $('#no3-picker').css({left: posx, top: -1, position: "absolute"});
-  var value = posx / 2.0;
+  // 0 - 200
+  var value = posx;
   $('#nitrate-value').attr('value', value);
 });
 $('#ph-strip').click(function (e) {
   var posx = e.pageX - $(this).offset().left;
   $('#ph-picker').css({left: posx, top: -1, position: "absolute"});
-  var value = posx / 2.0;
+  // 6.2 - 8.4
+  var value = 6.2 + (posx * (2.2 / 200.0));
   $('#ph-value').attr('value', value);
 });
 

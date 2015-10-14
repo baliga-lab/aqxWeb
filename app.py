@@ -176,7 +176,7 @@ def signin():
     except:
         app.logger.exception("Got an exception")
         raise
-        
+
 
 @app.route('/signout')
 def signout():
@@ -225,6 +225,7 @@ def user_settings():
 def update_default_site_location():
     conn = dbconn()
     cursor = conn.cursor()
+    print request.form.keys()
     try:
         lat = float(request.form['lat'])
         lng = float(request.form['lng'])
@@ -257,7 +258,7 @@ def sys_details(system_uid=None):
         cursor.execute('select s.id,s.name,s.creation_time,start_date,aqx_technique_id,google_id from systems s join users u on s.user_id=u.id where system_uid=%s and s.status=0', [system_uid])
         row = cursor.fetchone()
         system_pk, system_name, creation_time, start_date, aqx_tech_id, sys_google_id = row
-        
+
         # only owners can modify systems's data
         readonly = user_google_id != sys_google_id
         temp_rows = aqxdb.get_measurement_series(cursor, system_uid, 'temp')

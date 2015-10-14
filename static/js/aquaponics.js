@@ -6,7 +6,7 @@ if (!aqx) {
     "use strict";
 
      aqx.makeTimeSeriesData = function(ylabels, rows) {
-         var data = new google.visualization.DataTable();         
+         var data = new google.visualization.DataTable();
          data.addColumn('string', 'Time');
          for (var i = 0; i < ylabels.length; i++)
              data.addColumn('number', ylabels[i]);

@@ -61,7 +61,7 @@ def systems_and_latest_measurements(cursor, user_id):
                for pk, name, sys_id in cursor.fetchall()]
     now = datetime.now()
 
-    for system in systems:            
+    for system in systems:
         sys_uid = system['sys_uid']
         system['time'] = now
         system['temperature'] = get_latest_measurement(cursor, sys_uid, 'temp')
@@ -69,7 +69,7 @@ def systems_and_latest_measurements(cursor, user_id):
         system['oxygen'] = get_latest_measurement(cursor, sys_uid, 'o2')
         system['ammonium'] = get_latest_measurement(cursor, sys_uid, 'ammonium')
         system['nitrate'] = get_latest_measurement(cursor, sys_uid, 'nitrate')
-        # TODO: light                        
+        # TODO: light
     return systems
 
 
@@ -147,7 +147,7 @@ def update_system_details(cursor, system_uid, data):
             crop_pk = int(data['crop_id'])
             if 'num_crops' in data:
                 num_crops = int(data['num_crops'])
-                                
+
             # 1. update existing entry
             cursor.execute('select count(*) from system_crops where system_id=%s', system_pk)
             if cursor.fetchone()[0] > 0:
@@ -186,17 +186,19 @@ def add_measurement(cursor, sys_uid, attr, timestamp, value):
     query = 'insert into ' + table + ' (time,value) values (%s,%s)'
     cursor.execute(query, [timestamp, value])
 
+
 def set_default_site_location(cursor, user_pk, lat, lng):
     locstring = "%f:%f" % (lat, lng)
-    cursor.execute('update users set default_site_location=%s where id=%s',
-                   [locstring, user_pk])
+    cursor.execute('update users set default_site_location_lat=%s, default_site_location_lng=%s where id=%s',
+                   [lat, lng, user_pk])
+
 
 def get_default_site_location(cursor, user_pk):
-    cursor.execute('select default_site_location from users where id=%s', [user_pk])
+    cursor.execute('select default_site_location_lat, default_site_location_lng from users where id=%s', [user_pk])
     row = cursor.fetchone()
-    if row is not None and row[0] is not None:
-        coords = map(float, row[0].split(':'))
-        return {'lat': coords[0], 'lng': coords[1]}
+    if row is not None:
+        lat, lng = row
+        return {'lat': float(lat), 'lng': float(lng)}
     else:
         return None
 

@@ -30,7 +30,7 @@
         <div class="panel-body">
           <h4>Default Measurement Site</h4>
           <div>
-            <input type="text" id="site-location-search" style="width: 300px"></input>            
+            <input type="text" id="site-location-search" style="width: 300px"></input>
             <div id="map" style="width: 90%; height: 300px; margin-top: 10px;"></div>
           </div>
         </div><!-- .panel-body -->
@@ -67,24 +67,28 @@
         autocomplete.bindTo('bounds', map);
 
         autocomplete.place_changed = function() {
-           var place = autocomplete.getPlace();
-           if (place.geometry) {
-             // place marker
-             if (marker) marker.setMap(null);
-             marker = new google.maps.Marker({
-               map: map,
-               icon: '/static/images/leaf24.png',
-               position: place.geometry.location
-             });
-           }
-           $.post("{{url_for('update_default_site_location')}}",
-                  {lat: place.geometry.location.G,
-                   lng: place.geometry.location.K });
-           if (place.geometry.viewport) {
-             map.fitBounds(place.geometry.viewport);
-           } else {
-             map.panTo(new google.maps.LatLng(place.geometry.location.G, place.geometry.location.K));
-           }
+            var place = autocomplete.getPlace();
+            if (place.geometry) {
+                // place marker
+                if (marker) marker.setMap(null);
+                marker = new google.maps.Marker({
+                    map: map,
+                    icon: '/static/images/leaf24.png',
+                    position: place.geometry.location
+                });
+                var geoLat = place.geometry.location.lat();
+                var geoLng = place.geometry.location.lng();
+                if (typeof geoLat === 'undefined' || typeof geoLng === 'undefined') {
+                    console.log('error: place does not define coordinates: ' + place.geometry.location);
+                } else {
+                    $.post("{{url_for('update_default_site_location')}}", {lat: geoLat, lng: geoLng });
+                    if (place.geometry.viewport) {
+                        map.fitBounds(place.geometry.viewport);
+                    } else {
+                        map.panTo(new google.maps.LatLng(geoLat, geoLng));
+                    }
+                }
+            }
         };
       }
     </script>

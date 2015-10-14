@@ -20,6 +20,8 @@ import csvimport
 from aqx_api import aqx_api
 
 AQX_GIT_SHA = "$Id$"
+OPENWEATHERMAP_URL = 'http://api.openweathermap.org/data/2.5/weather?lat=%f&lon=%f&appid=%s'
+
 
 app = Flask(__name__)
 app.config.from_envvar('AQUAPONICS_SETTINGS')
@@ -214,6 +216,20 @@ def user_settings():
     cursor = conn.cursor()
     try:
         site_location = aqxdb.get_default_site_location(cursor, session['user_id'])
+        if site_location is not None:
+            # get weather information
+            url = OPENWEATHERMAP_URL % (site_location['lat'], site_location['lng'], app.config['OPENWEATHERMAP_KEY'])
+            r = requests.get(url)
+            has_weather = False
+            context = r.json()
+            if 'main' in context:
+                has_weather = True
+                if 'humidity' in context['main']:
+                    humidity = context['main']['humidity']
+                if 'temp' in context['main']:
+                    # temperature in Kelvin -> Celsius
+                    temp = (context['main']['temp'] - 273.0)
+
         app.logger.debug(site_location)
     finally:
         cursor.close()

@@ -28,7 +28,14 @@
       <div class="panel panel-default" style="margin-top: 15px;">
         <div class="panel-heading">Edit Profile Settings</div>
         <div class="panel-body">
-          <h4>Default Measurement Site</h4>
+          <h3>Default Measurement Site</h3>
+          {% if has_weather %}
+          <h4>Weather information</h4>
+          <p>
+            Humidity: {{ humidity }}%<br>
+            Temperature: {{temp}} &deg;C
+          </p>
+          {% endif %}
           <div>
             <input type="text" id="site-location-search" style="width: 300px"></input>
             <div id="map" style="width: 90%; height: 300px; margin-top: 10px;"></div>

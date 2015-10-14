@@ -198,8 +198,8 @@ def get_default_site_location(cursor, user_pk):
     row = cursor.fetchone()
     if row is not None:
         lat, lng = row
-        return {'lat': float(lat), 'lng': float(lng)}
-    else:
+        if lat is not None and lng is not None:
+            return {'lat': float(lat), 'lng': float(lng)}
         return None
 
 """

@@ -303,7 +303,7 @@ def sys_details(system_uid=None):
             aqx_technique = aqxdb.get_catalog_value(cursor, 'aqx_techniques', aqx_tech_id)
             aqx_organism = aqxdb.get_catalog_value(cursor, 'aquatic_organisms', aqx_org_id)
             crop = aqxdb.get_catalog_value(cursor, 'crops', crop_id)
-            return render_template('system_details_readonly.html', **locals())        
+            return render_template('system_details_readonly.html', **locals())
         else:
             aqx_techniques = aqxdb.all_catalog_values(cursor, 'aqx_techniques')
             aq_orgs = aqxdb.all_catalog_values(cursor, 'aquatic_organisms')
@@ -330,7 +330,7 @@ def create_system():
                 flash('Maximum number of systems/user reached.','error')
             else:
                 cursor.execute('select u.id, n from users u left outer join (select user_id, count(*) as n from systems where name=%s) s on u.id=s.user_id where u.google_id=%s',
-                               [sysname, session['google_id']])            
+                               [sysname, session['google_id']])
                 user_pk, num_sys = cursor.fetchone()
                 if num_sys > 0:
                     flash("You already have a system named '%s'. Please use a different name." % sysname, 'error')
@@ -508,7 +508,7 @@ def details_images_div(system_uid):
 def details_images_placeholder(system_uid):
     """a simple snippet to add an image control"""
     return render_template('details_image_placeholder.html', **locals())
-    
+
 
 @app.route('/set-system-image', methods=['POST'])
 @requires_login
@@ -567,12 +567,11 @@ def aqx_map():
     conn = dbconn()
     cursor = conn.cursor()
     try:
-        cursor.execute("select default_site_location as loc, u.id as site_id, group_concat(system_uid separator ',') as sys_uids from users u join systems s on s.user_id=u.id where s.status=0 group by loc")
+        cursor.execute("select default_site_location_lat as lat, default_site_location_lng as lng, u.id as site_id, group_concat(system_uid separator ',') as sys_uids from users u join systems s on s.user_id=u.id where s.status=0 group by lat, lng")
         locations = []
-        for loc, site_id, sys_uids in cursor.fetchall():
+        for lat, lng, site_id, sys_uids in cursor.fetchall():
             try:
-                lat, lng = map(float, loc.split(':'))
-                locations.append({'location': {'lat': lat, 'lng': lng}, 'systems': sys_uids.split(',')})
+                locations.append({'location': {'lat': float(lat), 'lng': float(lng)}, 'systems': sys_uids.split(',')})
             except:  # don't add invalid locations
                 pass
     finally:
@@ -584,7 +583,7 @@ def aqx_map():
 if __name__ == '__main__':
     handler = logging.StreamHandler()
     handler.setLevel(logging.INFO)
-    
+
     app.debug = True
     app.secret_key = 'supercalifragilistic'
     app.logger.addHandler(handler)

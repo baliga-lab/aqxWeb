@@ -57,18 +57,18 @@ def authorize(func):
 API_TIME_FORMAT = '%m/%d/%Y %H:%M:%S'
 
 """
-curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ya29.1QFng_HOUxcDoYncPlVamEsaQOrLGOSTgfE4sweBiYHK_fvKxa5g8qbYpluqowddEaVsWA" -d '[{"time": "08/19/2015 08:15:30", "o2": 10.2}]' http://localhost:5000/api/v1/add-measurements/7921a6763e0011e5beb064273763ec8b
+curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ya29.1QFng_HOUxcDoYncPlVamEsaQOrLGOSTgfE4sweBiYHK_fvKxa5g8qbYpluqowddEaVsWA" -d '[{"time": "08/19/2015 08:15:30", "o2": 10.2}]' http://localhost:5000/api/v1.0/add-measurements/7921a6763e0011e5beb064273763ec8b
 
 """
-@aqx_api.route('/api/v1/add-measurements/<system_id>', methods=['POST'])
+@aqx_api.route('/api/v1.0/add-measurements/<system_uid>', methods=['POST'])
 @authorize
-def api_add_measurements(system_id, *args, **kwargs):
+def api_add_measurements(system_uid, *args, **kwargs):
     conn = dbconn()
     cursor = conn.cursor()
     try:
-        if aqxdb.is_system_owner(cursor, system_id, google_id=kwargs['google_id']):
+        if aqxdb.is_system_owner(cursor, system_uid, google_id=kwargs['google_id']):
             current_app.logger.debug('adding measurements for system id: %s and google id: %s',
-                                     system_id, kwargs['google_id']) 
+                                     system_uid, kwargs['google_id']) 
             measurements = json.loads(request.data)
             current_app.logger.debug(measurements)
             try:
@@ -81,7 +81,7 @@ def api_add_measurements(system_id, *args, **kwargs):
                     for attr in aqxdb.ATTR_NAMES:
                         if attr in measurement:
                             try:
-                                aqxdb.add_measurement(cursor, system_id, attr, timestamp, measurement[attr])
+                                aqxdb.add_measurement(cursor, system_uid, attr, timestamp, measurement[attr])
                             except:
                                 # only warn once per submission
                                 if not warned:
@@ -99,7 +99,7 @@ def api_add_measurements(system_id, *args, **kwargs):
         conn.close()
 
 
-@aqx_api.route('/api/v1/systems', methods=['GET'])
+@aqx_api.route('/api/v1.0/systems', methods=['GET'])
 @authorize
 def api_user_systems(*args, **kwargs):
     """Returns all systems available to the user."""
@@ -113,13 +113,44 @@ def api_user_systems(*args, **kwargs):
         conn.close()
 
 
+@aqx_api.route('/api/v1.0/system-details/<system_uid>', methods=['GET'])
+@authorize
+def api_system_details(system_uid, *args, **kwargs):
+    """Returns the specified system's details"""
+    conn = dbconn()
+    cursor = conn.cursor()
+    try:
+        cursor.execute('select s.id,s.name,s.creation_time,start_date,t.name from systems s left outer join aqx_techniques t on s.aqx_technique_id=t.id where system_uid=%s',
+                       [system_uid])
+        row = cursor.fetchone()
+        system_pk, system_name, creation_time, start_date, technique = row
+        details = {'name': system_name,
+                   'creation_time': str(creation_time) if creation_time is not None else '',
+                   'start_date': str(start_date) if start_date is not None else '',
+                   'aqx_technique': technique if technique is not None else ''
+                   }
+        cursor.execute('select ao.name,sao.num from system_aquatic_organisms sao join aquatic_organisms ao on sao.organism_id=ao.id where system_id=%s', [system_pk])
+        organisms = [{name: num} for name, num in cursor.fetchall()]
+        details['aquatic_organisms'] = organisms
+
+        cursor.execute('select c.name,sc.num from system_crops sc join crops c on sc.crop_id=c.id where system_id=%s', [system_pk])
+        crops = [{name: num} for name, num in cursor.fetchall()]
+        details['crops'] = crops
+        print details
+
+        return jsonify(system_details=details)
+    finally:
+        cursor.close()
+        conn.close()
+
+
 # This is an example for an API call that is authenticated with Google OAuth2
 # The call expects an authorization header with a Bearer token received
 # from Google OAuth2.
 """
 curl -X POST -H "Authorization: Bearer ya29.1QFng_HOUxcDoYncPlVamEsaQOrLGOSTgfE4sweBiYHK_fvKxa5g8qbYpluqowddEaVsWA" http://localhost:5000/api/v1/api-test
 """
-@aqx_api.route('/api/v1/api-test', methods=['POST', 'GET'])
+@aqx_api.route('/api/v1.0/api-test', methods=['POST', 'GET'])
 @authorize
 def api_test(*args, **kwargs):
     current_app.logger.debug('api_test(), user_id: %s', kwargs['google_id'])

@@ -54,22 +54,26 @@ def authorize(func):
     return wrapper
 
 
-API_TIME_FORMAT = '%m/%d/%Y %H:%M:%S'
+API_TIME_FORMAT = '%Y/%m/%d %H:%M:%S'
+API_DATE_FORMAT = '%Y/%m/%d'
 
 """
 curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ya29.1QFng_HOUxcDoYncPlVamEsaQOrLGOSTgfE4sweBiYHK_fvKxa5g8qbYpluqowddEaVsWA" -d '[{"time": "08/19/2015 08:15:30", "o2": 10.2}]' http://localhost:5000/api/v1.0/add-measurements/7921a6763e0011e5beb064273763ec8b
 
 """
-@aqx_api.route('/api/v1.0/add-measurements/<system_uid>', methods=['POST'])
+@aqx_api.route('/api/v1.0/measurements/<system_uid>', methods=['POST'])
 @authorize
 def api_add_measurements(system_uid, *args, **kwargs):
+    """
+    {'measurements': [{'time': '2015/10/11 10:30:50', 'o2': 12.0}, ...]}
+    """
     conn = dbconn()
     cursor = conn.cursor()
     try:
         if aqxdb.is_system_owner(cursor, system_uid, google_id=kwargs['google_id']):
             current_app.logger.debug('adding measurements for system id: %s and google id: %s',
-                                     system_uid, kwargs['google_id']) 
-            measurements = json.loads(request.data)
+                                     system_uid, kwargs['google_id'])
+            measurements = json.loads(request.data)['measurements']
             current_app.logger.debug(measurements)
             try:
                 warned = False
@@ -113,7 +117,7 @@ def api_user_systems(*args, **kwargs):
         conn.close()
 
 
-@aqx_api.route('/api/v1.0/system-details/<system_uid>', methods=['GET'])
+@aqx_api.route('/api/v1.0/system/<system_uid>', methods=['GET'])
 @authorize
 def api_system_details(system_uid, *args, **kwargs):
     """Returns the specified system's details"""
@@ -125,8 +129,8 @@ def api_system_details(system_uid, *args, **kwargs):
         row = cursor.fetchone()
         system_pk, system_name, creation_time, start_date, technique = row
         details = {'name': system_name,
-                   'creation_time': str(creation_time) if creation_time is not None else '',
-                   'start_date': str(start_date) if start_date is not None else '',
+                   'creation_time': datetime.strftime(creation_time, API_TIME_FORMAT) if creation_time is not None else '',
+                   'start_date': datetime.strftime(start_date, API_DATE_FORMAT) if start_date is not None else '',
                    'aqx_technique': technique if technique is not None else ''
                    }
         cursor.execute('select ao.name,sao.num from system_aquatic_organisms sao join aquatic_organisms ao on sao.organism_id=ao.id where system_id=%s', [system_pk])

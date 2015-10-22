@@ -16,7 +16,7 @@
           </div>
         </nav><!-- /.navbar -->
 
-        <div class="main">
+        <div class="main" style="margin-left: 5px; margin-right: 5px">
           {# Flash messages go here #}
           {% with messages = get_flashed_messages(category_filter=["error"]) %}
           {% if messages %}
@@ -135,20 +135,23 @@
               <form class="form-horizontal" method="post" action="{{url_for('add_measurement')}}">
                 <input type="hidden" class="hidden" name="system-uid" value="{{system_uid}}"></input>
                 <div class="form-group">
-                  <label class="col-sm-3 control-label" for="measure-date">Measurement Time</label>
-                  <input class="col-sm-3" type="date" id="measure-date" name="measure-date" required></input>
-                  <input class="col-sm-3" type="time" id="measure-time" name="measure-time" step="1"></input>
+                  <label for="measure-date">Measurement Date</label>
+                  <input class="form-control" type="date" id="measure-date" name="measure-date" required></input>
+                </div>
+                <div class="form-group">
+                  <label for="measure-time">Measurement Time</label>
+                  <input class="form-control" type="time" id="measure-time" name="measure-time" step="1"></input>
                 </div>
 
-                <div class="" id="dio-panel">
+                <div id="dio-panel">
                   <div class="form-group">
-                    <label class="col-sm-3 control-label">&nbsp;</label>
-                    <div class="input-group col-sm-2">
-                      <input id="o2-value" name="o2-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="o2-addon"></input>
-                      <span id="o2-addon" class="input-group-addon" style="">mg/l</span>
+                    <label for="o2-value">&nbsp;</label>
+                    <div class="input-group">
+                      <input id="o2-value" class="form-control" name="o2-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="o2-addon"></input>
+                      <span id="o2-addon" class="input-group-addon">mg/l</span>
                     </div>
                   </div>
-                  <div style="100%">
+                  <div>
                     <div id="o2-chart2" style="width: 360px; height: 180px"></div>
                   </div>
 
@@ -156,13 +159,13 @@
 
                 <div id="temp-panel" class="hidden">
                   <div class="form-group">
-                    <label class="col-sm-3 control-label" for="temp-value">&nbsp;</label>
-                    <div class="input-group col-sm-2">
-                      <input id="temp-value" name="temp-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="temp-addon"></input>
+                    <label for="temp-value">&nbsp;</label>
+                    <div class="input-group">
+                      <input id="temp-value" class="form-control" name="temp-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="temp-addon"></input>
                       <span id="temp-addon" class="input-group-addon" style="">&deg;C</span>
                     </div>
                   </div>
-                  <div style="100%">
+                  <div>
                     <div id="temp-chart2" style="width: 360px; height: 180px"></div>
                   </div>
 
@@ -171,46 +174,46 @@
                 <div id="nh4-panel" class="hidden">
 
                   <div class="form-group">
-                    <label class="col-sm-3 control-label">&nbsp;</label>
-                    <div id="nh4-strip" class="col-sm-3 nh4-strip"><div id="nh4-picker" class="strip-picker" style="left: 100px;"></div></div>
+                    <label for="nh4-strip">Strip Color</label>
+                    <div id="nh4-strip" class="form-control nh4-strip"><div id="nh4-picker" class="strip-picker" style="left: 100px;"></div></div>
                   </div>
 
                   <div class="form-group">
-                    <label class="col-sm-3 control-label" for="ammonium-value">&nbsp;</label>
-                    <div class="input-group col-sm-2">
-                      <input id="ammonium-value" name="ammonium-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="ammonium-addon"></input>
-                      <span id="ammonium-addon" class="input-group-addon" style="">mg/l</span>
+                    <label for="ammonium-value">Value</label>
+                    <div class="input-group">
+                      <input id="ammonium-value" class="form-control" name="ammonium-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="ammonium-addon"></input>
+                      <span id="ammonium-addon" class="input-group-addon">mg/l</span>
                     </div>
                   </div>
                 </div><!-- nh4-panel -->
 
                 <div id="no3-panel" class="hidden">
                   <div class="form-group">
-                    <label class="col-sm-3 control-label">&nbsp;</label>
-                    <div id="no3-strip" class="col-sm-3 no3-strip"><div id="no3-picker" class="strip-picker" style="left: 100px;"></div></div>
+                    <label for="no3-strip">Strip Color</label>
+                    <div id="no3-strip" class="form-control no3-strip"><div id="no3-picker" class="strip-picker" style="left: 100px;"></div></div>
                   </div>
 
                   <div class="form-group">
-                    <label class="col-sm-3 control-label" for="nitrate-value">&nbsp;</label>
-                    <div class="input-group col-sm-2">
-                      <input id="nitrate-value" name="nitrate-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="nitrate-addon"></input>
-                      <span id="nitrate-addon" class="input-group-addon" style="">mg/l</span>
+                    <label for="nitrate-value">Value</label>
+                    <div class="input-group">
+                      <input id="nitrate-value" class="form-control" name="nitrate-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="nitrate-addon"></input>
+                      <span id="nitrate-addon" class="input-group-addon">mg/l</span>
                     </div>
                   </div>
                 </div><!-- no3-panel -->
 
                 <div id="ph-panel" class="hidden">
                   <div class="form-group">
-                    <label class="col-sm-3 control-label">&nbsp;</label>
-                    <div id="ph-strip" class="col-sm-3 ph-strip"><div id="ph-picker" class="strip-picker" style="left: 100px;"></div></div>
+                    <label for="ph-strip">Strip Color</label>
+                    <div id="ph-strip" class="form-control ph-strip"><div id="ph-picker" class="strip-picker" style="left: 100px;"></div></div>
                   </div>
                   <div class="form-group">
-                    <label class="col-sm-3 control-label" for="ph-value">&nbsp;</label>
-                    <div class="input-group col-sm-2">
-                      <input id="ph-value" name="ph-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001"></input>
+                    <label for="ph-value">Value</label>
+                    <div class="input-group">
+                      <input id="ph-value" class="form-control" name="ph-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001"></input>
                     </div>
                   </div>
-                  <div style="100%">
+                  <div>
                     <div id="ph-chart2" style="width: 360px; height: 180px"></div>
                   </div>
 

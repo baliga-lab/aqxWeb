@@ -1,0 +1,129 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: 'ISB Aquaponics API'
+paths:
+  /systems:
+    get:
+      description: Gets `System` objects.
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            $ref: '#/definitions/SystemInfos'
+
+  /system/{system_uid}:
+    get:
+      description:
+        Retrieves the detail information about a System object
+      produces:
+        - /application/json
+      parameters:
+        - name: system_uid
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            $ref: '#/definitions/SystemDetails'
+                      
+  /measurements/{system_uid}:
+    post:
+      description:
+        send measurements
+      produces:
+        - /application/json
+      parameters:
+        - name: system_uid
+          in: path
+          required: true
+          type: string
+        - name: measurements
+          in: body
+          description: measurements to add
+          required: true
+          schema:
+            $ref: '#/definitions/Measurements'
+      responses:
+        '200':
+          description:
+            successful response
+          
+
+definitions:
+  Measurements:
+    properties:
+        measurements:
+          type: array
+          items:
+            title: Measurement
+            type: object
+            properties:
+              time:
+                type: string
+              o2:
+                type: number
+                format: float
+              temp:
+                type: number
+                format: float
+              light:
+                type: number
+                format: float
+              ph:
+                type: number
+                format: float
+              ammonium:
+                type: number
+                format: float
+              nitrate:
+                type: number
+                format: float
+
+  SystemDetails:
+    properties:
+      name:
+        type: string
+      creation_time:
+        type: string
+      start_date:
+        type: string
+      aqx_technique:
+        type: string
+      aquatic_organisms:
+        type: array
+        items:
+          title: AquaticOrganisms
+          type: object
+          properties:
+            name:
+              type: string
+            num:
+              type: integer
+            crops:
+              type: array
+              items:
+                title: Crops
+                type: object
+                properties:
+                  name:
+                    type: string
+                  num:
+                    type: integer
+
+  SystemInfos:
+    properties:
+      systems:
+        type: array
+        items:
+          title: SystemInfo
+          type: object
+          properties:
+            uid:
+              type: string
+            name:
+              type: string

@@ -95,8 +95,16 @@
     position: relative;
 }
 
+/* Nitrate */
 .no3-strip {
     background: linear-gradient(to right, #fffaed, #f9abcc, #f581b2, #e92b93, #de0084, #d50078);
+    width: 200px;
+    height:28px;
+    position: relative;
+}
+/* Nitrite */
+.no2-strip {
+    background: linear-gradient(to right, #fefcf0, #fdf6f1, #fcecec, #fdb8d4, #f6a1c0, #fa91b3);
     width: 200px;
     height:28px;
     position: relative;

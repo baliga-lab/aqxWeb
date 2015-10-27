@@ -282,6 +282,8 @@ def sys_details(system_uid=None):
         o2_rows = aqxdb.get_measurement_series(cursor, system_uid, 'o2')
         ammonium_rows = aqxdb.get_measurement_series(cursor, system_uid, 'ammonium')
         nitrate_rows = aqxdb.get_measurement_series(cursor, system_uid, 'nitrate')
+        nitrite_rows = aqxdb.get_measurement_series(cursor, system_uid, 'nitrite')
+        light_rows = aqxdb.get_measurement_series(cursor, system_uid, 'light')
 
         # this is a workaround to be able to display ammonium and nitrate in
         # one chart

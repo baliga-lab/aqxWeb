@@ -114,7 +114,8 @@
                 <div class="col-md-1" id="ammonium-chart" style="width: 360px; height: 180px"></div>
               </row>
               <row>
-                <div class="col-md-1" id="nitrate-chart" style="width: 360px; height: 180px"></div>
+                <div class="col-md-1" id="nitrite-chart" style="width: 360px; height: 180px"></div>
+                <div class="col-md-1" id="light-chart" style="width: 360px; height: 180px"></div>
               </row>
             </div><!-- /.panel-body -->
           </div><!-- /.panel (Analytics)-->
@@ -126,8 +127,10 @@
             <ul class="nav nav-tabs">
               <li id="dio-li" role="presentation" class="active"><a id="dio-link" href="javascript:void(0)">Dis. Oxygen</a></li>
               <li id="temp-li" role="presentation"><a id="temp-link" href="javascript:void(0)">Temperature</a></li>
+              <li id="light-li" role="presentation"><a id="light-link" href="javascript:void(0)">Light</a></li>
               <li id="nh4-li" role="presentation"><a id="nh4-link" href="javascript:void(0)">Ammonium</a></li>
               <li id="no3-li" role="presentation"><a id="no3-link" href="javascript:void(0)">Nitrate</a></li>
+              <li id="no2-li" role="presentation"><a id="no2-link" href="javascript:void(0)">Nitrite</a></li>
               <li id="ph-li" role="presentation"><a id="ph-link" href="javascript:void(0)">pH</a></li>
             </ul>
 
@@ -162,17 +165,26 @@
                     <label for="temp-value">&nbsp;</label>
                     <div class="input-group">
                       <input id="temp-value" class="form-control" name="temp-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="temp-addon"></input>
-                      <span id="temp-addon" class="input-group-addon" style="">&deg;C</span>
+                      <span id="temp-addon" class="input-group-addon">&deg;C</span>
                     </div>
                   </div>
                   <div>
                     <div id="temp-chart2" style="width: 360px; height: 180px"></div>
                   </div>
-
                 </div><!-- temp-panel -->
 
-                <div id="nh4-panel" class="hidden">
+                <div id="light-panel" class="hidden">
+                  <div class="form-group">
+                    <label for="light-value">&nbsp;</label>
+                    <div class="input-group">
+                      <input id="light-value" class="form-control" name="light-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="light-addon"></input>
+                      <span id="light-addon" class="input-group-addon">lux</span>
+                    </div>
+                  </div>
+                </div><!-- light-panel -->
 
+
+                <div id="nh4-panel" class="hidden">
                   <div class="form-group">
                     <label for="nh4-strip">Strip Color</label>
                     <div id="nh4-strip" class="form-control nh4-strip"><div id="nh4-picker" class="strip-picker" style="left: 100px;"></div></div>
@@ -201,6 +213,21 @@
                     </div>
                   </div>
                 </div><!-- no3-panel -->
+
+                <div id="no2-panel" class="hidden">
+                  <div class="form-group">
+                    <label for="no2-strip">Strip Color</label>
+                    <div id="no2-strip" class="form-control no2-strip"><div id="no2-picker" class="strip-picker" style="left: 100px;"></div></div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="nitrite-value">Value</label>
+                    <div class="input-group">
+                      <input id="nitrite-value" class="form-control" name="nitrite-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="nitrate-addon"></input>
+                      <span id="nitrite-addon" class="input-group-addon">mg/l</span>
+                    </div>
+                  </div>
+                </div><!-- no2-panel -->
 
                 <div id="ph-panel" class="hidden">
                   <div class="form-group">
@@ -287,6 +314,7 @@
             <li><strong>o2</strong></li>
             <li><strong>ammonium</strong></li>
             <li><strong>nitrate</strong></li>
+            <li><strong>nitrite</strong></li>
             <li><strong>light</strong></li>
           </ul>
         </p>
@@ -381,8 +409,8 @@ function activateSection(section) {
 }
 
 function activateTab(section) {
-  var panelSelectors = ["#dio-panel", "#temp-panel", "#nh4-panel", "#no3-panel", "#ph-panel", "#import-panel"];
-  var liSelectors = ["#dio-li", "#temp-li", "#nh4-li", "#no3-li", "#ph-li", "#import-li"];
+  var panelSelectors = ["#dio-panel", "#temp-panel", "#light-panel", "#nh4-panel", "#no3-panel", "#no2-panel", "#ph-panel", "#import-panel"];
+  var liSelectors = ["#dio-li", "#temp-li", "#light-li", "#nh4-li", "#no3-li", "#no2-li", "#ph-li", "#import-li"];
   activateSectionGeneric(section, panelSelectors, liSelectors);
 }
 
@@ -394,8 +422,10 @@ $('#alert-link').click(function () { activateSection("alert"); });
 
 $('#dio-link').click(function () { activateTab("dio"); });
 $('#temp-link').click(function () { activateTab("temp"); });
+$('#light-link').click(function () { activateTab("light"); });
 $('#nh4-link').click(function () { activateTab("nh4"); });
 $('#no3-link').click(function () { activateTab("no3"); });
+$('#no2-link').click(function () { activateTab("no2"); });
 $('#ph-link').click(function () { activateTab("ph"); });
 
 function setImage(selector, imgurl) {
@@ -419,6 +449,8 @@ var tempRows = {{temp_rows|tojson}};
 var phRows = {{ph_rows|tojson}};
 var o2Rows = {{o2_rows|tojson}};
 var ammoniumRows = {{ammonium_rows|tojson}};
+var nitriteRows = {{nitrite_rows|tojson}};
+var lightRows = {{light_rows|tojson}};
 
 aqx.drawChart('temp-chart', 'Temperature', aqx.makeTimeSeriesData(['Temperature'], tempRows));
 aqx.drawChart('temp-chart2', 'Temperature', aqx.makeTimeSeriesData(['Temperature'], tempRows));
@@ -426,7 +458,9 @@ aqx.drawChart('ph-chart', 'pH', aqx.makeTimeSeriesData(['pH'], phRows));
 aqx.drawChart('ph-chart2', 'pH', aqx.makeTimeSeriesData(['pH'], phRows));
 aqx.drawChart('o2-chart', 'O2', aqx.makeTimeSeriesData(['O2'], o2Rows));
 aqx.drawChart('o2-chart2', 'O2', aqx.makeTimeSeriesData(['O2'], o2Rows));
-aqx.drawChart('ammonium-chart', 'Ammonium & Nitrate', aqx.makeTimeSeriesData(['Ammonium', 'Nitrate'], ammoniumRows));
+aqx.drawChart('ammonium-chart', 'Ammonium/Nitrate', aqx.makeTimeSeriesData(['Ammonium', 'Nitrate'], ammoniumRows));
+aqx.drawChart('nitrite-chart', 'Nitrite', aqx.makeTimeSeriesData(['Nitrite'], nitriteRows));
+aqx.drawChart('light-chart', 'Light', aqx.makeTimeSeriesData(['Light'], lightRows));
 
 $('#deletesys-button').click(function () {
   $('#confirm-delete-modal').modal('hide');
@@ -456,6 +490,15 @@ $('#no3-strip').click(function (e) {
   var value = posx;
   $('#nitrate-value').attr('value', value);
 });
+
+$('#no2-strip').click(function (e) {
+  var posx = e.pageX - $(this).offset().left;
+  $('#no2-picker').css({left: posx, top: -1, position: "absolute"});
+  // 0 - 200
+  var value = posx;
+  $('#nitrite-value').attr('value', value);
+});
+
 $('#ph-strip').click(function (e) {
   var posx = e.pageX - $(this).offset().left;
   $('#ph-picker').css({left: posx, top: -1, position: "absolute"});

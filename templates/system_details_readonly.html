@@ -58,11 +58,14 @@
               <row>
                 <div class="col-md-1" id="temp-chart" style="width: 360px; height: 180px"></div>
                 <div class="col-md-1" id="ph-chart" style="width: 360px; height: 180px"></div>
-                <div class="col-md-1" id="o2-chart" style="width: 360px; height: 180px"></div>
               </row>
               <row>
+                <div class="col-md-1" id="o2-chart" style="width: 360px; height: 180px"></div>
                 <div class="col-md-1" id="ammonium-chart" style="width: 360px; height: 180px"></div>
-                <div class="col-md-1" id="nitrate-chart" style="width: 360px; height: 180px"></div>
+              </row>
+              <row>
+                <div class="col-md-1" id="nitrite-chart" style="width: 360px; height: 180px"></div>
+                <div class="col-md-1" id="light-chart" style="width: 360px; height: 180px"></div>
               </row>
             </div><!-- /.panel-body -->
           </div><!-- /.panel (Analytics)-->
@@ -108,10 +111,14 @@ var tempRows = {{temp_rows|tojson}};
 var phRows = {{ph_rows|tojson}};
 var o2Rows = {{o2_rows|tojson}};
 var ammoniumRows = {{ammonium_rows|tojson}};
+var nitriteRows = {{nitrite_rows|tojson}};
+var lightRows = {{light_rows|tojson}};
 
 aqx.drawChart('temp-chart', 'Temperature', aqx.makeTimeSeriesData(['Temperature'], tempRows));
 aqx.drawChart('ph-chart', 'pH', aqx.makeTimeSeriesData(['pH'], phRows));
 aqx.drawChart('o2-chart', 'O2', aqx.makeTimeSeriesData(['O2'], o2Rows));
 aqx.drawChart('ammonium-chart', 'Ammonium & Nitrate', aqx.makeTimeSeriesData(['Ammonium', 'Nitrate'], ammoniumRows));
+aqx.drawChart('nitrite-chart', 'Nitrite', aqx.makeTimeSeriesData(['Nitrite'], nitriteRows));
+aqx.drawChart('light-chart', 'Light', aqx.makeTimeSeriesData(['Light'], lightRows));
 </script>
 {% endblock %}

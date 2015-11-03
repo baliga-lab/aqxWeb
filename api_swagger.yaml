@@ -2,10 +2,34 @@ swagger: '2.0'
 info:
   version: 1.0.0
   title: 'ISB Aquaponics API'
+  license:
+    name: LGPL V3.0
+    url: 'http://www.gnu.org/licenses/lgpl-3.0.en.html'
+host: 'localhost:5000'
+schemes:
+  - http
+securityDefinitions:
+    google-oauth2:
+      type: oauth2
+      description:
+        3rd party OAuth2 authorization is used. Google OAuth2 is the default provider.
+      in: header
+      name: Authorization
+      scopes: ['email']
+      flow: accessCode
+      authorizationUrl: 'https://accounts.google.com/o/oauth2/auth?client_id=75692667349-39hlipha81a3v40du06184k75ajl8u4u.apps.googleusercontent.com&scope=email%20profile&
+ redirect_uri=http%3A%2F%2Flocalhost:8080&response_type=token'
+      tokenUrl: 'https://www.googleapis.com/oauth2/v3/token'
+basePath: /api/v1.0
 paths:
   /systems:
     get:
-      description: Gets `System` objects.
+      description:
+        "Retrieve brief information bout the authenticated user's `System` objects."
+      security:
+        - 
+          google-oauth2:
+            - email
       produces:
         - application/json
       responses:
@@ -17,7 +41,11 @@ paths:
   /system/{system_uid}:
     get:
       description:
-        Retrieves the detail information about a System object
+        Retrieves detail information about the specified `System` object
+      security:
+        - 
+          google-oauth2:
+            - email
       produces:
         - /application/json
       parameters:
@@ -34,7 +62,11 @@ paths:
   /measurements/{system_uid}:
     post:
       description:
-        send measurements
+        Send a set of measurements for storage.
+      security:
+        - 
+          google-oauth2:
+            - email
       produces:
         - /application/json
       parameters:
@@ -56,42 +88,66 @@ paths:
 
 definitions:
   Measurements:
+    description:
+      A list of measurements.
     properties:
         measurements:
           type: array
           items:
             title: Measurement
+            description:
+              Unit of measurement data.
             type: object
+            required:
+              - time
             properties:
               time:
+                description:
+                  time of measurement in the format `YYYY-MM-DDTHH:MM:SSZ`
+                  "http://xml2rfc.ietf.org/public/rfc/html/rfc3339.html#anchor14"
                 type: string
+                format: date-time
               o2:
+                description: dissolved oxygen concentration in mg/l
                 type: number
                 format: float
               temp:
+                description: temperature in degree Celsius
                 type: number
                 format: float
               light:
+                description: light intensity in lux
                 type: number
                 format: float
               ph:
+                description: pH value
                 type: number
                 format: float
               ammonium:
+                description: ammonium concentration in mg/l
                 type: number
                 format: float
               nitrate:
+                description: nitrate concentration in mg/l
+                type: number
+                format: float
+              nitrite:
+                description: nitrite concentration in mg/l
                 type: number
                 format: float
 
   SystemDetails:
+    description:
+        Detail information for an aquaponics system
     properties:
       name:
         type: string
       creation_time:
         type: string
+        format: date-time
       start_date:
         type: string
+        format: date
       aqx_technique:
         type: string
       aquatic_organisms:
@@ -116,12 +172,16 @@ definitions:
                     type: integer
 
   SystemInfos:
+    description:
+      List of `SystemInfo` objects
     properties:
       systems:
         type: array
         items:
           title: SystemInfo
           type: object
+          description:
+            Brief information about a system
           properties:
             uid:
               type: string

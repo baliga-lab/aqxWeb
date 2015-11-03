@@ -6,7 +6,7 @@ from datetime import datetime
 import uuid
 
 
-ATTR_NAMES = {'ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp'}
+ATTR_NAMES = {'ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp', 'nitrite'}
 
 
 def get_or_create_user(conn, cursor, google_id, email):

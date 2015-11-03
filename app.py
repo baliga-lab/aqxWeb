@@ -18,6 +18,7 @@ import requests
 import aqxdb
 import csvimport
 from aqx_api import aqx_api
+from flask.ext.cors import CORS
 
 AQX_GIT_SHA = "$Id$"
 OPENWEATHERMAP_URL = 'http://api.openweathermap.org/data/2.5/weather?lat=%f&lon=%f&appid=%s'
@@ -26,6 +27,7 @@ OPENWEATHERMAP_URL = 'http://api.openweathermap.org/data/2.5/weather?lat=%f&lon=
 app = Flask(__name__)
 app.config.from_envvar('AQUAPONICS_SETTINGS')
 app.register_blueprint(aqx_api)
+CORS(app)
 
 
 ######################################################################

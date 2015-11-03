@@ -386,6 +386,9 @@ def update_system_details():
             aqxdb.update_system_details(cursor, sys_uid, data)
             conn.commit()
         flash('Changes saved.', 'info')
+    except Exception, e:
+        app.logger.exception(e)
+        raise e
     finally:
         cursor.close()
         conn.close()

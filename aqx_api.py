@@ -54,8 +54,9 @@ def authorize(func):
     return wrapper
 
 
-API_TIME_FORMAT = '%Y/%m/%d %H:%M:%S'
-API_DATE_FORMAT = '%Y/%m/%d'
+API_TIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
+API_TIME_FORMAT_OBSOLETE = '%Y/%m/%d %H:%M:%S'
+API_DATE_FORMAT = '%Y-%m-%d'
 
 """
 curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ya29.1QFng_HOUxcDoYncPlVamEsaQOrLGOSTgfE4sweBiYHK_fvKxa5g8qbYpluqowddEaVsWA" -d '[{"time": "08/19/2015 08:15:30", "o2": 10.2}]' http://localhost:5000/api/v1.0/add-measurements/7921a6763e0011e5beb064273763ec8b
@@ -80,8 +81,15 @@ def api_add_measurements(system_uid, *args, **kwargs):
                 for measurement in measurements:
                     if not 'time' in measurement:
                         return jsonify(error="no time provided")
-                    timestamp = datetime.fromtimestamp(time.mktime(time.strptime(measurement['time'],
-                                                                                 API_TIME_FORMAT)))
+                    try:
+                        timestamp = datetime.fromtimestamp(time.mktime(time.strptime(measurement['time'],
+                                                                                     API_TIME_FORMAT)))
+                    except:
+                        current_app.logger.debug("problem using API default format, trying obsolete format")
+                        # support this until new version of Android client is rolled out
+                        timestamp = datetime.fromtimestamp(time.mktime(time.strptime(measurement['time'],
+                                                                                     API_TIME_FORMAT_OBSOLETE)))
+
                     for attr in aqxdb.ATTR_NAMES:
                         if attr in measurement:
                             try:

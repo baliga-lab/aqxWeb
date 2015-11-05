@@ -386,6 +386,7 @@
              }"></script>
 <script src="/static/js/aquaponics.js"></script>
 <script>
+var isDragging = false;
 function activateSectionGeneric(section, panelSelectors, liSelectors) {
   var selector = "#" + section + "-panel";
   for (var i=0; i < panelSelectors.length; i++) {
@@ -476,37 +477,52 @@ $('#deletesys-button').click(function () {
   });
 });
 
-$('#nh4-strip').click(function (e) {
-  var posx = e.pageX - $(this).offset().left;
+function nh4MouseEvent(e, jqThis) {
+  var posx = e.pageX - jqThis.offset().left;
   $('#nh4-picker').css({left: posx, top: -1, position: "absolute"});
   // 0 - 6.0
   var value = posx * (6.0 / 200.0);
   $('#ammonium-value').attr('value', value);
-});
-$('#no3-strip').click(function (e) {
-  var posx = e.pageX - $(this).offset().left;
+}
+$('#nh4-strip').click(function (e) { nh4MouseEvent(e, $(this)); });
+$('#nh4-strip').mousedown(function () { isDragging = true; })
+              .mousemove(function (e) { if (isDragging) nh4MouseEvent(e, $(this)); })
+              .mouseup(function () { isDragging = false; });
+
+function no3MouseEvent(e, jqThis) {
+  var posx = e.pageX - jqThis.offset().left;
   $('#no3-picker').css({left: posx, top: -1, position: "absolute"});
   // 0 - 200
   var value = posx;
   $('#nitrate-value').attr('value', value);
-});
+}
+$('#no3-strip').click(function (e) { no3MouseEvent(e, $(this)); });
+$('#no3-strip').mousedown(function () { isDragging = true; })
+              .mousemove(function (e) { if (isDragging) no3MouseEvent(e, $(this)); })
+              .mouseup(function () { isDragging = false; });
 
-$('#no2-strip').click(function (e) {
-  var posx = e.pageX - $(this).offset().left;
+function no2MouseEvent(e, jqThis) {
+  var posx = e.pageX - jqThis.offset().left;
   $('#no2-picker').css({left: posx, top: -1, position: "absolute"});
   // 0 - 200
   var value = posx;
   $('#nitrite-value').attr('value', value);
-});
+}
+$('#no2-strip').click(function (e) { no2MouseEvent(e, $(this)); });
+$('#no2-strip').mousedown(function () { isDragging = true; })
+              .mousemove(function (e) { if (isDragging) no2MouseEvent(e, $(this)); })
+              .mouseup(function () { isDragging = false; });
 
-$('#ph-strip').click(function (e) {
-  var posx = e.pageX - $(this).offset().left;
+function phMouseEvent(e, jqThis) {
+  var posx = e.pageX - jqThis.offset().left;
   $('#ph-picker').css({left: posx, top: -1, position: "absolute"});
   // 6.2 - 8.4
   var value = 6.2 + (posx * (2.2 / 200.0));
   $('#ph-value').attr('value', value);
-});
-
-
+}
+$('#ph-strip').click(function (e) { phMouseEvent(e, $(this)); });
+$('#ph-strip').mousedown(function () { isDragging = true; })
+              .mousemove(function (e) { if (isDragging) phMouseEvent(e, $(this)); })
+              .mouseup(function () { isDragging = false; });
 </script>
 {% endblock %}

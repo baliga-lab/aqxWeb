@@ -2,6 +2,7 @@
 
 The access to the main storage database is controlled here
 """
+from flask import current_app
 from datetime import datetime
 import uuid
 
@@ -183,8 +184,21 @@ def get_system_crop(cursor, sys_uid):
 
 def add_measurement(cursor, sys_uid, attr, timestamp, value):
     table = meas_table_name(sys_uid, attr)
-    query = 'insert into ' + table + ' (time,value) values (%s,%s)'
-    cursor.execute(query, [timestamp, value])
+    query = 'select value from ' + table + ' where time=%s'
+    cursor.execute(query, [timestamp])
+    row = cursor.fetchone()
+    if row is None:
+        query = 'insert into ' + table + ' (time,value) values (%s,%s)'
+        cursor.execute(query, [timestamp, value])
+        return "insert"
+    elif value != 0.0 and row[0] == 0.0:
+        current_app.logger.warn("overwriting existing measurement for '%s'", attr)
+        query = 'update ' + table + ' set value=%s where time=%s'
+        cursor.execute(query, [timestamp, value])
+        return "update"
+    else:
+        current_app.logger.warn("attempt to overwrite existing measurement for '%s' (%f -> %f) - IGNORE", attr, row[0], value)
+        return "ignore"
 
 
 def set_default_site_location(cursor, user_pk, lat, lng):

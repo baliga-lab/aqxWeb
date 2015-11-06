@@ -18,6 +18,7 @@ import requests
 import aqxdb
 import csvimport
 from aqx_api import aqx_api
+from aqx_api import API_TIME_FORMAT
 from flask.ext.cors import CORS
 
 AQX_GIT_SHA = "$Id$"
@@ -415,10 +416,11 @@ def delete_system(system_uid=None):
 
 def get_form_time(datestr, timestr):
     if timestr:
-        s = "%sT%s" % (datestr, timestr)
+        s = "%sT%sZ" % (datestr, timestr)
     else:
-        s = "%sT00:00:00" % datestr
-    return datetime.fromtimestamp(time.mktime(time.strptime(s, '%Y-%m-%dT%H:%M:%S')))
+        s = "%sT00:00:00Z" % datestr
+    app.logger.debug("the form datetime is '%s'", s)
+    return datetime.fromtimestamp(time.mktime(time.strptime(s, API_TIME_FORMAT)))
 
 
 @app.route("/add-measurement", methods=['POST'])
@@ -432,17 +434,16 @@ def add_measurement():
     values = {}
     errors = []
     for attr in aqxdb.ATTR_NAMES:
-        if attr != 'light':  # currently the form does not support light
-            try:
-                value = request.form['%s-value' % attr]
-                if value:
-                    try:
-                        values[attr] = float(value)
-                    except:
-                        errors.append("invalid input for '%s': '%s'" % (attr, value))
-            except Exception, e:
-                app.logger.debug("key error: %s", attr)
-                app.logger.exception(e)
+        try:
+            value = request.form['%s-value' % attr]
+            if value:
+                try:
+                    values[attr] = float(value)
+                except:
+                    errors.append("invalid input for '%s': '%s'" % (attr, value))
+        except Exception, e:
+            app.logger.debug("key error: %s", attr)
+            app.logger.exception(e)
 
     for error_msg in errors:
         flash(error_msg, "error")
@@ -456,9 +457,10 @@ def add_measurement():
         cursor = conn.cursor()
         try:
             if aqxdb.is_system_owner(cursor, sys_uid, user_id=session['user_id']):
+                status = {}
                 for measure_type, mvalue in values.items():
-                    # TODO: handle error -> duplicates
-                    aqxdb.add_measurement(cursor, sys_uid, measure_type, mtime, mvalue)
+                    status[measure_type] = aqxdb.add_measurement(cursor, sys_uid,
+                                                                 measure_type, mtime, mvalue)
                 conn.commit()
                 flash('Measurements added', 'info')
             else:

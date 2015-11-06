@@ -526,10 +526,5 @@ $('#ph-strip').click(function (e) { phMouseEvent(e, $(this)); });
 $('#ph-strip').mousedown(function () { isDragging = true; })
               .mousemove(function (e) { if (isDragging) phMouseEvent(e, $(this)); })
               .mouseup(function () { isDragging = false; });
-
-$('#nh4-strip').draggable();
-$('#no3-strip').draggable();
-$('#no2-strip').draggable();
-$('#ph-strip').draggable();
 </script>
 {% endblock %}

@@ -17,7 +17,7 @@ import requests
 
 import aqxdb
 import csvimport
-from aqx_api import aqx_api
+from aqx_api import aqx_api, image_url
 from aqx_api import API_TIME_FORMAT
 from flask.ext.cors import CORS
 
@@ -262,15 +262,7 @@ def update_default_site_location():
 @app.route('/system-details/<system_uid>')
 def sys_details(system_uid=None):
     user_google_id = session['google_id'] if 'google_id' in session else None
-    img_url = None
-    jpg_path = os.path.join(app.config['UPLOAD_FOLDER'], "%s.jpg" % system_uid)
-    if os.path.exists(jpg_path):
-        img_url = '/static/uploads/%s.jpg' % system_uid
-    if img_url is None:
-        png_path = os.path.join(app.config['UPLOAD_FOLDER'], "%s.png" % system_uid)
-        if os.path.exists(png_path):
-            img_url = '/static/uploads/%s.png' % system_uid
-
+    img_url = image_url(system_uid)
     conn = dbconn()
     cursor = conn.cursor()
     try:

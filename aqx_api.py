@@ -1,6 +1,7 @@
 """
 Aquaponics REST API Blueprint
 """
+import os
 from flask import Blueprint, request, url_for, jsonify, current_app
 from functools import wraps
 import requests
@@ -125,6 +126,17 @@ def api_user_systems(*args, **kwargs):
         conn.close()
 
 
+def image_url(system_uid):
+    img_url = None
+    jpg_path = os.path.join(current_app.config['UPLOAD_FOLDER'], "%s.jpg" % system_uid)
+    if os.path.exists(jpg_path):
+        img_url = '/static/uploads/%s.jpg' % system_uid
+    if img_url is None:
+        png_path = os.path.join(current_app.config['UPLOAD_FOLDER'], "%s.png" % system_uid)
+        if os.path.exists(png_path):
+            img_url = '/static/uploads/%s.png' % system_uid
+    return img_url
+
 @aqx_api.route('/api/v1.0/system/<system_uid>', methods=['GET'])
 @authorize
 def api_system_details(system_uid, *args, **kwargs):
@@ -139,7 +151,8 @@ def api_system_details(system_uid, *args, **kwargs):
         details = {'name': system_name,
                    'creation_time': datetime.strftime(creation_time, API_TIME_FORMAT) if creation_time is not None else '',
                    'start_date': datetime.strftime(start_date, API_DATE_FORMAT) if start_date is not None else '',
-                   'aqx_technique': technique if technique is not None else ''
+                   'aqx_technique': technique if technique is not None else '',
+                   'image_url': img_url if img_url is not None else ''
                    }
         cursor.execute('select ao.name,sao.num from system_aquatic_organisms sao join aquatic_organisms ao on sao.organism_id=ao.id where system_id=%s', [system_pk])
         organisms = [{name: num} for name, num in cursor.fetchall()]

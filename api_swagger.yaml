@@ -150,6 +150,8 @@ definitions:
         format: date
       aqx_technique:
         type: string
+      image_url:
+        type: string
       aquatic_organisms:
         type: array
         items:

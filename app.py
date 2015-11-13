@@ -406,14 +406,19 @@ def delete_system(system_uid=None):
         conn.close()
 
 
+FALLBACK_TIME_FORMAT = '%Y-%m-%dT%H:%MZ'
+
+
 def get_form_time(datestr, timestr):
     if timestr:
         s = "%sT%sZ" % (datestr, timestr)
     else:
         s = "%sT00:00:00Z" % datestr
     app.logger.debug("the form datetime is '%s'", s)
-    return datetime.fromtimestamp(time.mktime(time.strptime(s, API_TIME_FORMAT)))
-
+    try:
+        return datetime.fromtimestamp(time.mktime(time.strptime(s, API_TIME_FORMAT)))
+    except:
+        return datetime.fromtimestamp(time.mktime(time.strptime(s, FALLBACK_TIME_FORMAT)))
 
 @app.route("/add-measurement", methods=['POST'])
 @requires_login

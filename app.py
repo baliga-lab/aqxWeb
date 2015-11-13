@@ -8,7 +8,6 @@ from functools import wraps
 import time
 from datetime import datetime
 
-
 import MySQLdb
 from flask import Flask, Response, url_for, redirect, render_template, request, session, flash, jsonify
 from werkzeug import secure_filename
@@ -17,6 +16,8 @@ import requests
 
 import aqxdb
 import csvimport
+import helpers
+
 from aqx_api import aqx_api, image_url
 from aqx_api import API_TIME_FORMAT
 from flask.ext.cors import CORS
@@ -533,6 +534,8 @@ def set_system_image():
                     filename = "%s.%s" % (sys_uid, suffix)
                     target_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                     file.save(target_path)
+                    helpers.make_thumbnail(app.config['UPLOAD_FOLDER'],
+                                           sys_uid, overwrite=True)
                     return jsonify(status="Ok", img_url="/static/uploads/%s" % filename)
                 else:
                     return jsonify(error="invalid image file name")

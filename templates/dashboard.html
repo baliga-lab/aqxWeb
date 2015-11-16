@@ -27,34 +27,45 @@
     <div class="container-fluid">
       <div class="panel panel-default" style="margin-top: 15px;">
         <div class="panel-heading">Your Aquaponics Systems</div>
-        <div class="panel-body">
+        <div class="panel-body" style="width: 100%; margin-right: 0;">
 
           {% for system in systems %}
-          <div class="swatches">
-            <div class="sys-desc">
-              <div><img alt="Leaf" style="height: 16px;" src="/static/images/leaf_icon.png"><span style="margin-right: 10px;">{{system.name}}</span><a href="{{url_for('sys_details', system_uid=system.sys_uid)}}" title="Show Details"><span class="glyphicon glyphicon-eye-open"></span></a></div>
-              <div style="font-size: 8pt;">(updated {{system.time}})</div>
+          <div class="row">
+            <div class="col-md-1"><img alt="Thumbnail" class="thumbnail" src="{{system.thumb_url}}"></div>
+            <div class="sys-desc col-md-1" style="width: 140px">
+              <span><img alt="Leaf" style="height: 16px;" src="/static/images/leaf_icon.png"><span style="margin-right: 10px;">{{system.name}}</span><a href="{{url_for('sys_details', system_uid=system.sys_uid)}}" title="Show Details"><span class="glyphicon glyphicon-eye-open"></span></a></span><br>
+              <span style="font-size: 8pt;">(updated {{system.time}})</span>
             </div>
-            <div class="swatch-panel {{system.temperature|swatch_temp_class(sys_uid)}}" style="margin-left: 2%">
-              <div class="swatch-title">Temperature</div>
-              <div class="swatch-display">{{system.temperature|format_degc|safe}}</div>
-            </div>
-            <div class="swatch-panel {{system.ph|swatch_ph_class(sys_uid)}}">
-              <div class="swatch-title">pH</div>
-              <div class="swatch-display">{{system.ph|format_nounit}}</div>
-            </div>
-            <div class="swatch-panel {{system.oxygen|swatch_o2_class(sys_uid)}}">
-              <div class="swatch-title">O<sub>2</sub></div>
-              <div class="swatch-display">{{system.oxygen|format_mgl}}</div>
-            </div>
-            <div class="swatch-panel {{system.nitrate|swatch_nitrate_class(sys_uid)}}">
-              <div class="swatch-title">Nitrate</div>
-              <div class="swatch-display">{{system.nitrate|format_mgl}}</div>
-            </div>
-            <div class="swatch-panel {{system.ammonium|swatch_ammonium_class(sys_uid)}}">
-              <div class="swatch-title">Ammonium</div>
-              <div class="swatch-display">{{system.ammonium|format_mgl}}</div>
-            </div>
+            <div class="col-md-9" style="padding: 0; margin: 0;">
+              <div class="swatch-panel {{system.temperature|swatch_temp_class(sys_uid)}}" style="margin-left: 2%">
+                <div class="swatch-title">Temperature</div>
+                <div class="swatch-display">{{system.temperature|format_degc|safe}}</div>
+              </div>
+              <div class="swatch-panel {{system.ph|swatch_ph_class(sys_uid)}}">
+                <div class="swatch-title">pH</div>
+                <div class="swatch-display">{{system.ph|format_nounit}}</div>
+              </div>
+              <div class="swatch-panel {{system.oxygen|swatch_o2_class(sys_uid)}}">
+                <div class="swatch-title">O<sub>2</sub></div>
+                <div class="swatch-display">{{system.oxygen|format_mgl}}</div>
+              </div>
+              <div class="swatch-panel {{system.nitrate|swatch_nitrate_class(sys_uid)}}">
+                <div class="swatch-title">Nitrate</div>
+                <div class="swatch-display">{{system.nitrate|format_mgl}}</div>
+              </div>
+              <div class="swatch-panel {{system.nitrite|swatch_nitrate_class(sys_uid)}}">
+                <div class="swatch-title">Nitrite</div>
+                <div class="swatch-display">{{system.nitrite|format_mgl}}</div>
+              </div>
+              <div class="swatch-panel {{system.ammonium|swatch_ammonium_class(sys_uid)}}">
+                <div class="swatch-title">Ammonium</div>
+                <div class="swatch-display">{{system.ammonium|format_mgl}}</div>
+              </div>
+              <div class="swatch-panel {{system.light|swatch_light_class(sys_uid)}}">
+                <div class="swatch-title">Light</div>
+                <div class="swatch-display">{{system.light|format_lux}}</div>
+              </div>
+            </div><!-- .col-md-3 -->
           </div><!-- /.swatches -->
           {% endfor %}
 

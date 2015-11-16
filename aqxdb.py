@@ -64,13 +64,14 @@ def systems_and_latest_measurements(cursor, user_id):
 
     for system in systems:
         sys_uid = system['sys_uid']
-        system['time'] = now
+        system['time'] = now.strftime('%Y-%m-%d %H:%M')
         system['temperature'] = get_latest_measurement(cursor, sys_uid, 'temp')
         system['ph'] = get_latest_measurement(cursor, sys_uid, 'ph')
         system['oxygen'] = get_latest_measurement(cursor, sys_uid, 'o2')
         system['ammonium'] = get_latest_measurement(cursor, sys_uid, 'ammonium')
         system['nitrate'] = get_latest_measurement(cursor, sys_uid, 'nitrate')
-        # TODO: light
+        system['nitrite'] = get_latest_measurement(cursor, sys_uid, 'nitrite')
+        system['light'] = get_latest_measurement(cursor, sys_uid, 'light')
     return systems
 
 
@@ -183,6 +184,11 @@ def get_system_crop(cursor, sys_uid):
 
 
 def add_measurement(cursor, sys_uid, attr, timestamp, value):
+    # Note: we don't have any negative measurements, so we will ignore them
+    if value < 0:
+        current_app.logger.warn('attempted to add negative value to database - ignored')
+        return "ignore"
+
     table = meas_table_name(sys_uid, attr)
     query = 'select value from ' + table + ' where time=%s'
     cursor.execute(query, [timestamp])

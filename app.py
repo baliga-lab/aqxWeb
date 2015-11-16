@@ -79,6 +79,10 @@ def format_nounit(d):
 def format_degc(d):
     return '-' if d is None else '%.02f &deg;C' % d
 
+@app.template_filter()
+def format_lux(d):
+    return '-' if d is None else '%.02f lux' % d
+
 
 def swatch_class(d, green_ranges, yellow_ranges):
     def d_in_ranges(ranges):
@@ -122,6 +126,14 @@ def swatch_ammonium_class(d, system_uid):
 @app.template_filter()
 def swatch_nitrate_class(d, system_uid):
     return swatch_class(d, app.config['NITRATE_GREEN_RANGES'], app.config['NITRATE_YELLOW_RANGES'])
+
+@app.template_filter()
+def swatch_nitrite_class(d, system_uid):
+    return swatch_class(d, app.config['NITRITE_GREEN_RANGES'], app.config['NITRITE_YELLOW_RANGES'])
+
+@app.template_filter()
+def swatch_light_class(d, system_uid):
+    return swatch_class(d, app.config['LIGHT_GREEN_RANGES'], app.config['LIGHT_YELLOW_RANGES'])
 
 @app.template_filter()
 def make_marker_obj(location):
@@ -211,6 +223,16 @@ def dashboard():
     finally:
         cursor.close()
         conn.close()
+    for system in systems:
+        sys_uid = system['sys_uid']
+        png_path = os.path.join(app.config['UPLOAD_FOLDER'], '%s_thumb.png' % sys_uid)
+        jpg_path = os.path.join(app.config['UPLOAD_FOLDER'], '%s_thumb.jpg' % sys_uid)
+        if os.path.exists(png_path):
+            system['thumb_url'] = png_path
+        elif os.path.exists(jpg_path):
+            system['thumb_url'] = jpg_path
+        else:
+            system['thumb_url'] = '/static/images/leaf_icon_100.png'
     return render_template('dashboard.html', **locals())
 
 @app.route('/user-settings')

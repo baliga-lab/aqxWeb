@@ -228,9 +228,9 @@ def dashboard():
         png_path = os.path.join(app.config['UPLOAD_FOLDER'], '%s_thumb.png' % sys_uid)
         jpg_path = os.path.join(app.config['UPLOAD_FOLDER'], '%s_thumb.jpg' % sys_uid)
         if os.path.exists(png_path):
-            system['thumb_url'] = png_path
+            system['thumb_url'] = "/static/uploads/%s_thumb.png" % sys_uid
         elif os.path.exists(jpg_path):
-            system['thumb_url'] = jpg_path
+            system['thumb_url'] = "/static/uploads/%s_thumb.jpg" % sys_uid
         else:
             system['thumb_url'] = '/static/images/leaf_icon_100.png'
     return render_template('dashboard.html', **locals())

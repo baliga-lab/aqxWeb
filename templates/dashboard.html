@@ -31,7 +31,7 @@
 
           {% for system in systems %}
           <div class="row">
-            <div class="col-md-1"><img alt="Thumbnail" class="thumbnail" src="{{system.thumb_url}}"></div>
+            <div class="col-md-1"><a href="{{url_for('sys_details', system_uid=system.sys_uid)}}"><img alt="Thumbnail" class="thumbnail" src="{{system.thumb_url}}"></a></div>
             <div class="sys-desc col-md-1" style="width: 140px">
               <span><img alt="Leaf" style="height: 16px;" src="/static/images/leaf_icon.png"><span style="margin-right: 10px;">{{system.name}}</span><a href="{{url_for('sys_details', system_uid=system.sys_uid)}}" title="Show Details"><span class="glyphicon glyphicon-eye-open"></span></a></span><br>
               <span style="font-size: 8pt;">(updated {{system.time}})</span>

@@ -120,6 +120,16 @@ def api_user_systems(*args, **kwargs):
     cursor = conn.cursor()
     try:
         systems = aqxdb.user_systems(cursor, google_id=kwargs['google_id'])
+        for system in systems:
+            sys_uid = system['uid']
+            png_path = os.path.join(current_app.config['UPLOAD_FOLDER'], '%s_thumb.png' % sys_uid)
+            jpg_path = os.path.join(current_app.config['UPLOAD_FOLDER'], '%s_thumb.jpg' % sys_uid)
+            if os.path.exists(png_path):
+                system['thumb_url'] = "/static/uploads/%s_thumb.png" % sys_uid
+            elif os.path.exists(jpg_path):
+                system['thumb_url'] = "/static/uploads/%s_thumb.jpg" % sys_uid
+            else:
+                system['thumb_url'] = '/static/images/leaf_icon_100.png'
         return jsonify(systems=systems)
     finally:
         cursor.close()

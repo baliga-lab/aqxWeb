@@ -158,6 +158,7 @@ def api_system_details(system_uid, *args, **kwargs):
                        [system_uid])
         row = cursor.fetchone()
         system_pk, system_name, creation_time, start_date, technique = row
+        img_url = None  # TODO
         details = {'name': system_name,
                    'creation_time': datetime.strftime(creation_time, API_TIME_FORMAT) if creation_time is not None else '',
                    'start_date': datetime.strftime(start_date, API_DATE_FORMAT) if start_date is not None else '',

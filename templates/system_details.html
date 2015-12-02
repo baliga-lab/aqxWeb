@@ -388,6 +388,16 @@
 <script src="/static/js/jquery.ui.touch-punch.min.js"></script>
 <script src="/static/js/aquaponics.js"></script>
 <script>
+if (!Modernizr.inputtypes.date) {
+  $('#start-date').datepicker();
+  $('#measure-date').datepicker();
+}
+
+if (!Modernizr.inputtypes.time) {
+  console.debug('no time input');
+}
+
+
 var isDragging = false;
 function activateSectionGeneric(section, panelSelectors, liSelectors) {
   var selector = "#" + section + "-panel";

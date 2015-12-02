@@ -9,7 +9,7 @@ host: 'localhost:5000'
 schemes:
   - http
 securityDefinitions:
-    google-oauth2:
+    google_oauth2:
       type: oauth2
       description:
         3rd party OAuth2 authorization is used. Google OAuth2 is the default provider.
@@ -28,7 +28,7 @@ paths:
         "Retrieve brief information bout the authenticated user's `System` objects."
       security:
         - 
-          google-oauth2:
+          google_oauth2:
             - email
       produces:
         - application/json
@@ -43,8 +43,7 @@ paths:
       description:
         Retrieves detail information about the specified `System` object
       security:
-        - 
-          google-oauth2:
+        - google_oauth2:
             - email
       produces:
         - /application/json
@@ -65,7 +64,7 @@ paths:
         Send a set of measurements for storage.
       security:
         - 
-          google-oauth2:
+          google_oauth2:
             - email
       produces:
         - /application/json
@@ -188,4 +187,6 @@ definitions:
             uid:
               type: string
             name:
+              type: string
+            thumb_url:
               type: string

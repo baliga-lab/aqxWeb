@@ -143,7 +143,7 @@
                 </div>
                 <div class="form-group">
                   <label for="measure-time">Measurement Time</label>
-                  <input class="form-control" type="time" id="measure-time" name="measure-time" step="1"></input>
+                  <input class="form-control" type="time" id="measure-time" name="measure-time"></input>
                 </div>
 
                 <div id="dio-panel">
@@ -384,17 +384,19 @@
              'packages':['corechart']
              }]
              }"></script>
-<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+<script src="/static/js/jquery-ui-1.11.4.min.js"></script>
+<script src="/static/js/jquery.ptTimeSelect.js"></script>
 <script src="/static/js/jquery.ui.touch-punch.min.js"></script>
 <script src="/static/js/aquaponics.js"></script>
 <script>
 if (!Modernizr.inputtypes.date) {
-  $('#start-date').datepicker();
-  $('#measure-date').datepicker();
+  $('#start-date').datepicker({dateFormat: "yy-mm-dd"});
+  $('#measure-date').datepicker({dateFormat: "yy-mm-dd"});
 }
 
 if (!Modernizr.inputtypes.time) {
   console.debug('no time input');
+  $('#measure-time').ptTimeSelect();
 }
 
 

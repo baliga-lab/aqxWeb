@@ -71,3 +71,6 @@ p {
   color: #fff;
   background-color: #428bca;
 }
+
+/* resolves jQuery UI conflict with Bootstrap rendering */
+.ui-widget { z-index: 1000 !important ;}

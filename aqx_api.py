@@ -107,6 +107,10 @@ def api_add_measurements(system_uid, *args, **kwargs):
                 return jsonify(error="error in input document")
         else:
             return jsonify(error="attempt to access non-existing (or non-owned) system")
+    except Exception, e:
+        print "REQUEST DATA: '%s'" % request.data
+        current_app.logger.exception(e)
+        return jsonify(error="error in input document")
     finally:
         cursor.close()
         conn.close()

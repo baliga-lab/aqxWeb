@@ -106,16 +106,16 @@
 
             <div class="panel-body">
               <row>
-                <div class="col-md-1" id="temp-chart" style="width: 360px; height: 180px"></div>
-                <div class="col-md-1" id="ph-chart" style="width: 360px; height: 180px"></div>
+                <div class="col-md-1" id="temp-chart" style="width: 280px; height: 120px"></div>
+                <div class="col-md-1" id="ph-chart" style="width: 280px; height: 120px"></div>
               </row>
               <row>
-                <div class="col-md-1" id="o2-chart" style="width: 360px; height: 180px"></div>
-                <div class="col-md-1" id="ammonium-chart" style="width: 360px; height: 180px"></div>
+                <div class="col-md-1" id="o2-chart" style="width: 280px; height: 120px"></div>
+                <div class="col-md-1" id="ammonium-chart" style="width: 280px; height: 120px"></div>
               </row>
               <row>
-                <div class="col-md-1" id="nitrite-chart" style="width: 360px; height: 180px"></div>
-                <div class="col-md-1" id="light-chart" style="width: 360px; height: 180px"></div>
+                <div class="col-md-1" id="nitrite-chart" style="width: 280px; height: 120px"></div>
+                <div class="col-md-1" id="light-chart" style="width: 280px; height: 120px"></div>
               </row>
             </div><!-- /.panel-body -->
           </div><!-- /.panel (Analytics)-->
@@ -155,7 +155,7 @@
                     </div>
                   </div>
                   <div>
-                    <div id="o2-chart2" style="width: 360px; height: 180px"></div>
+                    <div id="o2-chart2" style="width: 280px; height: 120px"></div>
                   </div>
 
                 </div><!-- dio-panel -->
@@ -169,7 +169,7 @@
                     </div>
                   </div>
                   <div>
-                    <div id="temp-chart2" style="width: 360px; height: 180px"></div>
+                    <div id="temp-chart2" style="width: 280px; height: 120px"></div>
                   </div>
                 </div><!-- temp-panel -->
 
@@ -189,6 +189,10 @@
                     <label for="nh4-strip">Strip Color</label>
                     <div id="nh4-strip" class="form-control nh4-strip"><div id="nh4-picker" class="strip-picker" style="left: 100px;"></div></div>
                   </div>
+                  <div class="form-group">
+                    <label for="nh4-preview">Preview</label>
+                    <div id="nh4-preview" class="form-control nh4-preview"></div>
+                  </div>
 
                   <div class="form-group">
                     <label for="ammonium-value">Value</label>
@@ -204,6 +208,10 @@
                     <label for="no3-strip">Strip Color</label>
                     <div id="no3-strip" class="form-control no3-strip"><div id="no3-picker" class="strip-picker" style="left: 100px;"></div></div>
                   </div>
+                  <div class="form-group">
+                    <label for="no3-preview">Preview</label>
+                    <div id="no3-preview" class="form-control no3-preview"></div>
+                  </div>
 
                   <div class="form-group">
                     <label for="nitrate-value">Value</label>
@@ -218,6 +226,10 @@
                   <div class="form-group">
                     <label for="no2-strip">Strip Color</label>
                     <div id="no2-strip" class="form-control no2-strip"><div id="no2-picker" class="strip-picker" style="left: 100px;"></div></div>
+                  </div>
+                  <div class="form-group">
+                    <label for="no2-preview">Preview</label>
+                    <div id="no2-preview" class="form-control no2-preview"></div>
                   </div>
 
                   <div class="form-group">
@@ -235,13 +247,17 @@
                     <div id="ph-strip" class="form-control ph-strip"><div id="ph-picker" class="strip-picker" style="left: 100px;"></div></div>
                   </div>
                   <div class="form-group">
+                    <label for="ph-preview">Preview</label>
+                    <div id="ph-preview" class="form-control ph-preview"></div>
+                  </div>
+                  <div class="form-group">
                     <label for="ph-value">Value</label>
                     <div class="input-group">
                       <input id="ph-value" class="form-control" name="ph-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001"></input>
                     </div>
                   </div>
                   <div>
-                    <div id="ph-chart2" style="width: 360px; height: 180px"></div>
+                    <div id="ph-chart2" style="width: 280px; height: 120px"></div>
                   </div>
 
                 </div><!-- ph-panel -->
@@ -399,7 +415,6 @@ if (!Modernizr.inputtypes.time) {
   $('#measure-time').ptTimeSelect();
 }
 
-
 var isDragging = false;
 function activateSectionGeneric(section, panelSelectors, liSelectors) {
   var selector = "#" + section + "-panel";
@@ -491,52 +506,78 @@ $('#deletesys-button').click(function () {
   });
 });
 
-function nh4MouseEvent(e, jqThis) {
-  var posx = e.pageX - jqThis.offset().left;
+function updateNH4Values(posx) {
   $('#nh4-picker').css({left: posx, top: -1, position: "absolute"});
   // 0 - 6.0
   var value = posx * (6.0 / 200.0);
-  $('#ammonium-value').attr('value', value);
+  $('#ammonium-value').attr('value', value.toFixed(2));
+  var previewColor = aqx.nh4GradientColor(0, 200.0, posx);
+  $('#nh4-preview').css({'background-color': previewColor});
+}
+function nh4MouseEvent(e, jqThis) {
+  var posx = e.pageX - jqThis.offset().left;
+  updateNH4Values(posx);
 }
 $('#nh4-strip').click(function (e) { nh4MouseEvent(e, $(this)); });
 $('#nh4-strip').mousedown(function () { isDragging = true; })
               .mousemove(function (e) { if (isDragging) nh4MouseEvent(e, $(this)); })
               .mouseup(function () { isDragging = false; });
 
-function no3MouseEvent(e, jqThis) {
-  var posx = e.pageX - jqThis.offset().left;
+function updateNO3Values(posx) {
   $('#no3-picker').css({left: posx, top: -1, position: "absolute"});
   // 0 - 200
   var value = posx;
-  $('#nitrate-value').attr('value', value);
+  $('#nitrate-value').attr('value', value.toFixed(2));
+  var previewColor = aqx.no3GradientColor(0, 200.0, posx);
+  $('#no3-preview').css({'background-color': previewColor});
+}
+
+function no3MouseEvent(e, jqThis) {
+  var posx = e.pageX - jqThis.offset().left;
+  updateNO3Values(posx);
 }
 $('#no3-strip').click(function (e) { no3MouseEvent(e, $(this)); });
 $('#no3-strip').mousedown(function () { isDragging = true; })
               .mousemove(function (e) { if (isDragging) no3MouseEvent(e, $(this)); })
               .mouseup(function () { isDragging = false; });
 
-function no2MouseEvent(e, jqThis) {
-  var posx = e.pageX - jqThis.offset().left;
+function updateNO2Values(posx) {
   $('#no2-picker').css({left: posx, top: -1, position: "absolute"});
   // 0 - 200
   var value = posx;
-  $('#nitrite-value').attr('value', value);
+  $('#nitrite-value').attr('value', value.toFixed(2));
+  var previewColor = aqx.no2GradientColor(0, 200.0, posx);
+  $('#no2-preview').css({'background-color': previewColor});
+}
+function no2MouseEvent(e, jqThis) {
+  var posx = e.pageX - jqThis.offset().left;
+  updateNO2Values(posx);
 }
 $('#no2-strip').click(function (e) { no2MouseEvent(e, $(this)); });
 $('#no2-strip').mousedown(function () { isDragging = true; })
               .mousemove(function (e) { if (isDragging) no2MouseEvent(e, $(this)); })
               .mouseup(function () { isDragging = false; });
 
-function phMouseEvent(e, jqThis) {
-  var posx = e.pageX - jqThis.offset().left;
+function updatePHValues(posx) {
   $('#ph-picker').css({left: posx, top: -1, position: "absolute"});
   // 6.2 - 8.4
   var value = 6.2 + (posx * (2.2 / 200.0));
-  $('#ph-value').attr('value', value);
+  $('#ph-value').attr('value', value.toFixed(2));
+  var previewColor = aqx.phGradientColor(0, 200.0, posx);
+  $('#ph-preview').css({'background-color': previewColor});
+}
+function phMouseEvent(e, jqThis) {
+  var posx = e.pageX - jqThis.offset().left;
+  updatePHValues(posx);
 }
 $('#ph-strip').click(function (e) { phMouseEvent(e, $(this)); });
 $('#ph-strip').mousedown(function () { isDragging = true; })
               .mousemove(function (e) { if (isDragging) phMouseEvent(e, $(this)); })
               .mouseup(function () { isDragging = false; });
+
+updatePHValues(100);
+updateNO2Values(100);
+updateNO3Values(100);
+updateNH4Values(100);
 </script>
 {% endblock %}

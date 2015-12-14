@@ -79,24 +79,30 @@
     margin-bottom: 3em;
 }
 
-.dio-strip {
-    background: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);
-    width: 200px;
-    height:28px;
-    position: relative;
-}
-
 .ph-strip {
     background: linear-gradient(to right, #faac59, #ee8243, #e35744, #e93e4d, #ea185e);
     width: 200px;
     height:28px;
     position: relative;
 }
+.ph-preview {
+    border: 1px solid black;
+    width: 80px;
+    height:80px;
+    position: relative;
+}
+
 
 .nh4-strip {
     background: linear-gradient(to right, #ffe26d, #dde093, #c7dd8a, #9dd29c, #88b789);
     width: 200px;
     height:28px;
+    position: relative;
+}
+.nh4-preview {
+    border: 1px solid black;
+    width: 80px;
+    height:80px;
     position: relative;
 }
 
@@ -107,11 +113,24 @@
     height:28px;
     position: relative;
 }
+.no3-preview {
+    border: 1px solid black;
+    width: 80px;
+    height:80px;
+    position: relative;
+}
+
 /* Nitrite */
 .no2-strip {
     background: linear-gradient(to right, #fefcf0, #fdf6f1, #fcecec, #fdb8d4, #f6a1c0, #fa91b3);
     width: 200px;
     height:28px;
+    position: relative;
+}
+.no2-preview {
+    border: 1px solid black;
+    width: 80px;
+    height:80px;
     position: relative;
 }
 

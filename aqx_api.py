@@ -2,7 +2,7 @@
 Aquaponics REST API Blueprint
 """
 import os
-from flask import Blueprint, request, url_for, jsonify, current_app
+from flask import Blueprint, request, url_for, jsonify, current_app, Response
 from functools import wraps
 import requests
 import MySQLdb
@@ -116,25 +116,39 @@ def api_add_measurements(system_uid, *args, **kwargs):
         conn.close()
 
 
-@aqx_api.route('/api/v1.0/systems', methods=['GET'])
+"""
+GET: Retrieve systems
+POST: Create new system
+Example:
+curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ya29.SwKh2KrxuyGw67_RIPA__Y8VxGhcWsyHdAGOrDWkYJElflp4_fkfqer67dfkaIB0aRpOWpA" -d '{"name": "Another system"}' http://localhost:5000/api/v1.0/systems
+"""
+@aqx_api.route('/api/v1.0/systems', methods=['GET', 'POST'])
 @authorize
 def api_user_systems(*args, **kwargs):
     """Returns all systems available to the user."""
     conn = dbconn()
     cursor = conn.cursor()
     try:
-        systems = aqxdb.user_systems(cursor, google_id=kwargs['google_id'])
-        for system in systems:
-            sys_uid = system['uid']
-            png_path = os.path.join(current_app.config['UPLOAD_FOLDER'], '%s_thumb.png' % sys_uid)
-            jpg_path = os.path.join(current_app.config['UPLOAD_FOLDER'], '%s_thumb.jpg' % sys_uid)
-            if os.path.exists(png_path):
-                system['thumb_url'] = "/static/uploads/%s_thumb.png" % sys_uid
-            elif os.path.exists(jpg_path):
-                system['thumb_url'] = "/static/uploads/%s_thumb.jpg" % sys_uid
-            else:
-                system['thumb_url'] = '/static/images/leaf_icon_100.png'
-        return jsonify(systems=systems)
+        if request.method == 'GET':
+            systems = aqxdb.user_systems(cursor, google_id=kwargs['google_id'])
+            for system in systems:
+                sys_uid = system['uid']
+                png_path = os.path.join(current_app.config['UPLOAD_FOLDER'], '%s_thumb.png' % sys_uid)
+                jpg_path = os.path.join(current_app.config['UPLOAD_FOLDER'], '%s_thumb.jpg' % sys_uid)
+                if os.path.exists(png_path):
+                    system['thumb_url'] = "/static/uploads/%s_thumb.png" % sys_uid
+                elif os.path.exists(jpg_path):
+                    system['thumb_url'] = "/static/uploads/%s_thumb.jpg" % sys_uid
+                else:
+                    system['thumb_url'] = '/static/images/leaf_icon_100.png'
+            return jsonify(systems=systems)
+        elif request.method == 'POST':
+            update_data = json.loads(request.data)
+            current_app.logger.debug("Creating app with name '%s'", update_data['name'])
+            user_pk = aqxdb.user_pk_for_google_id(cursor, kwargs['google_id'])
+            aqxdb.create_aquaponics_system(cursor, user_pk, update_data['name'])
+            conn.commit()
+            return jsonify(status="Ok", message="System created")
     finally:
         cursor.close()
         conn.close()
@@ -151,6 +165,11 @@ def image_url(system_uid):
             img_url = '/static/uploads/%s.png' % system_uid
     return img_url
 
+"""
+GET: Detail information for system
+POST: Update detail information for system
+DELETE: Delete a system
+"""
 @aqx_api.route('/api/v1.0/system/<system_uid>', methods=['GET'])
 @authorize
 def api_system_details(system_uid, *args, **kwargs):
@@ -184,11 +203,53 @@ def api_system_details(system_uid, *args, **kwargs):
         conn.close()
 
 
+@aqx_api.route('/api/v1.0/aquatic_crops', methods=['GET'])
+def api_aquatic_crops():
+    """Returns a list of all aquatic crops in the system"""
+    conn = dbconn()
+    cursor = conn.cursor()
+    try:
+        result = [{"id": pk, "name": name} for pk, name in
+                  aqxdb.all_catalog_values(cursor, "aquatic_organisms")]
+        return Response(json.dumps(result), mimetype='application/json')
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@aqx_api.route('/api/v1.0/botanic_crops', methods=['GET'])
+def api_botanic_crops():
+    """Returns a list of all plant crops in the system"""
+    conn = dbconn()
+    cursor = conn.cursor()
+    try:
+        result = [{"id": pk, "name": name} for pk, name in
+                  aqxdb.all_catalog_values(cursor, "crops")]
+        return Response(json.dumps(result), mimetype='application/json')
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@aqx_api.route('/api/v1.0/techniques', methods=['GET'])
+def api_techniques():
+    """Returns a list of all aquaponics techniques in the system"""
+    conn = dbconn()
+    cursor = conn.cursor()
+    try:
+        result = [{"id": pk, "name": name} for pk, name in
+                  aqxdb.all_catalog_values(cursor, "aqx_techniques")]
+        return Response(json.dumps(result), mimetype='application/json')
+    finally:
+        cursor.close()
+        conn.close()
+
+
 # This is an example for an API call that is authenticated with Google OAuth2
 # The call expects an authorization header with a Bearer token received
 # from Google OAuth2.
 """
-curl -X POST -H "Authorization: Bearer ya29.1QFng_HOUxcDoYncPlVamEsaQOrLGOSTgfE4sweBiYHK_fvKxa5g8qbYpluqowddEaVsWA" http://localhost:5000/api/v1/api-test
+curl -X POST -H "Authorization: Bearer ya29.1QFng_HOUxcDoYncPlVamEsaQOrLGOSTgfE4sweBiYHK_fvKxa5g8qbYpluqowddEaVsWA" http://localhost:5000/api/v1.0/api-test
 """
 @aqx_api.route('/api/v1.0/api-test', methods=['POST', 'GET'])
 @authorize

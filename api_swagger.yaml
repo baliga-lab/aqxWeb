@@ -5,21 +5,24 @@ info:
   license:
     name: LGPL V3.0
     url: 'http://www.gnu.org/licenses/lgpl-3.0.en.html'
+
 host: 'localhost:5000'
+
 schemes:
   - http
+
 securityDefinitions:
-    google_oauth2:
-      type: oauth2
-      description:
-        3rd party OAuth2 authorization is used. Google OAuth2 is the default provider.
-      in: header
-      name: Authorization
-      scopes: ['email']
-      flow: accessCode
-      authorizationUrl: 'https://accounts.google.com/o/oauth2/auth?client_id=75692667349-39hlipha81a3v40du06184k75ajl8u4u.apps.googleusercontent.com&scope=email%20profile&
- redirect_uri=http%3A%2F%2Flocalhost:8080&response_type=token'
-      tokenUrl: 'https://www.googleapis.com/oauth2/v3/token'
+  google_oauth2:
+    type: oauth2
+    description:
+      3rd party OAuth2 authorization is used. Google OAuth2 is the default provider.
+    in: header
+    name: Authorization
+    scopes: ['email']
+    flow: accessCode
+    authorizationUrl: 'https://accounts.google.com/o/oauth2/auth?client_id=75692667349-39hlipha81a3v40du06184k75ajl8u4u.apps.googleusercontent.com&scope=email%20profile&redirect_uri=http%3A%2F%2Flocalhost:8080&response_type=token'
+    tokenUrl: 'https://www.googleapis.com/oauth2/v3/token'
+
 basePath: /api/v1.0
 paths:
   /systems:
@@ -27,8 +30,7 @@ paths:
       description:
         "Retrieve brief information bout the authenticated user's `System` objects."
       security:
-        - 
-          google_oauth2:
+        - google_oauth2:
             - email
       produces:
         - application/json
@@ -37,6 +39,26 @@ paths:
           description: Successful response
           schema:
             $ref: '#/definitions/SystemInfos'
+    post:
+      description:
+        "create a new system entry"
+      security:
+        - google_oauth2:
+          - email
+      produces:
+        - application/json
+      parameters:
+        - name: create-spec
+          in: body
+          description: measurements to add
+          required: true
+          schema:
+            $ref: '#/definitions/CreateSystemSpec'
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            $ref: '#/definitions/StatusResponse'
 
   /system/{system_uid}:
     get:
@@ -57,14 +79,37 @@ paths:
           description: Successful response
           schema:
             $ref: '#/definitions/SystemDetails'
+    post:
+      description:
+        updates the specified `System` information
+      security:
+        - google_oauth2:
+          - email
+      produces:
+        - /application/json
+      parameters:
+        - name: system_uid
+          in: path
+          required: true
+          type: string
+        - name: update_data
+          in: body
+          description: information to update
+          required: false
+          schema:
+            $ref: "#/definitions/UpdateSystemSpec"
+      responses:
+        '200':
+          description: status response
+          schema:
+            $ref: "#/definitions/StatusResponse"
                       
   /measurements/{system_uid}:
     post:
       description:
         Send a set of measurements for storage.
       security:
-        - 
-          google_oauth2:
+        - google_oauth2:
             - email
       produces:
         - /application/json
@@ -83,9 +128,72 @@ paths:
         '200':
           description:
             successful response
-          
+            
+  /aquatic_crops:
+    get:
+      description:
+        retrieves a list of all aquatic crops in the system
+      produces:
+        - /application/json
+      responses:
+        '200':
+          description:
+            successful response
+          schema:
+            $ref: "#/definitions/Catalog"
+
+  /botanic_crops:
+    get:
+      description:
+        retrieves a list of all plant crops in the system
+      produces:
+        - /application/json
+      responses:
+        '200':
+          description:
+            successful response
+          schema:
+            $ref: "#/definitions/Catalog"
+
+  /techniques:
+    get:
+      description:
+        retrieves a list of all aquaponics techniques in the system
+      produces:
+        - /application/json
+      responses:
+        '200':
+          description:
+            successful response
+          schema:
+            $ref: "#/definitions/Catalog"
 
 definitions:
+  Catalog:
+    description:
+      a list of catalog entries
+    properties:
+      entries:
+        type: array
+        items:
+          title: CatalogEntry
+          description:
+            a catalog entry
+          type: object
+          required:
+            - id
+            - name
+          properties:
+            id:
+              description:
+                database id
+              type: number
+              format: int
+            name:
+              description:
+                entry name
+              type: string
+
   Measurements:
     description:
       A list of measurements.
@@ -190,3 +298,31 @@ definitions:
               type: string
             thumb_url:
               type: string
+
+  CreateSystemSpec:
+    description:
+      information for creating a system
+    properties:
+      name:
+        type: string
+        
+  UpdateSystemSpec:
+    description:
+      information for updating a system
+    properties:
+      name:
+        type: string
+
+  StatusResponse:
+    description:
+      Simple ok status
+    properties:
+      status:
+        type: string
+        description:
+          status code
+      message:
+        type: string
+        description:
+          detail description of the message
+      

@@ -81,6 +81,12 @@ def user_systems(cursor, google_id):
     return [{'uid': uid, 'name': name} for uid, name in cursor.fetchall()]
 
 
+def user_pk_for_google_id(cursor, google_id):
+    """Returns all active systems currently owned by the specified user"""
+    cursor.execute('select id from users where google_id=%s', [google_id])
+    return cursor.fetchone()[0]
+
+
 def get_measurement_series(cursor, sys_uid, attr):
     cursor.execute("select time, value from " + meas_table_name(sys_uid, attr) + " order by time desc limit 100")
     result = [[time.strftime('%Y-%m-%d %H:%M'), float(value)] for time, value in cursor.fetchall()]

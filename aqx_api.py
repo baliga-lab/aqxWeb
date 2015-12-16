@@ -30,6 +30,12 @@ def authorize(func):
     """authorization wrapper"""
     @wraps(func)
     def wrapper(*args, **kwargs):
+        # If testing is set to true, google id will be taken from the GOOGLE_ID
+        # request header
+        if current_app.config['TESTING']:
+            kwargs['google_id'] = request.headers.get('GOOGLE_ID')
+            return func(*args, **kwargs)
+
         auth = request.headers.get('Authorization')
         if auth is not None:
             auth = auth.split()
@@ -39,7 +45,7 @@ def authorize(func):
                 current_app.logger.debug(user_info)
                 if 'error' in user_info:
                     current_app.logger.error('error in authorization: %s',
-                                            user_info['error']['message'])
+                                             user_info['error']['message'])
                     return jsonify(error='authorization error')
                 else:
                     kwargs['google_id'] = user_info['id']
@@ -195,8 +201,6 @@ def api_system_details(system_uid, *args, **kwargs):
         cursor.execute('select c.name,sc.num from system_crops sc join crops c on sc.crop_id=c.id where system_id=%s', [system_pk])
         crops = [{name: num} for name, num in cursor.fetchall()]
         details['crops'] = crops
-        print details
-
         return jsonify(system_details=details)
     finally:
         cursor.close()

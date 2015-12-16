@@ -11,8 +11,8 @@ AQUAPONICS_SETTINGS=settings_test.cfg PYTHONPATH=. python tests/simple_test.py
 TEST_GOOGLE_ID = '108935443071440000056'
 TEST_SYSTEM_UID = '1e3dc0c08fbb11e5bbf5dc0ea155dce8'
 
-class AppTestCase(unittest.TestCase):
-    def setUp(self):
+class ApiTest(unittest.TestCase):
+    def setUp(self): 
         self.app = app.app.test_client()
 
     def tearDown(self):
@@ -44,7 +44,7 @@ class AppTestCase(unittest.TestCase):
         response = self.app.get('/api/v1.0/system/%s' % TEST_SYSTEM_UID,
                                 headers={'GOOGLE_ID': TEST_GOOGLE_ID})
         result = json.loads(response.data)
-        print result
+        #print result
         self.assertTrue("error" not in result)
 
 if __name__ == '__main__':

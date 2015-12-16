@@ -31,7 +31,6 @@ app.config.from_envvar('AQUAPONICS_SETTINGS')
 app.register_blueprint(aqx_api)
 CORS(app)
 
-
 ######################################################################
 #### General helpers
 ######################################################################

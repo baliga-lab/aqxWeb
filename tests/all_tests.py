@@ -8,6 +8,8 @@ import app_test, api_test, auth_app_test
 """
 A test suite that can be used from a CI system. Contains an XML runner and
 includes all unit test cases
+
+AQUAPONICS_SETTINGS=settings_test.cfg PYTHONPATH=. python tests/all_tests.py [xml]
 """
 
 if __name__ == '__main__':

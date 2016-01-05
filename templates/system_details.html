@@ -543,8 +543,8 @@ $('#no3-strip').mousedown(function () { isDragging = true; })
 
 function updateNO2Values(posx) {
   $('#no2-picker').css({left: posx, top: -1, position: "absolute"});
-  // 0 - 200
-  var value = posx;
+  // 0 - 10
+  var value = posx / 20.0;
   $('#nitrite-value').attr('value', value.toFixed(2));
   var previewColor = aqx.no2GradientColor(0, 200.0, posx);
   $('#no2-preview').css({'background-color': previewColor});

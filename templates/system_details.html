@@ -198,9 +198,9 @@
                   </div>
 
                   <div class="form-group">
-                    <label for="ammonium-value">Value</label>
+                    <label for="nh4-value">Value</label>
                     <div class="input-group">
-                      <input id="ammonium-value" class="form-control" name="ammonium-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="ammonium-addon"></input>
+                      <input id="nh4-value" class="form-control" name="ammonium-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="ammonium-addon"></input>
                       <span id="ammonium-addon" class="input-group-addon">mg/l</span>
                     </div>
                   </div>
@@ -217,9 +217,9 @@
                   </div>
 
                   <div class="form-group">
-                    <label for="nitrate-value">Value</label>
+                    <label for="no3-value">Value</label>
                     <div class="input-group">
-                      <input id="nitrate-value" class="form-control" name="nitrate-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="nitrate-addon"></input>
+                      <input id="no3-value" class="form-control" name="nitrate-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="nitrate-addon"></input>
                       <span id="nitrate-addon" class="input-group-addon">mg/l</span>
                     </div>
                   </div>
@@ -236,9 +236,9 @@
                   </div>
 
                   <div class="form-group">
-                    <label for="nitrite-value">Value</label>
+                    <label for="no2-value">Value</label>
                     <div class="input-group">
-                      <input id="nitrite-value" class="form-control" name="nitrite-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="nitrate-addon"></input>
+                      <input id="no2-value" class="form-control" name="nitrite-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" aria-describedby="nitrate-addon"></input>
                       <span id="nitrite-addon" class="input-group-addon">mg/l</span>
                     </div>
                   </div>
@@ -535,7 +535,6 @@ setImage('#img-details', '{{img_url}}');
 setImagePlaceholder('#img-details');
 {% endif %}
 
-var STRIP_WIDTH = 200.0;
 var tempRows = {{temp_rows|tojson}};
 var phRows = {{ph_rows|tojson}};
 var o2Rows = {{o2_rows|tojson}};
@@ -568,136 +567,43 @@ $('#deletesys-button').click(function () {
 });
 
 function updateNH4Values(posx) {
-  if (posx >= STRIP_WIDTH) posx = STRIP_WIDTH - 1;
-  $('#nh4-picker').css({left: posx, top: -1, position: "absolute"});
-  // 0 - 6.0
-  var value = posx * (6.0 / STRIP_WIDTH);
-  $('#ammonium-value').attr('value', value.toFixed(2));
-  var previewColor = aqx.nh4GradientColor(0, STRIP_WIDTH, posx);
-  $('#nh4-preview').css({'background-color': previewColor});
+    aqx.updateStripValues(posx, 'nh4', 0.0, 6.0, aqx.nh4GradientColor);
 }
-function nh4MouseEvent(e, jqThis) {
-  var posx = e.pageX - jqThis.offset().left;
-  updateNH4Values(posx);
-}
-$('#nh4-strip').click(function (e) { nh4MouseEvent(e, $(this)); });
-$('#nh4-strip').mousedown(function () { isDragging = true; })
-              .mousemove(function (e) { if (isDragging) nh4MouseEvent(e, $(this)); })
-              .mouseup(function () { isDragging = false; });
+aqx.connectStrip('nh4', updateNH4Values);
 
 function updateNO3Values(posx) {
-  if (posx >= STRIP_WIDTH) posx = STRIP_WIDTH - 1;
-  $('#no3-picker').css({left: posx, top: -1, position: "absolute"});
-  // 0 - 200
-  var value = posx;
-  $('#nitrate-value').attr('value', value.toFixed(2));
-  var previewColor = aqx.no3GradientColor(0, STRIP_WIDTH, posx);
-  $('#no3-preview').css({'background-color': previewColor});
+    aqx.updateStripValues(posx, 'no3', 0.0, 200.0, aqx.no3GradientColor);
 }
-
-function no3MouseEvent(e, jqThis) {
-  var posx = e.pageX - jqThis.offset().left;
-  updateNO3Values(posx);
-}
-$('#no3-strip').click(function (e) { no3MouseEvent(e, $(this)); });
-$('#no3-strip').mousedown(function () { isDragging = true; })
-              .mousemove(function (e) { if (isDragging) no3MouseEvent(e, $(this)); })
-              .mouseup(function () { isDragging = false; });
+aqx.connectStrip('no3', updateNO3Values);
 
 function updateNO2Values(posx) {
-  if (posx >= STRIP_WIDTH) posx = STRIP_WIDTH - 1;
-  $('#no2-picker').css({left: posx, top: -1, position: "absolute"});
-  // 0 - 10
-  var value = posx / 20.0;
-  $('#nitrite-value').attr('value', value.toFixed(2));
-  var previewColor = aqx.no2GradientColor(0, STRIP_WIDTH, posx);
-  $('#no2-preview').css({'background-color': previewColor});
+    aqx.updateStripValues(posx, 'no2', 0.0, 10.0, aqx.no2GradientColor);
 }
-function no2MouseEvent(e, jqThis) {
-  var posx = e.pageX - jqThis.offset().left;
-  updateNO2Values(posx);
-}
-$('#no2-strip').click(function (e) { no2MouseEvent(e, $(this)); });
-$('#no2-strip').mousedown(function () { isDragging = true; })
-              .mousemove(function (e) { if (isDragging) no2MouseEvent(e, $(this)); })
-              .mouseup(function () { isDragging = false; });
+aqx.connectStrip('no2', updateNO2Values);
 
 // PH
 function updatePHValues(posx) {
-  if (posx >= STRIP_WIDTH) posx = STRIP_WIDTH - 1;
-  $('#ph-picker').css({left: posx, top: -1, position: "absolute"});
-  // 6.2 - 8.4
-  var value = 6.2 + (posx * (2.2 / STRIP_WIDTH));
-  $('#ph-value').attr('value', value.toFixed(2));
-  var previewColor = aqx.phGradientColor(0, STRIP_WIDTH, posx);
-  $('#ph-preview').css({'background-color': previewColor});
+    aqx.updateStripValues(posx, 'ph', 6.2, 8.4, aqx.phGradientColor);
 }
-function phMouseEvent(e, jqThis) {
-  var posx = e.pageX - jqThis.offset().left;
-  updatePHValues(posx);
-}
-$('#ph-strip').click(function (e) { phMouseEvent(e, $(this)); });
-$('#ph-strip').mousedown(function () { isDragging = true; })
-              .mousemove(function (e) { if (isDragging) phMouseEvent(e, $(this)); })
-              .mouseup(function () { isDragging = false; });
+aqx.connectStrip('ph', updatePHValues);
 
 // Chlorine
 function updateChlorineValues(posx) {
-  if (posx >= STRIP_WIDTH) posx = STRIP_WIDTH - 1;
-  $('#cl-picker').css({left: posx, top: -1, position: "absolute"});
-  // 0.0-6.0
-  var value = posx * (6.0 / STRIP_WIDTH);
-  $('#cl-value').attr('value', value.toFixed(2));
-  var previewColor = aqx.clGradientColor(0, STRIP_WIDTH, posx);
-  $('#cl-preview').css({'background-color': previewColor});
+    aqx.updateStripValues(posx, 'cl', 0.0, 6.0, aqx.clGradientColor);
 }
-function clMouseEvent(e, jqThis) {
-  var posx = e.pageX - jqThis.offset().left;
-  updateChlorineValues(posx);
-}
-$('#cl-strip').click(function (e) { clMouseEvent(e, $(this)); });
-$('#cl-strip').mousedown(function () { isDragging = true; })
-              .mousemove(function (e) { if (isDragging) clMouseEvent(e, $(this)); })
-              .mouseup(function () { isDragging = false; });
+aqx.connectStrip('cl', updateChlorineValues);
 
 // Hardness
 function updateHardnessValues(posx) {
-  if (posx >= STRIP_WIDTH) posx = STRIP_WIDTH - 1;
-  $('#hard-picker').css({left: posx, top: -1, position: "absolute"});
-  // 0.0-300
-  var value = posx * (300.0 / STRIP_WIDTH);
-  $('#hard-value').attr('value', value.toFixed(2));
-  var previewColor = aqx.hardGradientColor(0, STRIP_WIDTH, posx);
-  $('#hard-preview').css({'background-color': previewColor});
+    aqx.updateStripValues(posx, 'hard', 0.0, 300.0, aqx.hardGradientColor);
 }
-function hardMouseEvent(e, jqThis) {
-  var posx = e.pageX - jqThis.offset().left;
-  updateHardnessValues(posx);
-}
-$('#hard-strip').click(function (e) { hardMouseEvent(e, $(this)); });
-$('#hard-strip').mousedown(function () { isDragging = true; })
-                .mousemove(function (e) { if (isDragging) hardMouseEvent(e, $(this)); })
-                .mouseup(function () { isDragging = false; });
-
+aqx.connectStrip('hard', updateHardnessValues);
 
 // Alkalinity
 function updateAlkalinityValues(posx) {
-  if (posx >= STRIP_WIDTH) posx = STRIP_WIDTH - 1;
-  $('#alk-picker').css({left: posx, top: -1, position: "absolute"});
-  // 0.0-300
-  var value = posx * (300.0 / STRIP_WIDTH);
-  $('#alk-value').attr('value', value.toFixed(2));
-  var previewColor = aqx.alkGradientColor(0, STRIP_WIDTH, posx);
-  $('#alk-preview').css({'background-color': previewColor});
+    aqx.updateStripValues(posx, 'alk', 0.0, 300.0, aqx.alkGradientColor);
 }
-function alkMouseEvent(e, jqThis) {
-  var posx = e.pageX - jqThis.offset().left;
-  updateAlkalinityValues(posx);
-}
-$('#alk-strip').click(function (e) { alkMouseEvent(e, $(this)); });
-$('#alk-strip').mousedown(function () { isDragging = true; })
-               .mousemove(function (e) { if (isDragging) alkMouseEvent(e, $(this)); })
-               .mouseup(function () { isDragging = false; });
+aqx.connectStrip('alk', updateAlkalinityValues);
 
 updatePHValues(100);
 updateNO2Values(100);

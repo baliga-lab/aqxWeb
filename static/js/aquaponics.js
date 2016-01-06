@@ -94,4 +94,30 @@ if (!aqx) {
      function mergeRGB(r, g, b) {
          return ((r << 16) & 0xff0000) | ((g << 8) & 0xff00) | (b & 0xff);
      }
+
+     // Interaction for gradient pickers and form inputs
+     // See system_details.html, these functions assume the presence of elements
+     // whose ids follow a certain name convention
+     var STRIP_WIDTH = 200.0;
+     aqx.updateStripValues = function(posx, prefix, rangeMin, rangeMax, gradientFun) {
+         if (posx > STRIP_WIDTH) posx = STRIP_WIDTH;
+         $('#' + prefix + '-picker').css({left: posx, top: -1, position: "absolute"});
+         var rangeSize = rangeMax - rangeMin;
+         var value = rangeMin + (posx * (rangeSize / STRIP_WIDTH));
+         $('#' + prefix + '-value').attr('value', value.toFixed(2));
+         var previewColor = gradientFun(0, STRIP_WIDTH, posx);
+         $('#' + prefix + '-preview').css({'background-color': previewColor});
+     };
+
+     aqx.connectStrip = function(prefix, updateFun) {
+         function mouseEvent(e, jqThis) {
+             var posx = e.pageX - jqThis.offset().left;
+             updateFun(posx);
+         }
+         $('#' + prefix + '-strip').click(function (e) { mouseEvent(e, $(this)); });
+         $('#' + prefix + '-strip').mousedown(function () { isDragging = true; })
+             .mousemove(function (e) { if (isDragging) mouseEvent(e, $(this)); })
+             .mouseup(function () { isDragging = false; });
+     };
+
 }());

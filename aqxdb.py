@@ -7,7 +7,8 @@ from datetime import datetime
 import uuid
 
 
-ATTR_NAMES = {'ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp', 'nitrite'} #, 'chlorine'}
+ATTR_NAMES = {'ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp', 'nitrite', 'chlorine',
+              'hardness', 'alkalinity'}
 
 
 def get_or_create_user(conn, cursor, google_id, email):
@@ -191,6 +192,7 @@ def get_system_crop(cursor, sys_uid):
 
 def add_measurement(cursor, sys_uid, attr, timestamp, value):
     # Note: we don't have any negative measurements, so we will ignore them
+    current_app.logger.debug('trying to add value for attr: ' + attr)
     if value < 0:
         current_app.logger.warn('attempted to add negative value to database - ignored')
         return "ignore"

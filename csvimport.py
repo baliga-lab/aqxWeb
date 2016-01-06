@@ -7,14 +7,18 @@ import flask
 
 import aqxdb
 
-IMPORT_ATTR_NAMES = {'time', 'ammonium', 'o2', 'ph', 'nitrate', 'light', 'temperature'}
+IMPORT_ATTR_NAMES = {'time', 'ammonium', 'o2', 'ph', 'nitrate', 'light', 'temperature',
+                     'nitrite', 'chlorine', 'hardness', 'alkalinity'}
 IMPORT_ATTR_MAP = {
     'ammonium': 'ammonium',
     'o2': 'o2',
     'ph': 'ph',
     'nitrate': 'nitrate',
     'light': 'light',
-    'temperature': 'temp'
+    'temperature': 'temp',
+    'chlorine': 'chlorine',
+    'hardness': 'hardness',
+    'alkalinity': 'alkalinity'
 }
 
 TIME_FORMATS = [

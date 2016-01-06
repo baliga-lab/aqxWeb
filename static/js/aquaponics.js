@@ -30,6 +30,9 @@ if (!aqx) {
      var nh4Stops = [0xffe26d, 0xdde093, 0xc7dd8a, 0x9dd29c, 0x88b789];
      var no3Stops = [0xfffaed, 0xf9abcc, 0xf581b2, 0xe92b93, 0xde0084, 0xd50078];
      var no2Stops = [0xfefcf0, 0xfdf6f1, 0xfcecec, 0xfdb8d4, 0xf6a1c0, 0xfa91b3];
+     var clStops = [0xffffff, 0xfaf7ea, 0xf2e6f0, 0xf4ccda, 0xf7b5d6, 0xf6acce];
+     var hardStops = [0x737255, 0x7e7358, 0x906048, 0xa55942, 0xd66f52];
+     var alkStops = [0xeac766, 0xb7b278, 0xa1a97e, 0x748c7b, 0x6a8079, 0x5f6773];
 
      aqx.phGradientColor = function(rangeStart, rangeStop, current) {
          return gradientColor(rangeStart, rangeStop, current, phStops);
@@ -42,6 +45,15 @@ if (!aqx) {
      };
      aqx.no2GradientColor = function(rangeStart, rangeStop, current) {
          return gradientColor(rangeStart, rangeStop, current, no2Stops);
+     };
+     aqx.clGradientColor = function(rangeStart, rangeStop, current) {
+         return gradientColor(rangeStart, rangeStop, current, clStops);
+     };
+     aqx.hardGradientColor = function(rangeStart, rangeStop, current) {
+         return gradientColor(rangeStart, rangeStop, current, hardStops);
+     };
+     aqx.alkGradientColor = function(rangeStart, rangeStop, current) {
+         return gradientColor(rangeStart, rangeStop, current, alkStops);
      };
 
      function gradientColor(rangeStart, rangeStop, current, stops) {

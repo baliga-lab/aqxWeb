@@ -132,6 +132,9 @@
               <li id="no3-li" role="presentation"><a id="no3-link" href="javascript:void(0)">Nitrate</a></li>
               <li id="no2-li" role="presentation"><a id="no2-link" href="javascript:void(0)">Nitrite</a></li>
               <li id="ph-li" role="presentation"><a id="ph-link" href="javascript:void(0)">pH</a></li>
+              <li id="cl-li" role="presentation"><a id="cl-link" href="javascript:void(0)">Chlorine</a></li>
+              <li id="hard-li" role="presentation"><a id="hard-link" href="javascript:void(0)">Hardness</a></li>
+              <li id="alk-li" role="presentation"><a id="alk-link" href="javascript:void(0)">Alkalinity</a></li>
             </ul>
 
             <div class="panel-body">
@@ -262,6 +265,57 @@
 
                 </div><!-- ph-panel -->
 
+                <div id="cl-panel" class="hidden">
+                  <div class="form-group">
+                    <label for="cl-strip">Strip Color</label>
+                    <div id="cl-strip" class="form-control cl-strip"><div id="cl-picker" class="strip-picker" style="left: 100px;"></div></div>
+                  </div>
+                  <div class="form-group">
+                    <label for="cl-preview">Preview</label>
+                    <div id="cl-preview" class="form-control cl-preview"></div>
+                  </div>
+                  <div class="form-group">
+                    <label for="cl-value">Value</label>
+                    <div class="input-group">
+                      <input id="cl-value" class="form-control" name="chlorine-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001"></input>
+                    </div>
+                  </div>
+                </div><!-- cl-panel -->
+
+                <div id="hard-panel" class="hidden">
+                  <div class="form-group">
+                    <label for="hard-strip">Strip Color</label>
+                    <div id="hard-strip" class="form-control hard-strip"><div id="hard-picker" class="strip-picker" style="left: 100px;"></div></div>
+                  </div>
+                  <div class="form-group">
+                    <label for="hard-preview">Preview</label>
+                    <div id="hard-preview" class="form-control hard-preview"></div>
+                  </div>
+                  <div class="form-group">
+                    <label for="hard-value">Value</label>
+                    <div class="input-group">
+                      <input id="hard-value" class="form-control" name="hardness-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001"></input>
+                    </div>
+                  </div>
+                </div><!-- hard-panel -->
+
+                <div id="alk-panel" class="hidden">
+                  <div class="form-group">
+                    <label for="alk-strip">Strip Color</label>
+                    <div id="alk-strip" class="form-control alk-strip"><div id="alk-picker" class="strip-picker" style="left: 100px;"></div></div>
+                  </div>
+                  <div class="form-group">
+                    <label for="alk-preview">Preview</label>
+                    <div id="alk-preview" class="form-control alk-preview"></div>
+                  </div>
+                  <div class="form-group">
+                    <label for="alk-value">Value</label>
+                    <div class="input-group">
+                      <input id="alk-value" class="form-control" name="alkalinity-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001"></input>
+                    </div>
+                  </div>
+                </div><!-- alk-panel -->
+
                 <!-- button panel -->
                 <div class="form-group">
                   <div class="col-sm-10">
@@ -331,6 +385,9 @@
             <li><strong>ammonium</strong></li>
             <li><strong>nitrate</strong></li>
             <li><strong>nitrite</strong></li>
+            <li><strong>chlorine</strong></li>
+            <li><strong>hardness</strong></li>
+            <li><strong>alkalinity</strong></li>
             <li><strong>light</strong></li>
           </ul>
         </p>
@@ -439,8 +496,8 @@ function activateSection(section) {
 }
 
 function activateTab(section) {
-  var panelSelectors = ["#dio-panel", "#temp-panel", "#light-panel", "#nh4-panel", "#no3-panel", "#no2-panel", "#ph-panel", "#import-panel"];
-  var liSelectors = ["#dio-li", "#temp-li", "#light-li", "#nh4-li", "#no3-li", "#no2-li", "#ph-li", "#import-li"];
+  var panelSelectors = ["#dio-panel", "#temp-panel", "#light-panel", "#nh4-panel", "#no3-panel", "#no2-panel", "#ph-panel", "#cl-panel", "#hard-panel", "#alk-panel"];
+  var liSelectors = ["#dio-li", "#temp-li", "#light-li", "#nh4-li", "#no3-li", "#no2-li", "#ph-li", "#cl-li", "#hard-panel", "#alk-panel"];
   activateSectionGeneric(section, panelSelectors, liSelectors);
 }
 
@@ -457,6 +514,9 @@ $('#nh4-link').click(function () { activateTab("nh4"); });
 $('#no3-link').click(function () { activateTab("no3"); });
 $('#no2-link').click(function () { activateTab("no2"); });
 $('#ph-link').click(function () { activateTab("ph"); });
+$('#cl-link').click(function () { activateTab("cl"); });
+$('#hard-link').click(function () { activateTab("hard"); });
+$('#alk-link').click(function () { activateTab("alk"); });
 
 function setImage(selector, imgurl) {
   $.get("{{url_for('details_images_div', system_uid=system_uid)}}", {img_url: imgurl},
@@ -558,6 +618,7 @@ $('#no2-strip').mousedown(function () { isDragging = true; })
               .mousemove(function (e) { if (isDragging) no2MouseEvent(e, $(this)); })
               .mouseup(function () { isDragging = false; });
 
+// PH
 function updatePHValues(posx) {
   $('#ph-picker').css({left: posx, top: -1, position: "absolute"});
   // 6.2 - 8.4
@@ -575,9 +636,68 @@ $('#ph-strip').mousedown(function () { isDragging = true; })
               .mousemove(function (e) { if (isDragging) phMouseEvent(e, $(this)); })
               .mouseup(function () { isDragging = false; });
 
+// Chlorine
+function updateChlorineValues(posx) {
+  $('#cl-picker').css({left: posx, top: -1, position: "absolute"});
+  // 0.0-6.0
+  var value = posx * (6.0 / 200.0);
+  $('#cl-value').attr('value', value.toFixed(2));
+  var previewColor = aqx.clGradientColor(0, 200.0, posx);
+  $('#cl-preview').css({'background-color': previewColor});
+}
+function clMouseEvent(e, jqThis) {
+  var posx = e.pageX - jqThis.offset().left;
+  updateChlorineValues(posx);
+}
+$('#cl-strip').click(function (e) { clMouseEvent(e, $(this)); });
+$('#cl-strip').mousedown(function () { isDragging = true; })
+              .mousemove(function (e) { if (isDragging) clMouseEvent(e, $(this)); })
+              .mouseup(function () { isDragging = false; });
+
+// Hardness
+function updateHardnessValues(posx) {
+  $('#hard-picker').css({left: posx, top: -1, position: "absolute"});
+  // 0.0-300
+  var value = posx * (300.0 / 200.0);
+  $('#hard-value').attr('value', value.toFixed(2));
+  var previewColor = aqx.hardGradientColor(0, 200.0, posx);
+  $('#hard-preview').css({'background-color': previewColor});
+}
+function hardMouseEvent(e, jqThis) {
+  var posx = e.pageX - jqThis.offset().left;
+  updateHardnessValues(posx);
+}
+$('#hard-strip').click(function (e) { hardMouseEvent(e, $(this)); });
+$('#hard-strip').mousedown(function () { isDragging = true; })
+                .mousemove(function (e) { if (isDragging) hardMouseEvent(e, $(this)); })
+                .mouseup(function () { isDragging = false; });
+
+
+// Alkalinity
+function updateAlkalinityValues(posx) {
+  $('#alk-picker').css({left: posx, top: -1, position: "absolute"});
+  // 0.0-300
+  var value = posx * (300.0 / 200.0);
+  $('#alk-value').attr('value', value.toFixed(2));
+  var previewColor = aqx.alkGradientColor(0, 200.0, posx);
+  $('#alk-preview').css({'background-color': previewColor});
+}
+function alkMouseEvent(e, jqThis) {
+  var posx = e.pageX - jqThis.offset().left;
+  updateAlkalinityValues(posx);
+}
+$('#alk-strip').click(function (e) { alkMouseEvent(e, $(this)); });
+$('#alk-strip').mousedown(function () { isDragging = true; })
+               .mousemove(function (e) { if (isDragging) alkMouseEvent(e, $(this)); })
+               .mouseup(function () { isDragging = false; });
+
 updatePHValues(100);
 updateNO2Values(100);
 updateNO3Values(100);
 updateNH4Values(100);
+updateChlorineValues(100);
+updateHardnessValues(100);
+updateAlkalinityValues(100);
+
 </script>
 {% endblock %}

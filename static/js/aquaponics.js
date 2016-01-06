@@ -98,14 +98,15 @@ if (!aqx) {
      // Interaction for gradient pickers and form inputs
      // See system_details.html, these functions assume the presence of elements
      // whose ids follow a certain name convention
-     var STRIP_WIDTH = 200.0;
      aqx.updateStripValues = function(posx, prefix, rangeMin, rangeMax, gradientFun) {
-         if (posx > STRIP_WIDTH) posx = STRIP_WIDTH;
+         var stripWidth = $('#' + prefix + '-strip').css('width');
+         stripWidth = parseInt(stripWidth.substring(0, stripWidth.length - 2));
+         if (posx > stripWidth) posx = stripWidth;
          $('#' + prefix + '-picker').css({left: posx, top: -1, position: "absolute"});
          var rangeSize = rangeMax - rangeMin;
-         var value = rangeMin + (posx * (rangeSize / STRIP_WIDTH));
+         var value = rangeMin + (posx * (rangeSize / stripWidth));
          $('#' + prefix + '-value').attr('value', value.toFixed(2));
-         var previewColor = gradientFun(0, STRIP_WIDTH, posx);
+         var previewColor = gradientFun(0, stripWidth, posx);
          $('#' + prefix + '-preview').css({'background-color': previewColor});
      };
 

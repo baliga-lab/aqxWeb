@@ -117,6 +117,14 @@
                 <div class="col-md-1" id="nitrite-chart" style="width: 280px; height: 120px"></div>
                 <div class="col-md-1" id="light-chart" style="width: 280px; height: 120px"></div>
               </row>
+              <row>
+                <div class="col-md-1" id="chlorine-chart" style="width: 280px; height: 120px"></div>
+                <div class="col-md-1" id="hardness-chart" style="width: 280px; height: 120px"></div>
+              </row>
+              <row>
+                <div class="col-md-1" id="alkalinity-chart" style="width: 280px; height: 120px"></div>
+                <div class="col-md-1" id="dummy-chart" style="width: 280px; height: 120px"></div>
+              </row>
             </div><!-- /.panel-body -->
           </div><!-- /.panel (Analytics)-->
 
@@ -541,6 +549,9 @@ var o2Rows = {{o2_rows|tojson}};
 var ammoniumRows = {{ammonium_rows|tojson}};
 var nitriteRows = {{nitrite_rows|tojson}};
 var lightRows = {{light_rows|tojson}};
+var chlorineRows = {{cl_rows|tojson}};
+var hardnessRows = {{hard_rows|tojson}};
+var alkalinityRows = {{alk_rows|tojson}};
 
 aqx.drawChart('temp-chart', 'Temperature', aqx.makeTimeSeriesData(['Temperature'], tempRows));
 aqx.drawChart('temp-chart2', 'Temperature', aqx.makeTimeSeriesData(['Temperature'], tempRows));
@@ -551,6 +562,9 @@ aqx.drawChart('o2-chart2', 'O2', aqx.makeTimeSeriesData(['O2'], o2Rows));
 aqx.drawChart('ammonium-chart', 'Ammonium/Nitrate', aqx.makeTimeSeriesData(['Ammonium', 'Nitrate'], ammoniumRows));
 aqx.drawChart('nitrite-chart', 'Nitrite', aqx.makeTimeSeriesData(['Nitrite'], nitriteRows));
 aqx.drawChart('light-chart', 'Light', aqx.makeTimeSeriesData(['Light'], lightRows));
+aqx.drawChart('chlorine-chart', 'Chlorine', aqx.makeTimeSeriesData(['Chlorine'], chlorineRows));
+aqx.drawChart('hardness-chart', 'Hardness', aqx.makeTimeSeriesData(['Hardness'], hardnessRows));
+aqx.drawChart('alkalinity-chart', 'Alkalinity', aqx.makeTimeSeriesData(['Alkalinity'], alkalinityRows));
 
 $('#deletesys-button').click(function () {
   $('#confirm-delete-modal').modal('hide');

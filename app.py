@@ -301,6 +301,9 @@ def sys_details(system_uid=None):
         nitrate_rows = aqxdb.get_measurement_series(cursor, system_uid, 'nitrate')
         nitrite_rows = aqxdb.get_measurement_series(cursor, system_uid, 'nitrite')
         light_rows = aqxdb.get_measurement_series(cursor, system_uid, 'light')
+        alk_rows = aqxdb.get_measurement_series(cursor, system_uid, 'alkalinity')
+        hard_rows = aqxdb.get_measurement_series(cursor, system_uid, 'hardness')
+        cl_rows = aqxdb.get_measurement_series(cursor, system_uid, 'chlorine')
 
         # this is a workaround to be able to display ammonium and nitrate in
         # one chart

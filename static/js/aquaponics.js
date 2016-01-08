@@ -18,9 +18,13 @@ if (!aqx) {
          var chart = new google.visualization.LineChart(document.getElementById(elementId));
          var options = {
              title: label,
-             width: 280, height: 120,
-             legend: { position: 'bottom', maxLines: 2},
-             hAxis: { textPosition: 'none' }
+             width: 280, height: 180,
+             legend: { position: 'top', alignment: 'start'},
+             chartArea: {
+               width: '55%',
+               height: '30%'
+             },
+             hAxis: { format: 'none', slantedText: true }
          };
          chart.draw(data, options);
          return chart;

@@ -128,7 +128,40 @@ paths:
         '200':
           description:
             successful response
-            
+          schema:
+            $ref: "#/definitions/StatusResponse"
+
+  /measurements/{system_uid}/{from}/{to}:
+    get:
+      description:
+        Retrieves a set of measurements
+      security:
+        - google_oauth2:
+          - email
+      produces:
+        - /application/json
+      parameters:
+        - name: system_uid
+          in: path
+          required: true
+          type: string
+        - name: from
+          in: path
+          type: string
+          format: date-time
+          required: false
+        - name: to
+          in: path
+          type: string
+          format: date-time
+          required: false
+      responses:
+        '200':
+          description:
+            succesful responses
+          schema:
+            $ref: '#/definitions/MeasurementData'
+
   /aquatic_crops:
     get:
       description:
@@ -193,6 +226,59 @@ definitions:
               description:
                 entry name
               type: string
+
+  MeasurementData:
+    description:
+      a collection of measurement data
+    properties:
+      alkalinity:
+        required: false
+        $ref: "#/definitions/MeasurementValues"
+      ammonium:
+        required: false
+        $ref: "#/definitions/MeasurementValues"
+      chlorine:
+        required: false
+        $ref: "#/definitions/MeasurementValues"
+      hardness:
+        required: false
+        $ref: "#/definitions/MeasurementValues"
+      light:
+        required: false
+        $ref: "#/definitions/MeasurementValues"
+      nitrate:
+        required: false
+        $ref: "#/definitions/MeasurementValues"
+      nitrite:
+        required: false
+        $ref: "#/definitions/MeasurementValues"
+      o2:
+        required: false
+        $ref: "#/definitions/MeasurementValues"
+      ph:
+        required: false
+        $ref: "#/definitions/MeasurementValues"
+      temp:
+        required: false
+        $ref: "#/definitions/MeasurementValues"
+
+
+  MeasurementValues:
+    description:
+      a collection of measurement values
+    type: array
+    items:
+      type: object
+      required:
+        - time
+        - value
+      properties:
+        time:
+          type: string
+          format: date-time
+        value:
+          type: number
+          format: float
 
   Measurements:
     description:

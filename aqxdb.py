@@ -89,9 +89,20 @@ def user_pk_for_google_id(cursor, google_id):
 
 
 def get_measurement_series(cursor, sys_uid, attr):
+    """get the latest 100 entries of the specified measurement series
+    because we have a limited set, we need to sort and reverse the end result
+    """
     cursor.execute("select time, value from " + meas_table_name(sys_uid, attr) + " order by time desc limit 100")
     result = [[time.strftime('%Y-%m-%d %H:%M'), float(value)] for time, value in cursor.fetchall()]
     result = result[::-1]  # we need to reverse the list for displaying the right time order
+    return result
+
+
+def get_measurement_series_range(cursor, sys_uid, attr, start, end):
+    query = "select time, value from %s" % (meas_table_name(sys_uid, attr))
+    query += " where time between %s and %s order by time asc"
+    cursor.execute(query, [start, end])
+    result = [[time, float(value)] for time, value in cursor.fetchall()]
     return result
 
 
@@ -191,10 +202,13 @@ def get_system_crop(cursor, sys_uid):
 
 
 def add_measurement(cursor, sys_uid, attr, timestamp, value):
+    """add a measurement to the database.
+    we currently ignore 0 and negative values
+    """
     # Note: we don't have any negative measurements, so we will ignore them
     current_app.logger.debug('trying to add value for attr: ' + attr)
-    if value < 0:
-        current_app.logger.warn('attempted to add negative value to database - ignored')
+    if value < 0 or abs(value) < 0.0001:
+        current_app.logger.warn('attempted to add negative or 0 value to database - ignored')
         return "ignore"
 
     table = meas_table_name(sys_uid, attr)

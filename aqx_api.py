@@ -65,6 +65,22 @@ API_TIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 API_TIME_FORMAT_OBSOLETE = '%Y/%m/%d %H:%M:%S'
 API_DATE_FORMAT = '%Y-%m-%d'
 
+
+def parse_timestamp(s):
+    try:
+        return datetime.fromtimestamp(time.mktime(time.strptime(s, API_TIME_FORMAT)))
+    except:
+        current_app.logger.debug("problem using API default format, trying obsolete format")
+        # support this until new version of Android client is rolled out
+        try:
+            return datetime.fromtimestamp(time.mktime(time.strptime(s, API_TIME_FORMAT_OBSOLETE)))
+        except:
+            return None
+
+
+def format_timestamp(timestamp):
+    return datetime.strftime(timestamp, API_TIME_FORMAT) if timestamp is not None else ''
+
 """
 curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ya29.1QFng_HOUxcDoYncPlVamEsaQOrLGOSTgfE4sweBiYHK_fvKxa5g8qbYpluqowddEaVsWA" -d '[{"time": "08/19/2015 08:15:30", "o2": 10.2}]' http://localhost:5000/api/v1.0/add-measurements/7921a6763e0011e5beb064273763ec8b
 
@@ -88,15 +104,7 @@ def api_add_measurements(system_uid, *args, **kwargs):
                 for measurement in measurements:
                     if not 'time' in measurement:
                         return jsonify(error="no time provided")
-                    try:
-                        timestamp = datetime.fromtimestamp(time.mktime(time.strptime(measurement['time'],
-                                                                                     API_TIME_FORMAT)))
-                    except:
-                        current_app.logger.debug("problem using API default format, trying obsolete format")
-                        # support this until new version of Android client is rolled out
-                        timestamp = datetime.fromtimestamp(time.mktime(time.strptime(measurement['time'],
-                                                                                     API_TIME_FORMAT_OBSOLETE)))
-
+                    timestamp = parse_timestamp(measurement['time'])
                     for attr in aqxdb.ATTR_NAMES:
                         if attr in measurement:
                             try:
@@ -121,6 +129,25 @@ def api_add_measurements(system_uid, *args, **kwargs):
         cursor.close()
         conn.close()
 
+"""
+http://localhost:5000/api/v1.0/measurements/312319313/2015-12-12T00:00:00Z/2015-12-14T00:00:00Z
+"""
+@aqx_api.route('/api/v1.0/measurements/<system_uid>', methods=['GET'])
+@aqx_api.route('/api/v1.0/measurements/<system_uid>/<from_time>', methods=['GET'])
+@aqx_api.route('/api/v1.0/measurements/<system_uid>/<from_time>/<to_time>', methods=['GET'])
+def api_get_measurements(system_uid, from_time=None, to_time=None):
+    """Retrieve a system's measurements in the specified date/time range"""
+    start = parse_timestamp(from_time)
+    end = parse_timestamp(to_time)
+    conn = dbconn()
+    cursor = conn.cursor()
+    result = {}
+    for attr in aqxdb.ATTR_NAMES:
+        values =  aqxdb.get_measurement_series_range(cursor, system_uid, 'temp', start, end)
+        out_values = [ {"time": format_timestamp(time), "value": value} for time, value in values ]
+        result[attr] = out_values
+
+    return jsonify(result)
 
 """
 GET: Retrieve systems
@@ -189,8 +216,8 @@ def api_system_details(system_uid, *args, **kwargs):
         system_pk, system_name, creation_time, start_date, technique = row
         img_url = None  # TODO
         details = {'name': system_name,
-                   'creation_time': datetime.strftime(creation_time, API_TIME_FORMAT) if creation_time is not None else '',
-                   'start_date': datetime.strftime(start_date, API_DATE_FORMAT) if start_date is not None else '',
+                   'creation_time': format_timestamp(creation_time),
+                   'start_date': format_timestamp(start_date),
                    'aqx_technique': technique if technique is not None else '',
                    'image_url': img_url if img_url is not None else ''
                    }

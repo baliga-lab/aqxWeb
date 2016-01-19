@@ -3,6 +3,10 @@ create table if not exists users (id integer primary key not null auto_increment
        default_site_location_lat decimal(13,10), default_site_location_lng decimal(13,10), creation_time timestamp not null default now(), status integer not null default 0);
 create table if not exists systems (id integer primary key not null auto_increment, user_id integer not null references users, name varchar(100) not null, system_uid varchar(40) not null, creation_time timestamp not null default now(), start_date date, status integer not null default 0, aqx_technique_id integer references aqx_techniques);
 
+create table if not exists system_notes (id integer primary key not null auto_increment,
+       system_id integer not null references systems,
+       creation_time timestamp not null default now(), note varchar(200) not null);
+
 create table if not exists aquatic_organisms (id integer primary key not null auto_increment, name varchar(100) not null);
 create table if not exists crops (id integer primary key not null auto_increment, name varchar(100) not null);
 create table if not exists aqx_techniques (id integer primary key not null auto_increment, name varchar(100) not null);

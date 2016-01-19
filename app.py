@@ -319,6 +319,8 @@ def sys_details(system_uid=None):
         aqx_org_id, num_aqx_org = aqxdb.get_system_aqx_organism(cursor, system_uid)
         crop_id, num_crops = aqxdb.get_system_crop(cursor, system_uid)
 
+        notes = aqxdb.get_notes(cursor, system_uid)
+
         # Provide special readonly views, it's easier to keep world-viewable pages
         # secure when all you can do is read and keep the logic outside the template
         if readonly:
@@ -627,6 +629,21 @@ def aqx_map():
         conn.close()
     return render_template('aqx_map.html', **locals())
 
+@app.route('/add-note', methods=['POST'])
+@requires_login
+def add_note():
+    sys_uid = request.form['system-uid']
+    textbox = request.form['textbox']
+    print "add the note: system uid: '%s', note: '%s'" % (sys_uid, textbox)
+    conn = dbconn()
+    cursor = conn.cursor()
+    try:
+        aqxdb.create_note(cursor, sys_uid, textbox)
+        conn.commit()
+    finally:
+        cursor.close()
+        conn.close()
+    return redirect(url_for('sys_details', system_uid=sys_uid))
 
 if __name__ == '__main__':
     handler = logging.StreamHandler()

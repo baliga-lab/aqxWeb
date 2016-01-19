@@ -9,7 +9,8 @@
           <ul class="nav navbar-nav">
             <li id="overview-li" class="active"><a href="javascript:void(0)" title="Overview" id="overview-link"><span class="glyphicon glyphicon-list-alt"></span> Overview <span class="sr-only">(current)</span></a></li>
             <li id="analytics-li"><a href="javascript:void(0)" title="Display analytics" id="analytics-link"><span class="glyphicon glyphicon-stats"></span> Analytics</a></li>
-            <li id="input-li"><a href="javascript:void(0)" title="Input" id="input-link"><span class="glyphicon glyphicon-pencil"></span> Input</a></li>
+            <li id="input-li"><a href="javascript:void(0)" title="Input" id="input-link"><span class="glyphicon glyphicon-edit"></span> Input</a></li>
+            <li id="notes-li"><a href="javascript:void(0)" title="Notes" id="notes-link"><span class="glyphicon glyphicon-pencil"></span> Notes</a></li>
             <li id="import-li"><a href="javascript:void(0)" title="Import" id="import-link"><span class="glyphicon glyphicon-open-file"></span> Import</a></li>
             <li id="alert-li"><a href="javascript:void(0)" title="Alerts" id="alert-link"><span class="glyphicon glyphicon-warning-sign"></span> Alerts</a></li>
           </ul>
@@ -135,7 +136,7 @@
 
           {# This is the Input panel #}
           <div id="input-panel" class="panel panel-default hidden" style="margin-top: 15px;">
-            <div class="panel-heading"><span class="glyphicon glyphicon-pencil"></span> Input data for <strong>{{system_name}}</strong></div>
+            <div class="panel-heading"><span class="glyphicon glyphicon-edit"></span> Input data for <strong>{{system_name}}</strong></div>
 
             <ul class="nav nav-tabs">
               <li id="dio-li" role="presentation" class="active"><a id="dio-link" href="javascript:void(0)">Dis. Oxygen</a></li>
@@ -313,7 +314,7 @@
                 </div><!-- hard-panel -->
 
                 <div id="alk-panel" class="hidden">
-                  <div class="form-group">
+                  <div class="form-group>"
                     <label for="alk-strip">Strip Color</label>
                     <div id="alk-strip" class="form-control alk-strip"><div id="alk-picker" class="strip-picker" style="left: 100px;"></div></div>
                   </div>
@@ -343,6 +344,32 @@
               TODO -->
             </div><!-- /.panel-body -->
           </div><!-- /.panel (Input)-->
+
+          <div id="notes-panel" class="panel panel-default hidden" style="margin-top: 15px;">
+            <div class="panel-heading"><span class="glyphicon glyphicon-pencil"></span> Notes for <strong>{{system_name}}</strong></div>
+
+            <div class="panel-body">
+              <h4>Notes</h4>
+              <p>
+                <form method="POST" action="{{url_for('add_note')}}">
+                  <div class="formgroup">
+                    <textarea class = "form-control" name="textbox"></textarea>
+                  </div>
+                  <input type="hidden" class="hidden" name="system-uid" value="{{system_uid}}"></input>
+                  <div class="form-group" style="margin-top: 5px">
+                    <input type="submit"></input>
+                  </div>
+                </form>
+
+                <!-- notes below -->
+                {% for time, text in notes %} <div>
+                {{time}} {{text}}<hr>
+                </div>
+                {% endfor %}
+              </p>
+            </div><!-- /.panel-body -->
+          </div><!-- /.panel (Notes)-->
+
 
           <div id="alert-panel" class="panel panel-default hidden" style="margin-top: 15px;">
             <div class="panel-heading"><span class="glyphicon glyphicon-warning-sign"></span> Alerts for <strong>{{system_name}}</strong></div>
@@ -503,8 +530,8 @@ function activateSectionGeneric(section, panelSelectors, liSelectors) {
 }
 
 function activateSection(section) {
-  var panelSelectors = ["#overview-panel", "#analytics-panel", "#input-panel", "#import-panel", "#alert-panel"];
-  var liSelectors = ["#overview-li", "#analytics-li", "#input-li", "#import-li", "#alert-li"];
+  var panelSelectors = ["#overview-panel", "#analytics-panel", "#input-panel", "#notes-panel", "#import-panel", "#alert-panel"];
+  var liSelectors = ["#overview-li", "#analytics-li", "#input-li", "#notes-li", "#import-li", "#alert-li"];
   activateSectionGeneric(section, panelSelectors, liSelectors);
 }
 
@@ -517,6 +544,7 @@ function activateTab(section) {
 $('#analytics-link').click(function () { activateSection("analytics"); });
 $('#overview-link').click(function () { activateSection("overview"); });
 $('#input-link').click(function () { activateSection("input"); });
+$('#notes-link').click(function () { activateSection("notes"); });
 $('#import-link').click(function () { activateSection("import"); });
 $('#alert-link').click(function () { activateSection("alert"); });
 

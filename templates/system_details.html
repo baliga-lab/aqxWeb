@@ -81,11 +81,10 @@
                 <div class="form-group">
                   <input class="form-control" type="number" id="num-aquatic-org" name="num-aquatic-org" placeholder="Number of Organisms" value="{{num_aqx_org}}"></input>
                 </div>
-<!--
+                <div id="add-organism"></div>
                 <div class="form-group">
-                  <a href="">Add another organism...</a>
+                  <a href="javascript:void(0)">Add another organism type...</a>
                 </div>
--->
 
                 <div class="form-group">
                   <label for="crop">Crop</label>
@@ -96,6 +95,10 @@
                 </div>
                 <div class="form-group">
                   <input class="form-control" type="number" id="num-crops" name="num-crops" placeholder="Number of Crops" value="{{num_crops}}"></input>
+                </div>
+                <div id="add-crop"></div>
+                <div class="form-group">
+                  <a href="javascript:void(0)">Add another crop type...</a>
                 </div>
 
                 <div class="form-group">
@@ -514,7 +517,7 @@
 if (!Modernizr.inputtypes.date) {
   $('#start-date').datepicker({dateFormat: "yy-mm-dd"});
   $('#measure-date').datepicker({dateFormat: "yy-mm-dd"});
-  $('#note-date').datepicker({dateFormat: "yy-mm-dd"});
+  $('#note-date').datepiker({dateFormat: "yy-mm-dd"});
 }
 if (!Modernizr.inputtypes.time) {
   $('#measure-time').ptTimeSelect();

@@ -186,16 +186,31 @@ def api_user_systems(*args, **kwargs):
         cursor.close()
         conn.close()
 
+def thumb_url(system_uid):
+    png_path = os.path.join(current_app.config['UPLOAD_FOLDER'], '%s_thumb.png' % system_uid)
+    jpg_path = os.path.join(current_app.config['UPLOAD_FOLDER'], '%s_thumb.jpg' % system_uid)
+    if os.path.exists(png_path):
+        mtime = os.path.getmtime(png_path)
+        return "/static/uploads/%s_thumb.png?%s" % (system_uid, mtime)
+    elif os.path.exists(jpg_path):
+        mtime = os.path.getmtime(jpg_path)
+        return "/static/uploads/%s_thumb.jpg?%s" % (system_uid, mtime)
+    else:
+        return '/static/images/leaf_icon_100.png'
+
 
 def image_url(system_uid):
     img_url = None
+    mtime = None
     jpg_path = os.path.join(current_app.config['UPLOAD_FOLDER'], "%s.jpg" % system_uid)
     if os.path.exists(jpg_path):
-        img_url = '/static/uploads/%s.jpg' % system_uid
+        mtime = os.path.getmtime(jpg_path)
+        img_url = '/static/uploads/%s.jpg?%s' % (system_uid, str(mtime))
     if img_url is None:
         png_path = os.path.join(current_app.config['UPLOAD_FOLDER'], "%s.png" % system_uid)
         if os.path.exists(png_path):
-            img_url = '/static/uploads/%s.png' % system_uid
+            mtime = os.path.getmtime(png_path)
+            img_url = '/static/uploads/%s.png?%s' % (system_uid, str(mtime))
     return img_url
 
 """

@@ -18,7 +18,7 @@ import aqxdb
 import csvimport
 import helpers
 
-from aqx_api import aqx_api, image_url
+from aqx_api import aqx_api, image_url, thumb_url
 from aqx_api import API_TIME_FORMAT
 from flask.ext.cors import CORS
 
@@ -224,14 +224,7 @@ def dashboard():
         conn.close()
     for system in systems:
         sys_uid = system['sys_uid']
-        png_path = os.path.join(app.config['UPLOAD_FOLDER'], '%s_thumb.png' % sys_uid)
-        jpg_path = os.path.join(app.config['UPLOAD_FOLDER'], '%s_thumb.jpg' % sys_uid)
-        if os.path.exists(png_path):
-            system['thumb_url'] = "/static/uploads/%s_thumb.png" % sys_uid
-        elif os.path.exists(jpg_path):
-            system['thumb_url'] = "/static/uploads/%s_thumb.jpg" % sys_uid
-        else:
-            system['thumb_url'] = '/static/images/leaf_icon_100.png'
+        system['thumb_url'] = thumb_url(system['sys_uid'])
     return render_template('dashboard.html', **locals())
 
 @app.route('/user-settings')
@@ -637,7 +630,6 @@ def add_note():
     note_date = request.form['date']
     note_time = request.form['time']
     ntime = get_form_time(note_date, note_time)
-    print "add the note: system uid: '%s', note: '%s', time: %s" % (sys_uid, textbox, str(ntime))
     conn = dbconn()
     cursor = conn.cursor()
     try:

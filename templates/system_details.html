@@ -352,10 +352,18 @@
               <h4>Notes</h4>
               <p>
                 <form method="POST" action="{{url_for('add_note')}}">
+                  <input type="hidden" class="hidden" name="system-uid" value="{{system_uid}}"></input>
+                  <div class="form-group">
+                    <label for="note-date">Date</label>
+                    <input class="form-control" type="date" id="note-date" name="date" required></input>
+                  </div>
+                  <div class="form-group">
+                    <label for="note-time">Time</label>
+                    <input class="form-control" type="time" id="note-time" name="time"></input>
+                  </div>
                   <div class="formgroup">
                     <textarea class = "form-control" name="textbox"></textarea>
                   </div>
-                  <input type="hidden" class="hidden" name="system-uid" value="{{system_uid}}"></input>
                   <div class="form-group" style="margin-top: 5px">
                     <input type="submit"></input>
                   </div>
@@ -502,14 +510,15 @@
 <script src="/static/js/jquery.ui.touch-punch.min.js"></script>
 <script src="/static/js/aquaponics.js"></script>
 <script>
+// for browsers that don't support date/time inputs
 if (!Modernizr.inputtypes.date) {
   $('#start-date').datepicker({dateFormat: "yy-mm-dd"});
   $('#measure-date').datepicker({dateFormat: "yy-mm-dd"});
+  $('#note-date').datepicker({dateFormat: "yy-mm-dd"});
 }
-
 if (!Modernizr.inputtypes.time) {
-  console.debug('no time input');
   $('#measure-time').ptTimeSelect();
+  $('#note-time').ptTimeSelect();
 }
 
 var isDragging = false;

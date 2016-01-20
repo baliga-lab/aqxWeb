@@ -634,11 +634,14 @@ def aqx_map():
 def add_note():
     sys_uid = request.form['system-uid']
     textbox = request.form['textbox']
-    print "add the note: system uid: '%s', note: '%s'" % (sys_uid, textbox)
+    note_date = request.form['date']
+    note_time = request.form['time']
+    ntime = get_form_time(note_date, note_time)
+    print "add the note: system uid: '%s', note: '%s', time: %s" % (sys_uid, textbox, str(ntime))
     conn = dbconn()
     cursor = conn.cursor()
     try:
-        aqxdb.create_note(cursor, sys_uid, textbox)
+        aqxdb.create_note(cursor, sys_uid, ntime, textbox)
         conn.commit()
     finally:
         cursor.close()

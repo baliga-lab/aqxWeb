@@ -271,13 +271,13 @@ def get_catalog_value(cursor, name, pk):
     return None
 
 
-def create_note(cursor, system_uid, text):
+def create_note(cursor, system_uid, timestamp, text):
     cursor.execute("select id from systems where system_uid=%s", [system_uid])
     row = cursor.fetchone()
     if row is not None:
         pk = row[0]
-        cursor.execute("insert into system_notes (system_id, note) values (%s,%s)",
-                       [pk, text])
+        cursor.execute("insert into system_notes (system_id,creation_time,note) values (%s,%s,%s)",
+                       [pk, timestamp, text])
 
 
 def get_notes(cursor, system_uid):

@@ -398,14 +398,13 @@ def update_system_details():
         if aqxdb.is_system_owner(cursor, sys_uid, user_id=session['user_id']):
             aqxdb.update_system_details(cursor, sys_uid, data)
             conn.commit()
-        flash('Changes saved.', 'info')
     except Exception, e:
         app.logger.exception(e)
-        raise e
+        return jsonify(status='error')
     finally:
         cursor.close()
         conn.close()
-    return redirect(url_for('sys_details', system_uid=sys_uid))
+    return jsonify(status="ok")
 
 
 @app.route("/delete-system/<system_uid>", methods=['DELETE'])

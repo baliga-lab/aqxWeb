@@ -186,3 +186,14 @@
     display: block;
     position: absolute;
 }
+
+.message-error {
+    background-color: red;
+}
+.message-std {
+    background-color: #bbddff;
+}
+.message-bar {
+    padding-left: 5pt;
+    display: none;
+}

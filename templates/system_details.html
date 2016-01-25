@@ -348,7 +348,7 @@
             <div class="panel-body">
               <h4>Notes</h4>
               <p>
-                <form method="POST" action="{{url_for('add_note')}}">
+                <form id="notes-form" method="POST" action="{{url_for('add_note')}}">
                   <input type="hidden" class="hidden" name="system-uid" value="{{system_uid}}"></input>
                   <div class="form-group">
                     <label for="note-date">Date</label>
@@ -367,6 +367,7 @@
                 </form>
 
                 <!-- notes below -->
+                <div id="new-note"></div>
                 {% for time, text in notes %} <div>
                 {{time}} {{text}}<hr>
                 </div>
@@ -609,6 +610,17 @@ aqx.drawChart('chlorine-chart', 'Chlorine', aqx.makeTimeSeriesData(['Chlorine'],
 aqx.drawChart('hardness-chart', 'Hardness', aqx.makeTimeSeriesData(['Hardness'], hardnessRows));
 aqx.drawChart('alkalinity-chart', 'Alkalinity', aqx.makeTimeSeriesData(['Alkalinity'], alkalinityRows));
 
+function displaySuccessMessage(msg) {
+  $('#message-bar').removeClass('message-error').addClass('message-std');
+  $("#message-bar span").text(msg);
+  $('#message-bar').fadeIn().delay(3000).fadeOut();
+}
+function displayErrorMessage(msg) {
+  $('#message-bar').removeClass('message-std').addClass('message-error');
+  $("#message-bar span").text(msg);
+  $('#message-bar').fadeIn().delay(2000).fadeOut();
+}
+
 $('#details-form').submit(function(e) {
   $.ajax({
     type: "POST",
@@ -616,23 +628,38 @@ $('#details-form').submit(function(e) {
     data: $(this).serializeArray(),
     success: function(data) {
       if (data.status === 'ok') {
-        $('#message-bar').removeClass('message-error').addClass('message-std');
-        $("#message-bar span").text('Data succesfully saved.');
-        $('#message-bar').fadeIn().delay(3000).fadeOut();
+        displaySuccessMessage('Data successfully saved.');
       } else {
-        $('#message-bar').removeClass('message-std').addClass('message-error');
-        $("#message-bar span").text('Data saving failed.');
-        $('#message-bar').fadeIn().delay(3000).fadeOut();
+        displayErrorMessage('Data saving failed.');
       }
     },
     error: function() {
-      $('#message-bar').removeClass('message-std').addClass('message-error');
-      $("#message-bar span").text('Server error.');
-      $('#message-bar').fadeIn().delay(2000).fadeOut();
+      displayErrorMessage('Server error.');
     }
   });
   e.preventDefault();
 });
+
+$('#notes-form').submit(function(e) {
+  $.ajax({
+    type: "POST",
+    url: $(this).attr("action"),
+    data: $(this).serializeArray(),
+    success: function(data) {
+      if (data.status == 'ok') {
+        $('#new-note').replaceWith('<div id="new-note"></div><div>' + data.time + ' ' +
+                                   data.text + '<hr></div>');
+      } else {
+        displayErrorMessage('Could not save note.');
+      }
+    },
+    error: function() {
+      displayErrorMessage('Server error.');
+    }
+  });
+  e.preventDefault();
+});
+
 $('#deletesys-button').click(function () {
   $('#confirm-delete-modal').modal('hide');
   $.ajax({

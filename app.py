@@ -448,7 +448,6 @@ def get_form_time(datestr, timestr):
         s = "%sT%sZ" % (datestr, timestr)
     else:
         s = "%sT00:00:00Z" % datestr
-    app.logger.debug("the form datetime is '%s'", s)
     try:
         return datetime.fromtimestamp(time.mktime(time.strptime(s, API_TIME_FORMAT)))
     except:
@@ -634,10 +633,12 @@ def add_note():
     try:
         aqxdb.create_note(cursor, sys_uid, ntime, textbox)
         conn.commit()
+        return jsonify(status="ok", time=ntime.strftime(API_TIME_FORMAT), text=textbox)
+    except:
+        return jsonify(status="error")
     finally:
         cursor.close()
         conn.close()
-    return redirect(url_for('sys_details', system_uid=sys_uid))
 
 if __name__ == '__main__':
     handler = logging.StreamHandler()

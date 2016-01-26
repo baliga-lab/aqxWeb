@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% block title %}System Details{% endblock %}
 {% block content %}
-
     <div class="container-fluid">
       <div class="row">
         <nav class="navbar navbar-default" role="navigation">
@@ -69,38 +68,46 @@
                     {% for tech in aqx_techniques %}<option value="{{tech[0]}}" {% if tech[0] == aqx_tech_id %}selected{% endif %}>{{tech[1]}}</option>{% endfor %}
                   </select>
                 </div>
-                <div class="form-group">
-                  <label for="aquatic-org">Aquatic Organism</label>
-                  <select class="form-control" id="aquatic-org" name="aquatic-org">
-                    <option value=""></option>
-                    {% for o in aq_orgs %}<option value="{{o[0]}}" {% if o[0] == aqx_org_id %}selected{% endif %}>{{o[1]}}</option>{% endfor %}
-                  </select>
+                {% for org_pk, org_count in sys_orgs %}
+                <div class="organism-controls">
+                  <div class="form-group">
+                    <label for="aquatic-org">Aquatic Organism</label>
+                    <select class="form-control" id="aquatic-org" name="aquatic-org">
+                      <option value="0"></option>
+                      {% for o in aq_orgs %}<option value="{{o[0]}}" {% if o[0] == org_pk %}selected{% endif %}>{{o[1]}}</option>{% endfor %}
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <input class="form-control" type="number" id="num-aquatic-org" name="num-aquatic-org" placeholder="Number of Organisms" value="{{org_count}}"></input>
+                  </div>
                 </div>
-                <div class="form-group">
-                  <input class="form-control" type="number" id="num-aquatic-org" name="num-aquatic-org" placeholder="Number of Organisms" value="{{num_aqx_org}}"></input>
-                </div>
-                <!--
+                {% endfor %}
+
                 <div id="add-organism"></div>
                 <div class="form-group">
                   <a id="add-organism-link" href="javascript:void(0)">Add another organism type...</a>
                 </div>
-                -->
-                <div class="form-group">
-                  <label for="crop">Crop</label>
-                  <select class="form-control" id="crop" name="crop">
-                    <option value=""></option>
-                    {% for c in crops %}<option value="{{c[0]}}" {% if c[0] == crop_id %}selected{% endif %}>{{c[1]}}</option>{% endfor %}
-                  </select>
+
+                {% for crop_pk, crop_count in sys_crops %}
+                <div class="crop-controls">
+                  <div class="form-group">
+                    <label for="crop">Crop</label>
+                    <select class="form-control" id="crop" name="crop">
+                      <option value="0"></option>
+                      {% for c in crops %}<option value="{{c[0]}}" {% if c[0] == crop_pk %}selected{% endif %}>{{c[1]}}</option>{% endfor %}
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <input class="form-control" type="number" id="num-crops" name="num-crops" placeholder="Number of Crops" value="{{crop_count}}"></input>
+                  </div>
                 </div>
-                <div class="form-group">
-                  <input class="form-control" type="number" id="num-crops" name="num-crops" placeholder="Number of Crops" value="{{num_crops}}"></input>
-                </div>
-                <!--
+                {% endfor %}
+
                 <div id="add-crop"></div>
                 <div class="form-group">
                   <a id="add-crop-link" href="javascript:void(0)">Add another crop type...</a>
                 </div>
-                -->
+
                 <div class="form-group">
                     <button type="submit" class="btn btn-default">Save Changes</button>
                     <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirm-delete-modal">Delete System</button>
@@ -564,10 +571,10 @@ $('#hard-link').click(function () { activateTab("hard"); });
 $('#alk-link').click(function () { activateTab("alk"); });
 
 $('#add-organism-link').click(function() {
-  $('#add-organism').replaceWith('<div>moar organism</div><div id="add-organism"></div>');
+  $('.organism-controls').clone().appendTo('#add-organism');
 });
 $('#add-crop-link').click(function() {
-  $('#add-crop').replaceWith('<div>moar crop</div><div id="add-crop"></div>');
+  $('.crop-controls').clone().appendTo('#add-crop');
 });
 
 function setImage(selector, imgurl) {

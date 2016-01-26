@@ -309,8 +309,12 @@ def sys_details(system_uid=None):
                 row.append(0.0)
         nitrate_rows = None
 
-        aqx_org_id, num_aqx_org = aqxdb.get_system_aqx_organism(cursor, system_uid)
-        crop_id, num_crops = aqxdb.get_system_crop(cursor, system_uid)
+        sys_orgs = aqxdb.get_system_aqx_organism(cursor, system_uid)
+        if len(sys_orgs) == 0:
+            sys_orgs = [(None, None)]
+        sys_crops = aqxdb.get_system_crop(cursor, system_uid)
+        if len(sys_crops) == 0:
+            sys_crops = [(None, None)]
 
         notes = aqxdb.get_notes(cursor, system_uid)
 
@@ -373,10 +377,15 @@ def update_system_details():
     sys_uid = request.form['system-uid']
     date_str = request.form['start-date']
     aqx_tech = request.form['aqx-technique']
-    aquatic_org = request.form['aquatic-org']
-    num_aquatic_org = request.form['num-aquatic-org']
-    crop = request.form['crop']
-    num_crops = request.form['num-crops']
+
+    aquatic_org = map(int, request.form.getlist('aquatic-org'))
+    num_aquatic_org = map(int, request.form.getlist('num-aquatic-org'))
+    crop = map(int, request.form.getlist('crop'))
+    num_crops = map(int, request.form.getlist('num-crops'))
+
+    print "Organism: %s -> %s", str(aquatic_org), str(num_aquatic_org)
+    print "Crop: %s -> %s", str(crop), str(num_crops)
+
     data = {}
     data['system_name'] = system_name
     if date_str:
@@ -384,13 +393,13 @@ def update_system_details():
     if aqx_tech:
         data['aqx_technique_id'] = int(aqx_tech)
     if aquatic_org:
-        data['aquatic_org_id'] = int(aquatic_org)
+        data['aquatic_org_id'] = aquatic_org
     if num_aquatic_org:
-        data['num_aquatic_org'] = int(num_aquatic_org)
+        data['num_aquatic_org'] = num_aquatic_org
     if crop:
-        data['crop_id'] = int(crop)
+        data['crop_id'] = crop
     if num_crops:
-        data['num_crops'] = int(num_crops)
+        data['num_crops'] = num_crops
 
     conn = dbconn()
     cursor = conn.cursor()

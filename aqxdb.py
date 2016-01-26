@@ -116,6 +116,49 @@ def create_aquaponics_system(cursor, user_pk, name):
         cursor.execute(query)
 
 
+def _update_system_aquatic_orgs(cursor, system_pk, update_orgs):
+    cursor.execute('select organism_id,num from system_aquatic_organisms where system_id=%s',
+                   system_pk)
+    existing = {pk: count for pk, count in cursor.fetchall()}
+
+    to_update = {pk: count for pk, count in update_orgs.items()
+                if pk in existing and existing[pk] != count}
+    to_remove = {pk for pk in existing if pk not in update_orgs}
+    to_add = {pk: count for pk, count in update_orgs.items()
+              if pk > 0 and pk not in existing}
+
+    for pk, count in to_update.items():
+        cursor.execute('update system_aquatic_organisms set organism_id=%s, num=%s where system_id=%s',
+                       [pk, count, system_pk])
+    for pk, count in to_add.items():
+        cursor.execute('insert into system_aquatic_organisms (system_id,organism_id,num) values (%s,%s,%s)',
+                       [system_pk, pk, count])
+    for pk in to_remove:
+        cursor.execute('delete from system_aquatic_organisms where system_id=%s and organism_id=%s',
+                       [system_pk, pk])
+
+
+def _update_system_crops(cursor, system_pk, update_crops):
+    # 1. update existing entry
+    cursor.execute('select crop_id,num from system_crops where system_id=%s', system_pk)
+    existing = {pk: count for pk, count in cursor.fetchall()}
+
+    to_update = {pk: count for pk, count in update_crops.items()
+                if pk in existing and existing[pk] != count}
+    to_remove = {pk for pk in existing if pk not in update_crops}
+    to_add = {pk: count for pk, count in update_crops.items()
+              if pk > 0 and pk not in existing}
+
+    for pk, count in to_update.items():
+        cursor.execute('update system_crops set crop_id=%s, num=%s where system_id=%s',
+                       [pk, count, system_pk])
+    for pk, count in to_add.items():
+        cursor.execute('insert into system_crops (system_id,crop_id,num) values (%s,%s,%s)',
+                       [system_pk, pk, count])
+    for pk in to_remove:
+        cursor.execute('delete from system_crops where system_id=%s and crop_id=%s',
+                       [system_pk, pk])
+
 def update_system_details(cursor, system_uid, data):
     """update the Aquaponics system details
     This rather lengthy procedure ensures we have some checking in place
@@ -146,38 +189,12 @@ def update_system_details(cursor, system_uid, data):
         cursor.execute('select id from systems where system_uid=%s', system_uid)
         system_pk = cursor.fetchone()[0]
 
-        if 'aquatic_org_id' in data:
-            org_pk = int(data['aquatic_org_id'])
+        if 'aquatic_org_id' in data and 'num_aquatic_org' in data:
+            _update_system_aquatic_orgs(cursor, system_pk,
+                                        dict(zip(data['aquatic_org_id'], data['num_aquatic_org'])))
 
-            if 'num_aquatic_org' in data:
-                num_orgs = int(data['num_aquatic_org'])
-
-            # 1. update existing entry
-            cursor.execute('select count(*) from system_aquatic_organisms where system_id=%s',
-                           system_pk)
-            if cursor.fetchone()[0] > 0:
-                cursor.execute('update system_aquatic_organisms set organism_id=%s, num=%s where system_id=%s',
-                               [org_pk, num_orgs, system_pk])
-            else:
-                # 2. or create if not
-                cursor.execute('insert into system_aquatic_organisms (system_id,organism_id,num) values (%s,%s,%s)',
-                               [system_pk, org_pk, num_orgs])
-
-        if 'crop_id' in data:
-            crop_pk = int(data['crop_id'])
-            if 'num_crops' in data:
-                num_crops = int(data['num_crops'])
-
-            # 1. update existing entry
-            cursor.execute('select count(*) from system_crops where system_id=%s', system_pk)
-            if cursor.fetchone()[0] > 0:
-                cursor.execute('update system_crops set crop_id=%s, num=%s where system_id=%s',
-                               [crop_pk, num_crops, system_pk])
-            else:
-                # 2. or create if not
-                cursor.execute('insert into system_crops (system_id,crop_id,num) values (%s,%s,%s)',
-                               [system_pk, crop_pk, num_crops])
-
+        if 'crop_id' in data and 'num_crops' in data:
+            _update_system_crops(cursor, system_pk, dict(zip(data['crop_id'], data['num_crops'])))
 
 def delete_system(cursor, system_uid):
     cursor.execute('update systems set status=1 where system_uid=%s', [system_uid])
@@ -185,20 +202,12 @@ def delete_system(cursor, system_uid):
 
 def get_system_aqx_organism(cursor, sys_uid):
     cursor.execute('select organism_id, num from system_aquatic_organisms sao join systems s on sao.system_id=s.id where s.system_uid=%s', [sys_uid])
-    row = cursor.fetchone()
-    if row is not None:
-        return row[0], row[1]
-    else:
-        return None, ''
+    return [(pk, count) for pk, count in cursor.fetchall()]
 
 
 def get_system_crop(cursor, sys_uid):
     cursor.execute('select crop_id, num from system_crops sc join systems s on sc.system_id=s.id where s.system_uid=%s', [sys_uid])
-    row = cursor.fetchone()
-    if row is not None:
-        return row[0], row[1]
-    else:
-        return None, ''
+    return [(pk, count) for pk, count in cursor.fetchall()]
 
 
 def add_measurement(cursor, sys_uid, attr, timestamp, value):

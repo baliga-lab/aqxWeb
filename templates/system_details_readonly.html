@@ -35,18 +35,22 @@
                 <dd>{{aqx_technique}}</dd>
               </dl>
               {% endif %}
-              {% if aqx_organism %}
               <dl>
-                <dt>Aquatics Organism</dt>
-                <dd>{{aqx_organism}} ({{num_aqx_org}})</dd>
+                <dt>Aquatics Organisms</dt>
+                <dd>
+                  {% for name, count in system_organisms %}
+                  {{name}} ({{count}})<br>
+                  {% endfor %}
+                </dd>
               </dl>
-              {% endif %}
-              {% if crop %}
               <dl>
-                <dt>Crop</dt>
-                <dd>{{crop}} ({{num_crops}})</dd>
+                <dt>Crops</dt>
+                <dd>
+                  {% for name, count in system_crops %}
+                  {{name}} ({{count}})<br>
+                  {% endfor %}
+                </dd>
               </dl>
-              {% endif %}
             </div><!-- /.panel-body -->
           </div><!-- /.panel (Overview)-->
 

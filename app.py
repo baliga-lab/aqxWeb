@@ -320,15 +320,20 @@ def sys_details(system_uid=None):
 
         # Provide special readonly views, it's easier to keep world-viewable pages
         # secure when all you can do is read and keep the logic outside the template
+        aq_orgs = aqxdb.all_catalog_values(cursor, 'aquatic_organisms')
+        crops = aqxdb.all_catalog_values(cursor, 'crops')
+        print "AQ_ORGS: ", aq_orgs
+
         if readonly:
+            aq_orgs = dict(aq_orgs)
+            crops = dict(crops)
             aqx_technique = aqxdb.get_catalog_value(cursor, 'aqx_techniques', aqx_tech_id)
-            aqx_organism = aqxdb.get_catalog_value(cursor, 'aquatic_organisms', aqx_org_id)
-            crop = aqxdb.get_catalog_value(cursor, 'crops', crop_id)
+            system_organisms = [(aq_orgs[pk], count) for pk, count in sys_orgs]
+            system_crops = [(crops[pk], count) for pk, count in sys_crops]
             return render_template('system_details_readonly.html', **locals())
         else:
             aqx_techniques = aqxdb.all_catalog_values(cursor, 'aqx_techniques')
             aq_orgs = aqxdb.all_catalog_values(cursor, 'aquatic_organisms')
-            crops = aqxdb.all_catalog_values(cursor, 'crops')
             return render_template('system_details.html', **locals())
     finally:
         cursor.close()

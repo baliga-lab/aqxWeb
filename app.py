@@ -259,7 +259,6 @@ def user_settings():
 def update_default_site_location():
     conn = dbconn()
     cursor = conn.cursor()
-    print request.form.keys()
     try:
         lat = float(request.form['lat'])
         lng = float(request.form['lng'])
@@ -322,7 +321,6 @@ def sys_details(system_uid=None):
         # secure when all you can do is read and keep the logic outside the template
         aq_orgs = aqxdb.all_catalog_values(cursor, 'aquatic_organisms')
         crops = aqxdb.all_catalog_values(cursor, 'crops')
-        print "AQ_ORGS: ", aq_orgs
 
         if readonly:
             aq_orgs = dict(aq_orgs)
@@ -387,9 +385,6 @@ def update_system_details():
     num_aquatic_org = map(int, request.form.getlist('num-aquatic-org'))
     crop = map(int, request.form.getlist('crop'))
     num_crops = map(int, request.form.getlist('num-crops'))
-
-    print "Organism: %s -> %s", str(aquatic_org), str(num_aquatic_org)
-    print "Crop: %s -> %s", str(crop), str(num_crops)
 
     data = {}
     data['system_name'] = system_name

@@ -35,7 +35,6 @@ def is_system_owner(cursor, sys_uid, user_id=None, google_id=None):
                     [sys_uid, user_id])
         return cursor.fetchone()[0] > 0
     elif google_id is not None:
-        print "GOOGLE ID"
         cursor.execute('select count(*) from systems s join users u on s.user_id=u.id where system_uid=%s and u.google_id=%s',
                        [sys_uid, google_id])
         return cursor.fetchone()[0] > 0
@@ -128,8 +127,8 @@ def _update_system_aquatic_orgs(cursor, system_pk, update_orgs):
               if pk > 0 and pk not in existing}
 
     for pk, count in to_update.items():
-        cursor.execute('update system_aquatic_organisms set organism_id=%s, num=%s where system_id=%s',
-                       [pk, count, system_pk])
+        cursor.execute('update system_aquatic_organisms set organism_id=%s, num=%s where system_id=%s and organism_id=%s',
+                       [pk, count, system_pk, pk])
     for pk, count in to_add.items():
         cursor.execute('insert into system_aquatic_organisms (system_id,organism_id,num) values (%s,%s,%s)',
                        [system_pk, pk, count])
@@ -150,8 +149,8 @@ def _update_system_crops(cursor, system_pk, update_crops):
               if pk > 0 and pk not in existing}
 
     for pk, count in to_update.items():
-        cursor.execute('update system_crops set crop_id=%s, num=%s where system_id=%s',
-                       [pk, count, system_pk])
+        cursor.execute('update system_crops set crop_id=%s, num=%s where system_id=%s and crop_id=%s',
+                       [pk, count, system_pk, pk])
     for pk, count in to_add.items():
         cursor.execute('insert into system_crops (system_id,crop_id,num) values (%s,%s,%s)',
                        [system_pk, pk, count])

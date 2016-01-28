@@ -99,8 +99,15 @@ def get_measurement_series(cursor, sys_uid, attr):
 
 def get_measurement_series_range(cursor, sys_uid, attr, start, end):
     query = "select time, value from %s" % (meas_table_name(sys_uid, attr))
-    query += " where time between %s and %s order by time asc"
-    cursor.execute(query, [start, end])
+    if start is not None and end is not None:
+        query += " where time between %s and %s order by time asc"
+        cursor.execute(query, [start, end])
+    elif start is not None:
+        query += " where time > %s order by time asc"
+        cursor.execute(query, [start])
+    else:
+        cursor.execute(query)
+ 
     result = [[time, float(value)] for time, value in cursor.fetchall()]
     return result
 

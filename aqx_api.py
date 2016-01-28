@@ -143,7 +143,7 @@ def api_get_measurements(system_uid, from_time=None, to_time=None):
     cursor = conn.cursor()
     result = {}
     for attr in aqxdb.ATTR_NAMES:
-        values =  aqxdb.get_measurement_series_range(cursor, system_uid, 'temp', start, end)
+        values =  aqxdb.get_measurement_series_range(cursor, system_uid, attr, start, end)
         out_values = [ {"time": format_timestamp(time), "value": value} for time, value in values ]
         result[attr] = out_values
 

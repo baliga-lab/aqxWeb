@@ -11,6 +11,7 @@
             <li id="input-li"><a href="javascript:void(0)" title="Input" id="input-link"><span class="glyphicon glyphicon-edit"></span> Input</a></li>
             <li id="notes-li"><a href="javascript:void(0)" title="Notes" id="notes-link"><span class="glyphicon glyphicon-pencil"></span> Notes</a></li>
             <li id="import-li"><a href="javascript:void(0)" title="Import" id="import-link"><span class="glyphicon glyphicon-open-file"></span> Import</a></li>
+            <li id="export-li"><a href="javascript:void(0)" title="Export" id="export-link"><span class="glyphicon glyphicon-download"></span> Export</a></li>
             <li id="alert-li"><a href="javascript:void(0)" title="Alerts" id="alert-link"><span class="glyphicon glyphicon-warning-sign"></span> Alerts</a></li>
           </ul>
           </div>
@@ -404,6 +405,74 @@
             </div>
           </div><!-- /.panel (Import) -->
 
+          <div id="export-panel" class="panel hidden">
+            <div class="panel-body">
+			  <form id="page" class="form-horizontal" action="" method="post">
+                <div class="form-group">
+                  <label for="table-type">Table Type</label>
+				  <select class="form-control" name="table-type" id="table-type">
+                    {% for mtype in meas_types %}
+				    <option value="{{mtype}}">{{mtype}}</option>
+                    {% endfor %}
+				  </select>
+                </div>
+                <div class="form-group">
+				  <label for="query-mode">Query Mode</label>
+				  <select class="form-control" name="query-mode" id="query-mode" >
+					<option value="default">Select Mode</option>
+					<option value="endpoint">Endpoint</option>
+					<option value="interval">Interval</option>
+				  </select>
+                </div>
+				<div class="tab-content">
+					<div id="endpoint" class="tab active">
+						<h3> Endpoints: </h3>
+						Start Date: <br>
+						<input type="date" name="startDate"> <br>
+						<!-- <input type="text" name="StartTimestamp"> <br> -->
+						Start Time: <br>
+						<input type="time" name="startTime"> <br>
+						<!-- <input type="text" name="StartTimestamp"> <br> -->
+						End Date: <br>
+						<input type="date" name="endDate"> <br>
+						<!-- <input type="text" name="EndTimestamp"> <br> -->
+						End Time: <br>
+						<input type="time" name="endTime"> <br>
+						<!-- <input type="text" name="EndTimestamp"> <br> -->
+					</div>
+					<div id="interval" class="tab">
+						<h3> Interval: </h3>
+                        <div class="form-group">
+					      <label for="export-start-date2">Start Date:</label>
+					      <input class="form-control" type="date" id="export-start-date2" name="export-start-date2"></input>
+                        </div>
+                        <div class="form-group">
+						  <label for="export-start-time2"> Start Time: </label>
+						  <input class="form-control" type="time" id="export-start-time2" name="startTime2"> </input>
+                        </div>
+						Years: <br>
+						<input type="number" name="years" min="0" value="0"> <br>
+						Months: <br>
+						<input type="number" name="months" min="0" value="0"> <br>
+						Weeks: <br>
+						<input type="number" name="weeks" min="0" value="0"> <br>
+						Days: <br>
+						<input type="number" name="days" min="0" value="0"> <br>
+						Hours: <br>
+						<input type="number" name="hours" min="0" value="0"> <br>
+						Minutes: <br>
+						<input type="number" name="minutes" min="0" value="0"> <br>
+						Seconds: <br>
+						<input type="number" name="seconds" min="0" value="0"> <br>
+					</div>
+				</div>
+				<br> <button type="submit" id="submitted"> Retrieve Data </button>
+
+              </form>
+            </div>
+          </div><!-- /.panel (Export) -->
+
+
         </div><!-- /.main -->
       </div><!-- /.row -->
     </div><!-- /.container-fluid -->
@@ -517,10 +586,13 @@ if (!Modernizr.inputtypes.date) {
   $('#start-date').datepicker({dateFormat: "yy-mm-dd"});
   $('#measure-date').datepicker({dateFormat: "yy-mm-dd"});
   $('#note-date').datepicker({dateFormat: "yy-mm-dd"});
+
+  $('#export-start-date2').datepicker({dateFormat: "yy-mm-dd"});
 }
 if (!Modernizr.inputtypes.time) {
   $('#measure-time').ptTimeSelect();
   $('#note-time').ptTimeSelect();
+  $('#export-start-time2').ptTimeSelect();
 }
 
 var isDragging = false;
@@ -541,8 +613,8 @@ function activateSectionGeneric(section, panelSelectors, liSelectors) {
 }
 
 function activateSection(section) {
-  var panelSelectors = ["#overview-panel", "#analytics-panel", "#input-panel", "#notes-panel", "#import-panel", "#alert-panel"];
-  var liSelectors = ["#overview-li", "#analytics-li", "#input-li", "#notes-li", "#import-li", "#alert-li"];
+  var panelSelectors = ["#overview-panel", "#analytics-panel", "#input-panel", "#notes-panel", "#import-panel", "#export-panel", "#alert-panel"];
+  var liSelectors = ["#overview-li", "#analytics-li", "#input-li", "#notes-li", "#import-li", "#export-li", "#alert-li"];
   activateSectionGeneric(section, panelSelectors, liSelectors);
 }
 
@@ -557,6 +629,7 @@ $('#overview-link').click(function () { activateSection("overview"); });
 $('#input-link').click(function () { activateSection("input"); });
 $('#notes-link').click(function () { activateSection("notes"); });
 $('#import-link').click(function () { activateSection("import"); });
+$('#export-link').click(function () { activateSection("export"); });
 $('#alert-link').click(function () { activateSection("alert"); });
 
 $('#dio-link').click(function () { activateTab("dio"); });

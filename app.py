@@ -273,10 +273,16 @@ def update_default_site_location():
         conn.close()
 
 
+ATTR_MAP = {'Ammonium': 'ammonium', 'Oxygen': 'o2', 'pH': 'ph',
+            'Nitrate': 'nitrate', 'Nitrite': 'nitrite',
+            'Light': 'light', 'Temperature': 'temp'}
+
 @app.route('/system-details/<system_uid>')
 def sys_details(system_uid=None):
     user_google_id = session['google_id'] if 'google_id' in session else None
     img_url = image_url(system_uid)
+
+    meas_types = sorted(ATTR_MAP.keys())
     conn = dbconn()
     cursor = conn.cursor()
     try:
@@ -656,4 +662,4 @@ if __name__ == '__main__':
     app.debug = True
     app.secret_key = 'supercalifragilistic'
     app.logger.addHandler(handler)
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', port=8080, debug=True)

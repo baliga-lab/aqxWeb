@@ -208,18 +208,12 @@ def delete_system(cursor, system_uid):
 
 def get_system_aqx_organism(cursor, sys_uid):
     cursor.execute('select organism_id, num from system_aquatic_organisms sao join systems s on sao.system_id=s.id where s.system_uid=%s', [sys_uid])
-    if cursor.rowcount > 0:
-        return [(pk, count) for pk, count in cursor.fetchall()]
-    else:
-        return []
+    return [(pk, count) for pk, count in cursor.fetchall()]
 
 
 def get_system_crop(cursor, sys_uid):
     cursor.execute('select crop_id, num from system_crops sc join systems s on sc.system_id=s.id where s.system_uid=%s', [sys_uid])
-    if cursor.rowcount > 0:
-        return [(pk, count) for pk, count in cursor.fetchall()]
-    else:
-        return []
+    return [(pk, count) for pk, count in cursor.fetchall()]
 
 
 def add_measurement(cursor, sys_uid, attr, timestamp, value):

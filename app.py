@@ -309,10 +309,10 @@ def sys_details(system_uid=None):
         nitrate_rows = None
 
         sys_orgs = aqxdb.get_system_aqx_organism(cursor, system_uid)
-        if len(sys_orgs) == 0:
+        if len(sys_orgs) == 0 and not readonly:
             sys_orgs = [(None, None)]
         sys_crops = aqxdb.get_system_crop(cursor, system_uid)
-        if len(sys_crops) == 0:
+        if len(sys_crops) == 0 and not readonly:
             sys_crops = [(None, None)]
 
         notes = aqxdb.get_notes(cursor, system_uid)

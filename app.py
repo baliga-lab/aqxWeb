@@ -169,7 +169,11 @@ def signin():
     try:
         idtoken = request.form['idtoken']
         r = requests.get('https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=' + idtoken)
-        context = r.json()
+        try:
+            context = r.json()
+        except:
+            # fallback to older requests module
+            context = r.json
         email = context['email']
         app.logger.debug("signed in: %s", str(context))
         if context['aud'] != app.config['APP_ID']:
@@ -239,7 +243,11 @@ def user_settings():
             url = OPENWEATHERMAP_URL % (site_location['lat'], site_location['lng'], app.config['OPENWEATHERMAP_KEY'])
             r = requests.get(url)
             has_weather = False
-            context = r.json()
+            try:
+                context = r.json()
+            except:
+                # fallback to older requests module
+                context = r.json
             if 'main' in context:
                 has_weather = True
                 if 'humidity' in context['main']:

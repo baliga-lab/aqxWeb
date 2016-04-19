@@ -130,13 +130,13 @@ var chlorineRows = {{cl_rows|tojson}};
 var hardnessRows = {{hard_rows|tojson}};
 var alkalinityRows = {{alk_rows|tojson}};
 
-aqx.drawChart('temp-chart', 'Temperature', aqx.makeTimeSeriesData(['Temperature'], tempRows));
+aqx.drawChart('temp-chart', 'Temperature (C)', aqx.makeTimeSeriesData(['Temperature'], tempRows));
 aqx.drawChart('ph-chart', 'pH', aqx.makeTimeSeriesData(['pH'], phRows));
-aqx.drawChart('o2-chart', 'O2', aqx.makeTimeSeriesData(['O2'], o2Rows));
-aqx.drawChart('ammonium-chart', 'Ammonium & Nitrate', aqx.makeTimeSeriesData(['Ammonium', 'Nitrate'], ammoniumRows));
-aqx.drawChart('nitrite-chart', 'Nitrite', aqx.makeTimeSeriesData(['Nitrite'], nitriteRows));
-aqx.drawChart('light-chart', 'Light', aqx.makeTimeSeriesData(['Light'], lightRows));
-aqx.drawChart('chlorine-chart', 'Chlorine', aqx.makeTimeSeriesData(['Chlorine'], chlorineRows));
+aqx.drawChart('o2-chart', 'O2 (mg/l)', aqx.makeTimeSeriesData(['O2'], o2Rows));
+aqx.drawChart('ammonium-chart', 'Ammonium & Nitrate (mg/l)', aqx.makeTimeSeriesData(['Ammonium', 'Nitrate'], ammoniumRows));
+aqx.drawChart('nitrite-chart', 'Nitrite (mg/l)', aqx.makeTimeSeriesData(['Nitrite'], nitriteRows));
+aqx.drawChart('light-chart', 'Light (lux)', aqx.makeTimeSeriesData(['Light'], lightRows));
+aqx.drawChart('chlorine-chart', 'Chlorine (mg/l)', aqx.makeTimeSeriesData(['Chlorine'], chlorineRows));
 aqx.drawChart('hardness-chart', 'Hardness', aqx.makeTimeSeriesData(['Hardness'], hardnessRows));
 aqx.drawChart('alkalinity-chart', 'Alkalinity', aqx.makeTimeSeriesData(['Alkalinity'], alkalinityRows));
 

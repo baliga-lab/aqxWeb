@@ -279,7 +279,7 @@ def get_catalog_value(cursor, name, pk):
     if name in CATALOGS and pk is not None:
         query = "select name from %s" % name
         query += " where id=%s"
-        cursor.execute(query, pk)
+        cursor.execute(query, [pk])
         row = cursor.fetchone()
         if row is not None:
             return row[0]

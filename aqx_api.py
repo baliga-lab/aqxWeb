@@ -23,7 +23,11 @@ def dbconn():
 def google_user_info(bearer_token):
     resp = requests.get(current_app.config['USERINFO_URL'],
                         headers={'Authorization': 'Bearer %s' % bearer_token})
-    return resp.json()
+    try:
+        return resp.json()
+    except:
+        # fallback to older requests module
+        return resp.json
 
 
 def authorize(func):

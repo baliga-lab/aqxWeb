@@ -56,7 +56,7 @@ def get_latest_measurement(cursor, sys_uid, attr):
 
 
 def systems_and_latest_measurements(cursor, user_id):
-    cursor.execute('select s.id,s.name,system_uid from systems s join users u on s.user_id=u.id where google_id=%s and s.status=0',
+    cursor.execute('select s.id,s.name,system_uid from systems s join users u on s.user_id=u.id where google_id=%s and s.status != 400',
                    [user_id])
     systems = [{'pk': pk, 'name': name, 'sys_uid': sys_id}
                for pk, name, sys_id in cursor.fetchall()]
@@ -77,7 +77,7 @@ def systems_and_latest_measurements(cursor, user_id):
 
 def user_systems(cursor, google_id):
     """Returns all active systems currently owned by the specified user"""
-    cursor.execute('select s.system_uid,s.name from systems s join users u on s.user_id=u.id where google_id=%s and s.status=0', [google_id])
+    cursor.execute('select s.system_uid,s.name from systems s join users u on s.user_id=u.id where google_id=%s and s.status != 400', [google_id])
     return [{'uid': uid, 'name': name} for uid, name in cursor.fetchall()]
 
 
@@ -203,7 +203,7 @@ def update_system_details(cursor, system_uid, data):
             _update_system_crops(cursor, system_pk, dict(zip(data['crop_id'], data['num_crops'])))
 
 def delete_system(cursor, system_uid):
-    cursor.execute('update systems set status=1 where system_uid=%s', [system_uid])
+    cursor.execute('update systems set status=400 where system_uid=%s', [system_uid])
 
 
 def get_system_aqx_organism(cursor, sys_uid):
